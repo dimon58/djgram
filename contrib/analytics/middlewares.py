@@ -19,7 +19,7 @@ UPDATES_TABLE = "update"
 
 
 def get_update_dict_for_clickhouse(update: Update, execution_time: float):
-    data = update.dict()
+    data = update.model_dump()
     data["date"] = datetime.now(tz=UTC)
     data["execution_time"] = execution_time
     data["event_type"] = update.event_type  # property
@@ -28,7 +28,7 @@ def get_update_dict_for_clickhouse(update: Update, execution_time: float):
         data["content_type"] = update.event.content_type
 
     # Убираем лишние поля, которые могут появиться во время обработки update'а
-    possible_fields = {"date", "execution_time", "event_type", "content_type"} | set(Update.__fields__.keys())
+    possible_fields = {"date", "execution_time", "event_type", "content_type"} | set(Update.model_fields.keys())
     for key in data:
         if key not in possible_fields:
             data.pop(key)

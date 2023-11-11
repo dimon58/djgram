@@ -48,7 +48,7 @@ def get_fields_of_model(model_class: BaseModel):
 
 async def get_or_create(
     session: AsyncSession,
-    model: BaseModel,
+    model: type[BaseModel],
     defaults: dict[str, Any] | None = None,
     **kwargs,
 ) -> tuple[BaseModel, bool]:
@@ -64,7 +64,6 @@ async def get_or_create(
         return instance[0], False
 
     kwargs |= defaults or {}
-    # noinspection PyCallingNonCallable
     instance = model(**kwargs)
 
     try:
@@ -75,7 +74,7 @@ async def get_or_create(
     # https://docs.sqlalchemy.org/en/latest/orm/session_transaction.html
     except IntegrityError:
         await session.rollback()
-        instance = session.query(model).filter_by(**kwargs).one()
+        instance = (await session.execute(stmt)).one()[0]
         return instance, False
 
     return instance, True
