@@ -1,0 +1,28 @@
+import logging
+from collections.abc import Awaitable, Callable
+from typing import Any
+
+from aiogram import BaseMiddleware
+from aiogram.types import Update
+
+from djgram.db import async_session_maker
+
+logger = logging.getLogger(__name__)
+
+
+class DbSessionMiddleware(BaseMiddleware):
+    """
+    Добавляет сессию к базе данных в аргумент db_session
+
+    https://docs.aiogram.dev/en/dev-3.x/dispatcher/middlewares.html#arguments-specification
+    """
+
+    async def __call__(
+        self,
+        handler: Callable[[Update, dict[str, Any]], Awaitable[Any]],
+        update: Update,
+        data: dict[str, Any],
+    ) -> Any:
+        async with async_session_maker() as db_session, db_session.begin():
+            data["db_session"] = db_session
+            return await handler(update, data)
