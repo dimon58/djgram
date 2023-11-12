@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, func, MetaData
+from sqlalchemy import Column, MetaData, func
 from sqlalchemy.orm import Mapped, declarative_base, declared_attr
 from sqlalchemy.sql import sqltypes
 
