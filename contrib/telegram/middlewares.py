@@ -2,7 +2,6 @@
 Посредники для сохранения пользователей в базу
 """
 import logging
-from abc import ABC
 from collections.abc import Awaitable, Callable
 from typing import Any
 
@@ -22,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 # pylint: disable=too-few-public-methods
-class TelegramMiddleware(BaseMiddleware, ABC):
+class TelegramMiddleware(BaseMiddleware):
     """
     Посредник для сохранения пользователя и чата telegram в базу данных
     в аргументы telegram_user и telegram_chat соответственно
