@@ -58,10 +58,10 @@ async def get_or_create(
     https://stackoverflow.com/questions/2546207/does-sqlalchemy-have-an-equivalent-of-djangos-get-or-create
     """
     stmt = select(model).filter_by(**kwargs)
-    instance: BaseModel | None = (await session.execute(stmt)).one_or_none()
+    instance: BaseModel | None = await session.scalar(stmt)
 
     if instance is not None:
-        return instance[0], False
+        return instance, False
 
     kwargs |= defaults or {}
     instance = model(**kwargs)
@@ -74,7 +74,7 @@ async def get_or_create(
     # https://docs.sqlalchemy.org/en/latest/orm/session_transaction.html
     except IntegrityError:
         await session.rollback()
-        instance = (await session.execute(stmt)).one()[0]
+        instance = await session.scalar(stmt)
         return instance, False
 
     return instance, True
@@ -82,10 +82,10 @@ async def get_or_create(
 
 async def insert_or_update(
     session: AsyncSession,
-    model: BaseModel,
+    model: type[BaseModel],
     keys: dict[str, Any],
     other_attr: dict[str, Any],
-) -> tuple[Any, ReturnState]:
+) -> tuple[BaseModel, ReturnState]:
     """
     Создаёт объект, если его не было, обновляет, если требуется, иначе возвращает запись из бд
 
@@ -101,7 +101,7 @@ async def insert_or_update(
         tuple[Any, ReturnState]: кортеж из элемента модели и состояния (не изменён, создан или обновлен)
     """
     stmt = select(model).with_for_update(read=True).filter_by(**keys)
-    instance = (await session.execute(stmt)).one_or_none()
+    instance = await session.scalar(stmt)
 
     # Объект в базе не найден => создаём новый
     if instance is None:
@@ -114,9 +114,8 @@ async def insert_or_update(
             )
             .returning(model)
         )
-        return (await session.execute(stmt)).one()[0], ReturnState.CREATED
+        return await session.scalar(stmt), ReturnState.CREATED
 
-    instance = instance[0]
     # Проверяем поля на обновление
     for_update = {}
     for field, value in other_attr.items():
@@ -129,4 +128,4 @@ async def insert_or_update(
 
     # Иначе обновляем
     stmt = update(model).filter_by(**keys).values(**for_update).returning(model)
-    return (await session.execute(stmt)).one()[0], ReturnState.UPDATED
+    return await session.scalar(stmt), ReturnState.UPDATED
