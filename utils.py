@@ -22,7 +22,7 @@ def resolve_pyobj(str_path: str) -> any:
         raise ValueError('You should specify object importing from module. For example "module.AnyName"')
 
     path = str_path[:idx]
-    name = str_path[idx + 1:]
+    name = str_path[idx + 1 :]
 
     module = importlib.import_module(path)
 

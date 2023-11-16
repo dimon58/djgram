@@ -20,7 +20,7 @@ class BaseEmptyModel(Base):
     # pylint: disable=no-self-argument
     # noinspection PyMethodParameters,SpellCheckingInspection
     @declared_attr
-    def __tablename__(cls):  # noqa: N805
+    def __tablename__(cls) -> str:  # noqa: N805
         return cls.__name__.lower()
 
 
