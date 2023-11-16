@@ -1,4 +1,5 @@
 import datetime
+import importlib
 
 
 def utcnow() -> datetime.datetime:
@@ -14,10 +15,15 @@ def resolve_pyobj(str_path: str) -> any:
 
     Например, по пути "aiogram.type.Message" вернётся класс Message из модуля aiogram.type
     """
-    *path, name = str_path.split(".")
-    if len(path) == 0:
-        raise ValueError("Incorrect path: %s", str_path)
 
-    module = __import__(".".join(path))
+    idx = str_path.rfind(".")
+
+    if idx == "-1":
+        raise ValueError('You should specify object importing from module. For example "module.AnyName"')
+
+    path = str_path[:idx]
+    name = str_path[idx + 1:]
+
+    module = importlib.import_module(path)
 
     return getattr(module, name)

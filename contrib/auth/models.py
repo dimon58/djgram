@@ -1,42 +1,10 @@
-"""
-Модели для базы данных
-"""
-from datetime import datetime
+from .user_model_base import AbstractUser
 
-from sqlalchemy import Boolean, Column, ForeignKey, func
-from sqlalchemy.orm import Mapped, relationship
-from sqlalchemy.sql import sqltypes
+try:
+    from user_model import USER_MODEL
 
-from djgram.contrib.telegram.models import TelegramUser
-from djgram.db.models import TimeTrackableBaseModel
+    User: type[AbstractUser] = USER_MODEL
+except ImportError:
 
-
-# pylint: disable=too-few-public-methods
-class User(TimeTrackableBaseModel):
-    """
-    Модель пользователя
-    """
-
-    is_admin: Mapped[bool] = Column(
-        Boolean,
-        default=False,
-        nullable=False,
-        doc="Является ли пользователь администратором",
-    )
-    telegram_user_id: Mapped[int] = Column(
-        ForeignKey(TelegramUser.id, ondelete="SET NULL"),
-        nullable=True,
-        doc="id пользователя в telegram. Он же id чата с ним.",
-    )
-    telegram_user: Mapped[TelegramUser] = relationship(TelegramUser)
-
-    first_seen: Mapped[datetime] = Column(
-        sqltypes.DateTime(timezone=True),
-        nullable=False,
-        server_default=func.now(),  # pylint: disable=not-callable
-    )
-    last_interaction = Column(
-        sqltypes.DateTime(timezone=True),
-        nullable=False,
-        server_default=func.now(),  # pylint: disable=not-callable
-    )
+    class User(AbstractUser):
+        ...

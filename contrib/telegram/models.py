@@ -10,6 +10,11 @@ from sqlalchemy.sql import expression, sqltypes
 
 from djgram.db.models import TimeTrackableBaseModel
 
+try:
+    from configs import DB_SUPPORTS_ARRAYS
+except ImportError:
+    DB_SUPPORTS_ARRAYS = True
+
 
 # pylint: disable=too-few-public-methods
 class TelegramUser(TimeTrackableBaseModel):
@@ -333,12 +338,13 @@ class TelegramChat(TimeTrackableBaseModel):
         nullable=True,
         doc="Optional. Chat photo. Returned only in getChat.",
     )
-    active_usernames: Mapped[str] = Column(
-        sqltypes.ARRAY(sqltypes.String),
-        nullable=True,
-        doc="Optional. If non-empty, the list of all active chat usernames; "
-        "for private chats, supergroups and channels. Returned only in getChat.",
-    )
+    if DB_SUPPORTS_ARRAYS:
+        active_usernames: Mapped[str] = Column(
+            sqltypes.ARRAY(sqltypes.String),
+            nullable=True,
+            doc="Optional. If non-empty, the list of all active chat usernames; "
+            "for private chats, supergroups and channels. Returned only in getChat.",
+        )
     emoji_status_custom_emoji_id: Mapped[str] = Column(
         sqltypes.String,
         nullable=True,
