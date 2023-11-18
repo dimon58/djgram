@@ -115,7 +115,7 @@ async def broadcast(message: Message, db_session: AsyncSession, command: Command
     await message.reply(f"Начинаю рассылку в {count} {get_chat_word(count)}")
 
     logging_message_template = (
-        "Отправлено {} из {}\n" "Средняя скорость отправки {:.1f} сообщений/сек\n" "Осталось около {:.0f} сек"
+        "Отправлено {} из {}\nСредняя скорость отправки {:.1f} сообщений/сек\nОсталось около {:.0f} сек"
     )
     logging_message = None
 
