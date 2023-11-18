@@ -5,3 +5,4 @@
 """
 
 from . import db
+from .setup import setup
