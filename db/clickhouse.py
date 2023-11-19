@@ -1,6 +1,5 @@
-from collections.abc import Sequence
 from contextlib import contextmanager
-from typing import Any
+from typing import Any, Iterable
 
 from clickhouse_driver import Client
 
@@ -26,7 +25,7 @@ def connection():
     yield get_connection()
 
 
-def get_insert_sql(table_name: str, columns: Sequence[str]) -> str:
+def get_insert_sql(table_name: str, columns: Iterable[str]) -> str:
     """
     Создаёт sql для вставки в clickhouse
 
