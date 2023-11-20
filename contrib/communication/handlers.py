@@ -5,7 +5,9 @@ import time
 from aiogram import F, Router
 from aiogram.enums import ContentType
 from aiogram.exceptions import TelegramAPIError, TelegramRetryAfter
-from aiogram.filters import Command, CommandObject, MagicData
+from aiogram.filters import Command, CommandObject, MagicData, StateFilter
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,6 +20,10 @@ router.message.filter(MagicData(F.user.is_admin))
 
 TELEGRAM_BROADCAST_TIMEOUT = 0.05  # limit to 20 messages per second (max = 30)
 TELEGRAM_BROADCAST_LOGGING_PERIOD = 5
+
+
+class BroadcastStatesGroup(StatesGroup):
+    wait_message = State()
 
 
 def get_chat_word(number: int) -> str:
@@ -86,29 +92,10 @@ async def send_message(message: Message, chat_id: int, disable_notification: boo
     return False
 
 
-# pylint: disable=unused-argument
-@router.message(Command("broadcast", "bc"))
-async def broadcast(message: Message, db_session: AsyncSession, command: CommandObject):
+async def broadcast_message(message: Message, db_session: AsyncSession):
     """
-    Отправляет сообщения всем пользователям из базы данных
-
-    Можно написать команду вместе с текстовым сообщением или в описании фото, видео, документа и т.д.
+    Рассылает копию сообщения всем пользователям из базы данных
     """
-
-    # Игнорируем пустое сообщение
-    if command.args is None and message.content_type == ContentType.TEXT:
-        await message.answer("Нельзя разослать пустое сообщение")
-        return
-
-    # Удаляем команду в начале сообщения
-    message.model_config["frozen"] = False
-    if message.text:
-        message.text = command.args
-
-    elif message.caption:
-        message.caption = command.args
-    message.model_config["frozen"] = True
-
     # Считаем, сколько нужно разослать
     count_stmt = select(func.count("*")).select_from(TelegramChat)
     count = await db_session.scalar(count_stmt)
@@ -160,3 +147,36 @@ async def broadcast(message: Message, db_session: AsyncSession, command: Command
         logging_message += f". Всего ошибок {errors} ({errors / count * 100:.1f}%)."
 
     await message.reply(logging_message)
+
+
+# pylint: disable=unused-argument
+@router.message(Command("broadcast", "bc"))
+async def broadcast_start(message: Message, db_session: AsyncSession, command: CommandObject, state: FSMContext):
+    """
+    Отправляет сообщения всем пользователям из базы данных
+
+    Можно написать команду вместе с текстовым сообщением или в описании фото, видео, документа и т.д.
+    """
+
+    # Если отправлена просто команда, то ждём следующее сообщение для рассылки
+    if command.args is None and message.content_type == ContentType.TEXT:
+        await message.answer("Отправьте сообщение, которое нужно разослать всем\n\nОтменить отправку - /cancel")
+        await state.set_state(BroadcastStatesGroup.wait_message)
+        return
+
+    # Удаляем команду в начале сообщения
+    message.model_config["frozen"] = False
+    if message.text:
+        message.text = command.args
+
+    elif message.caption:
+        message.caption = command.args
+    message.model_config["frozen"] = True
+
+    await broadcast_message(message, db_session)
+
+
+@router.message(StateFilter(BroadcastStatesGroup.wait_message))
+async def broadcast(message: Message, db_session: AsyncSession, state: FSMContext):
+    await broadcast_message(message, db_session)
+    await state.clear()
