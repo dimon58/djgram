@@ -4,7 +4,7 @@
 from datetime import datetime
 
 from sqlalchemy import Boolean, Column, ForeignKey, func
-from sqlalchemy.orm import Mapped, relationship, declared_attr
+from sqlalchemy.orm import Mapped, declared_attr, relationship
 from sqlalchemy.sql import sqltypes
 
 from djgram.contrib.telegram.models import TelegramUser

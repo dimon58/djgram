@@ -1,5 +1,6 @@
+from collections.abc import Iterable
 from contextlib import contextmanager
-from typing import Any, Iterable
+from typing import Any
 
 from clickhouse_driver import Client
 

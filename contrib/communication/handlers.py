@@ -2,12 +2,12 @@ import asyncio
 import logging
 import time
 
-from aiogram import Router, F
+from aiogram import F, Router
 from aiogram.enums import ContentType
 from aiogram.exceptions import TelegramAPIError, TelegramRetryAfter
-from aiogram.filters import Command, MagicData, CommandObject
+from aiogram.filters import Command, CommandObject, MagicData
 from aiogram.types import Message
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from djgram.contrib.telegram.models import TelegramChat
