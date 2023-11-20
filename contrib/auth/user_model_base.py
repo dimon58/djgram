@@ -27,7 +27,7 @@ class AbstractUser(TimeTrackableBaseModel):
     )
     telegram_user_id: Mapped[int] = Column(
         ForeignKey(TelegramUser.id, ondelete="SET NULL"),
-        nullable=True,
+        nullable=False,
         doc="id пользователя в telegram. Он же id чата с ним.",
     )
 

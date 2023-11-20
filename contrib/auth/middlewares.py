@@ -38,6 +38,7 @@ class AuthMiddleware(BaseMiddleware, ABC):
         )
 
         if user_created:
+            await db_session.flush()
             logger.info(f"New user [{user.id}]")
 
         user.last_interaction = datetime.now(tz=UTC)

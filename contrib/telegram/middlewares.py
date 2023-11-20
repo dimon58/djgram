@@ -53,6 +53,7 @@ class TelegramMiddleware(BaseMiddleware):
         )
 
         if telegram_user_state == ReturnState.CREATED:
+            await db_session.flush()
             logger.info(f"New Telegram user [{telegram_user.id}] {user.full_name}")
 
         return telegram_user
@@ -69,6 +70,7 @@ class TelegramMiddleware(BaseMiddleware):
         )
 
         if telegram_chat_state == ReturnState.CREATED:
+            await db_session.flush()
             logger.info(f"New Telegram chat [{chat.id}]")
 
         return telegram_chat
