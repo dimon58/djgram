@@ -1,6 +1,5 @@
 aiogram==3.1.1
 aiogram-dialog[tools]==2.0.0
-alembic==1.12.1
 clickhouse-driver[lz4,zstd]==0.2.6
 clickhouse-cityhash==1.0.2.4
 orjson==3.9.10
