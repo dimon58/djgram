@@ -23,6 +23,13 @@ class DbSessionMiddleware(BaseMiddleware):
         update: Update,
         data: dict[str, Any],
     ) -> Any:
-        async with async_session_maker() as db_session, db_session.begin():
+        async with async_session_maker() as db_session:
+            db_session.begin()
+
             data["db_session"] = db_session
-            return await handler(update, data)
+
+            result = await handler(update, data)
+
+            await db_session.close()
+
+            return result

@@ -41,7 +41,7 @@ class TelegramMiddleware(BaseMiddleware):
     __telegram_user_fields = set(TelegramUser.__table__.columns.keys()) - __base_model_fields
     __telegram_chat_fields = set(TelegramChat.__table__.columns.keys()) - __base_model_fields - CHAT_EXCLUDED_FIELDS
 
-    async def save_telegram_user_to_db(self, user: User, db_session: AsyncSession) -> TelegramUser:
+    async def save_telegram_user_to_db(self, user: User, db_session: AsyncSession) -> tuple[TelegramUser, bool]:
         """
         Сохраняет пользователя в базе
         """
@@ -53,12 +53,11 @@ class TelegramMiddleware(BaseMiddleware):
         )
 
         if telegram_user_state == ReturnState.CREATED:
-            await db_session.flush()
             logger.info(f"New Telegram user [{telegram_user.id}] {user.full_name}")
 
-        return telegram_user
+        return telegram_user, telegram_user_state == ReturnState.CREATED
 
-    async def save_telegram_chat_to_db(self, chat: Chat, db_session: AsyncSession) -> TelegramChat:
+    async def save_telegram_chat_to_db(self, chat: Chat, db_session: AsyncSession) -> tuple[TelegramChat, bool]:
         """
         Сохраняет чат в базе
         """
@@ -70,10 +69,9 @@ class TelegramMiddleware(BaseMiddleware):
         )
 
         if telegram_chat_state == ReturnState.CREATED:
-            await db_session.flush()
             logger.info(f"New Telegram chat [{chat.id}]")
 
-        return telegram_chat
+        return telegram_chat, telegram_chat_state == ReturnState.CREATED
 
     @staticmethod
     def get_user_and_chat(update: Update) -> tuple[User | None, Chat | None]:
@@ -97,14 +95,21 @@ class TelegramMiddleware(BaseMiddleware):
         update: Update,
         data: dict[str, Any],
     ) -> Any:
-        db_session = data.get("db_session")
+        db_session: AsyncSession = data.get("db_session")
         if db_session is None:
             raise ValueError(f"You should install DbSessionMiddleware to use {self.__class__.__name__}")
 
         user, chat = self.get_user_and_chat(update)
+
+        telegram_user_created = telegram_chat_created = False
+
         if user is not None:
-            data["telegram_user"] = await self.save_telegram_user_to_db(user, db_session)
+            data["telegram_user"], telegram_user_created = await self.save_telegram_user_to_db(user, db_session)
         if chat is not None:
-            data["telegram_chat"] = await self.save_telegram_chat_to_db(chat, db_session)
+            data["telegram_chat"], telegram_chat_created = await self.save_telegram_chat_to_db(chat, db_session)
+
+        if telegram_user_created or telegram_chat_created:
+            await db_session.commit()
+            await db_session.begin()
 
         return await handler(update, data)
