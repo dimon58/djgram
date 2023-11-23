@@ -30,6 +30,6 @@ class DbSessionMiddleware(BaseMiddleware):
 
             result = await handler(update, data)
 
-            await db_session.close()
+            await db_session.commit()
 
             return result
