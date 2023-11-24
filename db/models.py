@@ -1,13 +1,17 @@
 import datetime
 
-from sqlalchemy import Column, MetaData, func
+from sqlalchemy import Column, func
 from sqlalchemy.orm import Mapped, declarative_base, declared_attr
 from sqlalchemy.sql import sqltypes
 
-from configs import DB_SCHEMA
 from djgram.utils import utcnow
 
-Base = declarative_base(metadata=MetaData(schema=DB_SCHEMA))
+try:
+    from configs import DB_METADATA
+except ImportError:
+    DB_METADATA = None
+
+Base = declarative_base(metadata=DB_METADATA)
 
 
 class BaseEmptyModel(Base):
