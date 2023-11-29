@@ -2,21 +2,20 @@ import asyncio
 import logging
 import time
 
-from aiogram import F, Router
 from aiogram.enums import ContentType
 from aiogram.exceptions import TelegramAPIError, TelegramRetryAfter
-from aiogram.filters import Command, CommandObject, MagicData, StateFilter
+from aiogram.filters import Command, CommandObject, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from djgram.contrib.admin.filters import make_admin_router
 from djgram.contrib.telegram.models import TelegramChat
 
 logger = logging.getLogger(__name__)
-router = Router()
-router.message.filter(MagicData(F.user.is_admin))
+router = make_admin_router()
 
 TELEGRAM_BROADCAST_TIMEOUT = 0.05  # limit to 20 messages per second (max = 30)
 TELEGRAM_BROADCAST_LOGGING_PERIOD = 5
@@ -78,15 +77,15 @@ async def send_message(message: Message, chat_id: int, disable_notification: boo
         await message.send_copy(chat_id, disable_notification=disable_notification)
 
     except TelegramRetryAfter as e:
-        logger.warning(f"Target [ID:{chat_id}]: Flood limit is exceeded. Sleep {e.retry_after} seconds.")
+        logger.warning(f"[BROADCAST] Target [ID:{chat_id}]: Flood limit is exceeded. Sleep {e.retry_after} seconds.")
         await asyncio.sleep(e.retry_after)
         return await send_message(message, chat_id)  # Recursive call
 
     except TelegramAPIError as exc:
-        logger.exception(f"Target [ID:{chat_id}]: failed", exc_info=exc)
+        logger.exception(f"[BROADCAST] Target [ID:{chat_id}]: failed", exc_info=exc)
 
     else:
-        logger.info(f"Target [ID:{chat_id}]: success")
+        logger.info(f"[BROADCAST] Target [ID:{chat_id}]: success")
         return True
 
     return False
