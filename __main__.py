@@ -19,7 +19,7 @@ def cli():
 
 @cli.command()
 @click.argument("name")
-def startapp(name):
+def startapp(name: str):
     """
     Создаёт новое приложение
     """
@@ -27,11 +27,11 @@ def startapp(name):
     # путь до нового приложения
     app_dir = name
 
-    if os.path.exists(app_dir):
+    if os.path.exists(app_dir):  # noqa: PTH110
         logger.info("Приложение уже существует")
         sys.exit()
     else:
-        os.mkdir(app_dir)
+        os.mkdir(app_dir)  # noqa: PTH102
 
     environment = jinja2.Environment(
         loader=jinja2.FileSystemLoader(APP_TEMPLATE_DIR), keep_trailing_newline=True
@@ -42,8 +42,8 @@ def startapp(name):
     # Копируем и рендерим все файлы
     for dir_, _, files in os.walk(APP_TEMPLATE_DIR):
         for file_name in files:
-            original_file = os.path.join(dir_, file_name)
-            relative_path = os.path.join(os.path.relpath(dir_, APP_TEMPLATE_DIR), file_name)
+            original_file = os.path.join(dir_, file_name)  # noqa: PTH118
+            relative_path = os.path.join(os.path.relpath(dir_, APP_TEMPLATE_DIR), file_name)  # noqa: PTH118
 
             # Jinja2 не понимает обратных слешей, поэтому переименовываем
             if relative_path.startswith(".\\"):
@@ -54,19 +54,19 @@ def startapp(name):
                 template = environment.get_template(relative_path.replace("\\", "/"))
 
                 # Переименовываем все файлы с расширением ".jinja2", удаляя ".jinja2" в конце
-                output_file = Path(os.path.join(app_dir, relative_path[: -len(template_format)]))
+                output_file = Path(os.path.join(app_dir, relative_path[: -len(template_format)]))  # noqa: PTH118
                 output_file.parent.mkdir(exist_ok=True, parents=True)
 
                 with open(output_file, "w", encoding="utf8") as output_file_io:
                     template.stream(app_name=name).dump(output_file_io)
 
             else:
-                output_file = Path(os.path.join(app_dir, relative_path))
+                output_file = Path(os.path.join(app_dir, relative_path))  # noqa: PTH118
                 output_file.parent.mkdir(exist_ok=True, parents=True)
                 shutil.copy(original_file, output_file)
 
     logger.info(f"Создано приложение {name}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()
