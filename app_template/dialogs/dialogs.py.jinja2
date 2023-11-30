@@ -1,0 +1,26 @@
+"""
+Диалоги
+"""
+
+import logging
+
+from aiogram_dialog import Dialog, Window
+from aiogram_dialog.tools import render_transitions
+
+from configs import DIALOG_DIAGRAMS_DIR, ENABLE_DIALOG_DIAGRAMS_GENERATION
+
+logger = logging.getLogger(__name__)
+
+dialog = Dialog(  # todo: rename dialog
+    Window(
+
+    ),
+)
+
+if ENABLE_DIALOG_DIAGRAMS_GENERATION:
+    render_transitions(
+        dialog,
+        title="Dialog",
+        filename=DIALOG_DIAGRAMS_DIR / "dialog",
+    )
+    logger.info("Generated diagram for dialog todo: add dialog name")
