@@ -24,11 +24,11 @@ from configs import (
     DIALOG_DIAGRAMS_DIR,
     ENABLE_DIALOG_DIAGRAMS_GENERATION,
 )
-from utils.database_paginated_scrolling_group import DatabasePaginatedScrollingGroup
 
 from .callbacks import on_app_selected, on_model_selected, on_row_selected, reset_page
 from .getters import get_apps, get_models, get_row_detail, get_rows
 from .states import AdminStates
+from ...dialogs.database_paginated_scrolling_group import DatabasePaginatedScrollingGroup
 
 if TYPE_CHECKING:
     from djgram.contrib.auth.models import User
