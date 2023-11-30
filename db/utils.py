@@ -5,11 +5,10 @@ import logging
 from enum import Enum
 from typing import Any
 
-from sqlalchemy import Column, select, update
+from sqlalchemy import Column, inspect, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import InstrumentedAttribute
 
 from djgram.db.models import BaseModel
 
@@ -35,15 +34,20 @@ def get_fields_of_declarative_meta(model_class: BaseModel):
     """
     Получает множество всех полей абстрактной модели BaseModel.
     Нужно для получения всех полей модели apps.core.models.BaseModel
+
+    Отличается от метода get_fields_of_model тем, что не вызывает ошибку
+
+    sqlalchemy.exc.NoInspectionAvailable:
+    No inspection system is available for object of type <class 'sqlalchemy.orm.decl_api.DeclarativeMeta'>
     """
     return {field for field, value in model_class.__dict__.items() if isinstance(value, Column)}
 
 
-def get_fields_of_model(model_class: BaseModel):
+def get_fields_of_model(model_class: type[BaseModel]):
     """
     Получает множество всех полей модели
     """
-    return {field for field, value in model_class.__dict__.items() if isinstance(value, InstrumentedAttribute)}
+    return {column.name for column in inspect(model_class).c}
 
 
 async def get_or_create(
