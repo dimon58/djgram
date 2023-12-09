@@ -1,4 +1,4 @@
 """
 Приложения с моделями для работы с telegram
 """
-from . import models
+from . import admin, models
