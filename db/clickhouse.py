@@ -4,7 +4,7 @@ from typing import Any
 
 from clickhouse_driver import Client
 
-import configs
+from djgram import configs
 
 
 # todo: по хорошему надо сделать пул соединений

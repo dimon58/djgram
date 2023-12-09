@@ -11,11 +11,10 @@ from typing import Any
 from aiogram import BaseMiddleware
 from aiogram.types import Update
 
+from djgram.configs import ANALYTICS_UPDATES_TABLE
 from djgram.db import clickhouse
 
 logger = logging.getLogger(__name__)
-
-UPDATES_TABLE = "update"
 
 
 def get_update_dict_for_clickhouse(update: Update, execution_time: float):
@@ -46,7 +45,7 @@ async def save_event_to_clickhouse(update: Update, execution_time: float):
     try:
         with clickhouse.connection() as clickhouse_connection:
             # если не установлен orjson, то будет ругаться на невозможность сериализовать datetime внутри message
-            clickhouse.insert_dict(clickhouse_connection, UPDATES_TABLE, data)
+            clickhouse.insert_dict(clickhouse_connection, ANALYTICS_UPDATES_TABLE, data)
     # pylint: disable=broad-exception-caught
     except Exception as exc:
         logger.exception(f"Inserting in clickhouse error: {exc.__class__.__name__}: {exc}")

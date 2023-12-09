@@ -3,6 +3,7 @@
 """
 import logging
 import operator
+import os.path
 from typing import TYPE_CHECKING, Any
 
 from aiogram_dialog import Dialog, DialogManager, Window
@@ -17,7 +18,7 @@ from aiogram_dialog.widgets.kbd import (
 )
 from aiogram_dialog.widgets.text import Const, Format
 
-from configs import (
+from djgram.configs import (
     ADMIN_APPS_PER_PAGE,
     ADMIN_MODELS_PER_PAGE,
     ADMIN_ROWS_PER_PAGE,
@@ -174,6 +175,6 @@ if ENABLE_DIALOG_DIAGRAMS_GENERATION:
     render_transitions(
         admin_dialog,
         title="Admin dialog",
-        filename=DIALOG_DIAGRAMS_DIR / "admin_dialog",
+        filename=os.path.join(DIALOG_DIAGRAMS_DIR, "admin_dialog"),  # noqa: PTH118
     )
     logger.info("Generated diagram for admin dialog")

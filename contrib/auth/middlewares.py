@@ -11,9 +11,9 @@ from aiogram import BaseMiddleware
 from aiogram.types import Update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from djgram.contrib.telegram.models import TelegramUser
 from djgram.db.utils import get_or_create
 
-from ..telegram.models import TelegramUser
 from .models import User
 
 logger = logging.getLogger(__name__)

@@ -8,12 +8,8 @@ from sqlalchemy import Column
 from sqlalchemy.orm import Mapped
 from sqlalchemy.sql import expression, sqltypes
 
+from djgram.configs import DB_SUPPORTS_ARRAYS
 from djgram.db.models import TimeTrackableBaseModel
-
-try:
-    from configs import DB_SUPPORTS_ARRAYS
-except ImportError:
-    DB_SUPPORTS_ARRAYS = True
 
 
 # pylint: disable=too-few-public-methods

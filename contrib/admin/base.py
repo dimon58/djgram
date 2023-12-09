@@ -5,7 +5,7 @@ import logging
 import sys
 from dataclasses import dataclass, field
 
-from configs import ADMIN_ROWS_PER_PAGE
+from djgram.configs import ADMIN_ROWS_PER_PAGE
 
 logger = logging.getLogger(__name__)
 

@@ -1,19 +1,36 @@
-Требует наличие файла `configs.py` в корне проекта
+#### Переопределение настроек
 
-В нем должны быть настройки
+В корне проекта нужно создать файл `configs.py`,
+в котором можно переопределить все настройки из модуля `djgram/configs.py`
+
+
+#### Переопределение пользователя
+
+Для переопределения стандартного пользователя нужно создать файл `user_model.py` в корне проекта,
+в котором должен быть класс наследник `AbstractUser` записанный в переменную `USER_MODEL`.
+
+Можно сделать просто ссылку
 
 ```python
-# ---------- База данных ---------- #
-# https://docs.sqlalchemy.org/en/20/core/engines.html#database-urls
-DB_URL = "sqlite:///db.sqlite3"
-DB_SCHEMA = None
-# https://stackoverflow.com/questions/24956894/sql-alchemy-queuepool-limit-overflow
-DB_ENGINE_POOL_SIZE = 25
+from path.to.user.model import User
 
-# Данные для подключения к ClickHouse
-CLICKHOUSE_HOST = "localhost"
-CLICKHOUSE_PORT = 9000
-CLICKHOUSE_DB = "default"
-CLICKHOUSE_USER = "default"
-CLICKHOUSE_PASSWORD = "password"
+USER_MODEL = User
+```
+
+И в другом месте переопределить модель пользователя
+
+```python
+from sqlalchemy import Column
+from sqlalchemy.orm import Mapped
+from sqlalchemy.sql import sqltypes
+
+from djgram.contrib.auth.user_model_base import AbstractUser
+
+
+class User(AbstractUser):
+    bio: Mapped[str | None] = Column(
+        sqltypes.String,
+        nullable=True,
+        doc="Биография пользователя",
+    )
 ```
