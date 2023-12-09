@@ -1,7 +1,7 @@
 aiogram==3.2.0
 aiogram-dialog[tools]==2.0.0
+asynch[compression]==0.2.3
 click==8.1.7
-clickhouse-driver[lz4,zstd]==0.2.6
 clickhouse-cityhash==1.0.2.4
 orjson==3.9.10
 sqlalchemy==2.0.23

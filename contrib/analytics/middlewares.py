@@ -43,9 +43,9 @@ async def save_event_to_clickhouse(update: Update, execution_time: float):
     data = get_update_dict_for_clickhouse(update, execution_time)
 
     try:
-        with clickhouse.connection() as clickhouse_connection:
-            # если не установлен orjson, то будет ругаться на невозможность сериализовать datetime внутри message
-            clickhouse.insert_dict(clickhouse_connection, ANALYTICS_UPDATES_TABLE, data)
+        async with clickhouse.connection() as clickhouse_connection:
+            await clickhouse.insert_dict(clickhouse_connection, ANALYTICS_UPDATES_TABLE, data)
+
     # pylint: disable=broad-exception-caught
     except Exception as exc:
         logger.exception(f"Inserting in clickhouse error: {exc.__class__.__name__}: {exc}")
