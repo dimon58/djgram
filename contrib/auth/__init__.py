@@ -2,4 +2,4 @@
 Приложение для авторизации
 """
 
-from . import middlewares, models
+from . import admin, middlewares, models

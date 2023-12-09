@@ -8,11 +8,11 @@ from sqlalchemy.orm import Mapped, declared_attr, relationship
 from sqlalchemy.sql import sqltypes
 
 from djgram.contrib.telegram.models import TelegramUser
-from djgram.db.models import TimeTrackableBaseModel
+from djgram.db.models import BaseModel, UpdatedAtMixin
 
 
 # pylint: disable=too-few-public-methods
-class AbstractUser(TimeTrackableBaseModel):
+class AbstractUser(UpdatedAtMixin, BaseModel):
     """
     Модель пользователя
     """
@@ -33,7 +33,7 @@ class AbstractUser(TimeTrackableBaseModel):
 
     @declared_attr
     def telegram_user(self) -> Mapped[TelegramUser]:
-        return relationship(TelegramUser)
+        return relationship(TelegramUser, lazy="selectin")
 
     first_seen: Mapped[datetime] = Column(
         sqltypes.DateTime(timezone=True),

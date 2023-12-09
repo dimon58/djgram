@@ -42,9 +42,9 @@ class BaseModel(BaseEmptyModel):
         return f"<{self.__class__.__name__}(id={self.id!r})>"
 
 
-class TimeTrackableMixin:
+class CreatedAtMixin:
     """
-    Примесь для моделей со временем создания и обновления
+    Примесь для моделей со временем создания
     """
 
     created_at: Mapped[datetime.datetime] = Column(
@@ -52,6 +52,13 @@ class TimeTrackableMixin:
         nullable=False,
         server_default=func.now(),  # pylint: disable=not-callable
     )
+
+
+class UpdatedAtMixin:
+    """
+    Примесь для моделей со временем обновления
+    """
+
     updated_at: Mapped[datetime.datetime] = Column(
         sqltypes.DateTime(timezone=True),
         nullable=False,
@@ -59,6 +66,12 @@ class TimeTrackableMixin:
         server_onupdate=func.now(),
         onupdate=utcnow,
     )
+
+
+class TimeTrackableMixin(CreatedAtMixin, UpdatedAtMixin):
+    """
+    Примесь для моделей со временем создания и обновления
+    """
 
 
 class TimeTrackableBaseModel(TimeTrackableMixin, BaseModel):
