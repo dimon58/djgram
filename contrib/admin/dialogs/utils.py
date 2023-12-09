@@ -1,6 +1,12 @@
 """
 Утилиты для работы администрирования
 """
+import html
+from typing import Any
+
+
+def html_escape(obj: Any) -> str:
+    return html.escape(str(obj))
 
 
 def prepare_rows(rows: list[list[any]]) -> list[str]:

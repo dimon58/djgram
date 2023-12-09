@@ -5,17 +5,16 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 from aiogram_dialog import DialogManager
-from sqlalchemy import func, select
+from sqlalchemy import Column, func, select
 
+from djgram.db.models import BaseModel
 from djgram.db.utils import get_fields_of_model
 
 from ..base import apps_admins
-from .utils import prepare_rows
+from .utils import html_escape, prepare_rows
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
-
-    from djgram.db.models import BaseModel
 
 
 # pylint: disable=unused-argument
@@ -35,11 +34,13 @@ async def get_models(dialog_manager: DialogManager, **kwargs):
     Геттер возможных моделей
     """
 
+    db_session = dialog_manager.middleware_data["db_session"]
+
     app_id = dialog_manager.dialog_data["app_id"]
 
     app_admin = apps_admins[app_id]
 
-    models = [(app_id, app.name) for app_id, app in enumerate(app_admin.admin_models)]
+    models = [(app_id, await app.display_name(db_session)) for app_id, app in enumerate(app_admin.admin_models)]
 
     return {
         "models": models,
@@ -128,6 +129,20 @@ async def get_rows(dialog_manager: DialogManager, **kwargs):
     }
 
 
+def render_row_field(obj: BaseModel, field: str, render_docs: bool) -> str:
+    res = [f"<strong>{field}</strong>"]
+
+    if render_docs:
+        column: Column = getattr(obj.__class__, field)
+        doc = getattr(column, "doc", None)  # У Relationship нет документации
+        if doc is not None:
+            res.append(f"<i>{html_escape(doc)}</i>")
+
+    res.append(f"<pre>{html_escape(getattr(obj, field))}</pre>")
+
+    return "\n".join(res)
+
+
 async def get_row_detail(dialog_manager: DialogManager, **kwargs):
     """
     Геттер для записи в бд
@@ -142,19 +157,13 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs):
     model = model_admin.model
 
     stmt = select(model).where(model.id == row_id)
-    row: BaseModel = (await db_session.execute(stmt)).one()[0]
+    obj = await db_session.scalar(stmt)
 
     text = []
 
-    # Рендерим в виде
-    # field1: value1
-    # field2: value2
-    # field3: value3
-    # field4: value4
-    # field5: value5
-    for field in get_fields_of_model(type(row)):
-        if not field.startswith("_"):
-            text.append(f"<strong>{field}</strong>: {getattr(row, field)}")  # noqa: PERF401
+    for field in get_fields_of_model(type(obj), model_admin.skip_synonyms_origin):
+        # if not field.startswith("_"):
+        text.append(render_row_field(obj, field, model_admin.show_docs))  # noqa: PERF401
 
     text = "\n".join(text)
     return {
@@ -162,5 +171,4 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs):
         "text": text,
         "app_name": app.verbose_name,
         "model_name": model_admin.name,
-        "header": "│".join(model_admin.list_display),
     }

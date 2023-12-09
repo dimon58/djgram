@@ -9,6 +9,7 @@ from sqlalchemy import Column, inspect, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import RelationshipProperty, Synonym
 
 from djgram.db.models import BaseModel
 
@@ -43,11 +44,29 @@ def get_fields_of_declarative_meta(model_class: BaseModel):
     return {field for field, value in model_class.__dict__.items() if isinstance(value, Column)}
 
 
-def get_fields_of_model(model_class: type[BaseModel]):
+def get_fields_of_model(model_class: type[BaseModel], skip_synonyms_origin: bool) -> list[str]:
     """
-    Получает множество всех полей модели
+    Получает список всех полей модели
     """
-    return {column.name for column in inspect(model_class).c}
+    synonym_origins = []
+    fields = []
+
+    for field_name, value in inspect(model_class).attrs.items():
+        # todo: добавить нормальную поддержку внешних ключей
+        # if isinstance(value, Relationship):
+        #     ...
+        if isinstance(value, RelationshipProperty):
+            continue
+
+        if isinstance(value, Synonym):
+            synonym_origins.append(value.name)
+
+        fields.append(field_name)
+
+    if skip_synonyms_origin:
+        fields = list(filter(lambda v: v not in synonym_origins, fields))
+
+    return fields
 
 
 async def get_or_create(
