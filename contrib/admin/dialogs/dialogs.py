@@ -6,6 +6,7 @@ import operator
 import os.path
 from typing import TYPE_CHECKING, Any
 
+from aiogram.enums import ParseMode
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.tools import render_transitions
 from aiogram_dialog.widgets.kbd import (
@@ -166,6 +167,7 @@ admin_dialog = Dialog(
         Row(Back(Const("\u25c0 Назад")), Cancel(Const("\u23f9 Завершить"))),
         getter=get_row_detail,
         state=AdminStates.row_detail,
+        parse_mode=ParseMode.HTML,
     ),
     on_start=on_admin_dialog_start,
     on_close=on_admin_dialog_close,
