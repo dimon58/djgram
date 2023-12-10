@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from aiogram.enums import ParseMode
 from aiogram_dialog import Dialog, DialogManager, Window
+from aiogram_dialog.manager.manager import ManagerImpl
 from aiogram_dialog.tools import render_transitions
 from aiogram_dialog.widgets.kbd import (
     Back,
@@ -26,10 +27,11 @@ from djgram.configs import (
     DIALOG_DIAGRAMS_DIR,
     ENABLE_DIALOG_DIAGRAMS_GENERATION,
 )
-
-from ...dialogs.database_paginated_scrolling_group import (
+from djgram.contrib.dialogs.database_paginated_scrolling_group import (
     DatabasePaginatedScrollingGroup,
 )
+from djgram.contrib.dialogs.utils import delete_last_message_from_dialog_manager
+
 from .callbacks import on_app_selected, on_model_selected, on_row_selected, reset_page
 from .getters import get_apps, get_models, get_row_detail, get_rows
 from .states import AdminStates
@@ -73,13 +75,15 @@ async def on_admin_dialog_start(result: Any, dialog_manager: DialogManager):
 
 
 # pylint: disable=unused-argument
-async def on_admin_dialog_close(result: Any, dialog_manager: DialogManager):
+async def on_admin_dialog_close(result: Any, dialog_manager: ManagerImpl):
     """
     Обработчик закрытия диалога администрирования
 
     Удаляет сообщение администрирования и логирует, что диалог окончен
     """
     __log_admin_dialog_interaction(dialog_manager.middleware_data, "Close")
+
+    await delete_last_message_from_dialog_manager(dialog_manager)
 
 
 admin_dialog = Dialog(
