@@ -3,6 +3,8 @@ aiogram-dialog[tools]>=2.0.0,<3.0.0
 asynch[compression]==0.2.3
 click==8.1.7
 clickhouse-cityhash==1.0.2.4
+Jinja2==3.1.2
+humanfriendly==10.0
 orjson==3.9.10
 sqlalchemy==2.0.23
 uuid6==2023.5.2

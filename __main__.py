@@ -8,6 +8,7 @@ import jinja2
 
 BASE_DIR = Path(__file__).resolve().parent
 APP_TEMPLATE_DIR = BASE_DIR / "app_template" / "app"
+INIT_TEMPLATE_DIR = BASE_DIR / "app_template" / "init"
 
 
 @click.group()
@@ -65,6 +66,36 @@ def startapp(name: str):
                 shutil.copy(original_file, output_file)
 
     click.echo(f"Создано приложение {name}")
+
+
+@cli.command()
+def init():
+    """
+    Инициализация проекта
+    """
+
+    app_dir = os.getcwd()
+
+    # Копируем все файлы
+    for dir_, _, files in os.walk(INIT_TEMPLATE_DIR):
+        for file_name in files:
+            original_file = os.path.join(dir_, file_name)  # noqa: PTH118
+            relative_path = os.path.join(os.path.relpath(dir_, INIT_TEMPLATE_DIR), file_name)  # noqa: PTH118
+
+            output_file = Path(os.path.join(app_dir, relative_path))  # noqa: PTH118
+            output_file.parent.mkdir(exist_ok=True, parents=True)
+            shutil.copy(original_file, output_file)
+
+    # Переименовываем example.env -> .env
+    try:
+        os.rename(
+            os.path.join(app_dir, "example.env"),
+            os.path.join(app_dir, ".env"),
+        )
+    except FileExistsError:
+        click.echo("File .env already exists. Created example.env")
+
+    click.echo(f"djgram initialized")
 
 
 if __name__ == "__main__":

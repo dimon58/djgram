@@ -2,6 +2,7 @@ import logging
 
 from aiogram import Dispatcher
 from aiogram.filters import Command
+from aiogram_dialog import setup_dialogs
 
 from djgram.contrib.admin import router as admin_router
 from djgram.contrib.analytics.middlewares import SaveUpdateToClickHouseMiddleware
@@ -22,8 +23,9 @@ def setup_router(dp: Dispatcher):
     logger.info("djgram routers setup")
 
 
-def setup_middlewares(dp: Dispatcher):
-    dp.update.outer_middleware(SaveUpdateToClickHouseMiddleware())
+def setup_middlewares(dp: Dispatcher, analytics: bool):
+    if analytics:
+        dp.update.outer_middleware(SaveUpdateToClickHouseMiddleware())
     dp.update.outer_middleware(DbSessionMiddleware())
     dp.update.outer_middleware(TelegramMiddleware())
     dp.update.outer_middleware(AuthMiddleware())
@@ -31,8 +33,16 @@ def setup_middlewares(dp: Dispatcher):
     logger.info("djgram middlewares setup")
 
 
-def setup(dp: Dispatcher):
-    setup_middlewares(dp)
+def setup(dp: Dispatcher, analytics=True):
+    """
+    Установка djgram
+
+    Args:
+        dp: диспетчер
+        analytics: включить сохранение аналитики в ClickHouse
+    """
+    setup_middlewares(dp, analytics=analytics)
     setup_router(dp)
+    setup_dialogs(dp)
 
     logger.info("djgram setup")
