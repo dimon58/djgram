@@ -1,15 +1,13 @@
-import logging
 import os
 import shutil
 import sys
 from pathlib import Path
 
 import click
-from pandas.io.formats.style import jinja2
+import jinja2
 
-logger = logging.getLogger("djgram.cli")
 BASE_DIR = Path(__file__).resolve().parent
-APP_TEMPLATE_DIR = BASE_DIR / "app_template"
+APP_TEMPLATE_DIR = BASE_DIR / "app_template" / "app"
 
 
 @click.group()
@@ -28,14 +26,15 @@ def startapp(name: str):
     app_dir = name
 
     if os.path.exists(app_dir):  # noqa: PTH110
-        logger.info("Приложение уже существует")
+        click.echo(f"Приложение {name} уже существует", err=True)
         sys.exit()
     else:
         os.mkdir(app_dir)  # noqa: PTH102
 
-    environment = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(APP_TEMPLATE_DIR), keep_trailing_newline=True
-    )  # nosec
+    environment = jinja2.Environment(  # nosec # noqa: S701
+        loader=jinja2.FileSystemLoader(APP_TEMPLATE_DIR),
+        keep_trailing_newline=True,
+    )
 
     template_format = ".jinja2"
 
@@ -65,7 +64,7 @@ def startapp(name: str):
                 output_file.parent.mkdir(exist_ok=True, parents=True)
                 shutil.copy(original_file, output_file)
 
-    logger.info(f"Создано приложение {name}")
+    click.echo(f"Создано приложение {name}")
 
 
 if __name__ == "__main__":
