@@ -2,10 +2,6 @@
 todo: добавить описание приложения
 """
 
-from djgram.contrib.admin import register_app_admin
-
 from . import models
 from .admin import app
 from .handlers import router
-
-register_app_admin(app)

@@ -30,7 +30,7 @@ def startapp(name: str):
         click.echo(f"Приложение {name} уже существует", err=True)
         sys.exit()
     else:
-        os.mkdir(app_dir)  # noqa: PTH102
+        os.makedirs(app_dir)  # noqa: PTH102
 
     environment = jinja2.Environment(  # nosec # noqa: S701
         loader=jinja2.FileSystemLoader(APP_TEMPLATE_DIR),

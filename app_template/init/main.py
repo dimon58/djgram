@@ -17,10 +17,10 @@ from djgram.db.models import BaseModel  # noqa: F401 нужно для корр�
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
-router = Router()
+main_router = Router()
 
 
-@router.message(Command("start"))
+@main_router.message(Command("start"))
 async def start_handler(message: Message):
     """
     Обработчик команды /start
@@ -29,7 +29,7 @@ async def start_handler(message: Message):
     await message.answer("Стартовое сообщение\n\nВведите команду /help для получения помощи")
 
 
-@router.message(Command("help"))
+@main_router.message(Command("help"))
 async def help_handler(message: Message):
     """
     Обработчик команды /help
@@ -38,11 +38,20 @@ async def help_handler(message: Message):
     await message.answer("Текст с помощью\n\n/help - помощь\n/start - запустить бота")
 
 
+@main_router.message()
+async def echo_handler(message: Message):
+    """
+    Эхо
+    """
+
+    await message.copy_to(message.chat.id)
+
+
 def setup_routers(dp: Dispatcher):
     """
     Установка роутеров
     """
-    dp.include_router(router)
+    dp.include_router(main_router)
 
     logger.info("Routers setup")
 
