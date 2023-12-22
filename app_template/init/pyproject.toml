@@ -1,13 +1,10 @@
 # ==== pytest ====
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "configs.settings.local"
 minversion = "7.4"
-addopts = "--ds=configs.settings.test --reuse-db"
 python_files = [
     "tests.py",
     "test_*.py",
 ]
-filterwarnings = ["ignore::DeprecationWarning", "ignore::django.utils.deprecation.RemovedInDjango51Warning"]
 
 # ==== ruff ====
 [tool.ruff]
@@ -48,11 +45,7 @@ exclude = [".bzr",
     "dist",
     "node_modules",
     "venv",
-    "*/migrations",
-    "__init__.py",
-    "scripts",
-    "manage.py",
-    "configs/settings/*.py"]
+    "__init__.py"]
 
 # Same as Black.
 line-length = 120
@@ -71,7 +64,7 @@ max-complexity = 10
 [tool.black]
 line-length = 120
 target-version = ['py311']
-force-exclude = "venv|migrations|data|configs/settings|requirements.txt|requirements-dev.txt"
+force-exclude = "venv|data|requirements.txt|requirements-dev.txt"
 
 
 # ==== isort ====
@@ -83,12 +76,9 @@ default_section = "THIRDPARTY"
 include_trailing_comma = true
 force_grid_wrap = 0
 use_parentheses = true
-known_first_party = ["confessions_website",
-    "configs",
-    "config",
-]
+known_first_party = []
 skip = ["venv/"]
-skip_glob = ["**/migrations/*.py"]
+skip_glob = []
 
 # ==== pyright ====
 [tool.pyright]
@@ -112,8 +102,6 @@ skips = ["B703", "B308"]
 jobs = 0
 ignore-paths = [
     "venv",
-    "migrations",
-    "docker/superset/pythonpath/superset_config.py",
 ]
 # Разрешение f-string в логировании
 disable = ["logging-fstring-interpolation"]
