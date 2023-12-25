@@ -40,13 +40,19 @@ LOGGING_DATE_FORMAT = "%d-%m-%Y %H:%M:%S"
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
+    "filters": {
+        "update_filter": {
+            "()": "djgram.contrib.logs.context.UpdateIdContextFilter",
+        }
+    },
     "formatters": {
         "default": {
+            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
             "format": LOGGING_FORMAT,
             "datefmt": LOGGING_DATE_FORMAT,
         },
         "colored": {
-            "()": "djgram.utils.logs.ExtendedColoredFormatter",
+            "()": "djgram.contrib.logs.extended_colored_formatter.ExtendedColoredFormatter",
             "format": LOGGING_FORMAT,
             "datefmt": LOGGING_DATE_FORMAT,
             "field_styles": {
@@ -62,10 +68,12 @@ LOGGING_CONFIG = {
         "stream_handler": {
             "class": "logging.StreamHandler",
             "formatter": "colored",
+            "filters": ["update_filter"],
         },
         "file_handler": {
             "class": "logging.FileHandler",
             "formatter": "default",
+            "filters": ["update_filter"],
             "filename": LOG_FILE,
             "encoding": "utf-8",
         },

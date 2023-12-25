@@ -8,6 +8,7 @@ from djgram.contrib.admin import router as admin_router
 from djgram.contrib.analytics.middlewares import SaveUpdateToClickHouseMiddleware
 from djgram.contrib.auth.middlewares import AuthMiddleware
 from djgram.contrib.communication import router as communication_router
+from djgram.contrib.logs.middlewares import TraceMiddleware
 from djgram.contrib.misc.handlers import cancel_handler
 from djgram.contrib.telegram.middlewares import TelegramMiddleware
 from djgram.db.middlewares import DbSessionMiddleware
@@ -24,6 +25,7 @@ def setup_router(dp: Dispatcher):
 
 
 def setup_middlewares(dp: Dispatcher, analytics: bool):
+    dp.update.outer_middleware(TraceMiddleware())
     if analytics:
         dp.update.outer_middleware(SaveUpdateToClickHouseMiddleware())
     dp.update.outer_middleware(DbSessionMiddleware())
