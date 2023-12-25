@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import time
+from datetime import UTC, datetime, timedelta
 
 from aiogram.enums import ContentType
 from aiogram.exceptions import TelegramAPIError, TelegramRetryAfter
@@ -8,11 +9,14 @@ from aiogram.filters import Command, CommandObject, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
-from sqlalchemy import func, select
+from sqlalchemy import Select, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from djgram.configs import ACTIVE_USER_TIMEOUT
 from djgram.contrib.admin.filters import make_admin_router
+from djgram.contrib.auth.models import User
 from djgram.contrib.telegram.models import TelegramChat
+from djgram.utils.translation import get_default_word_builder
 
 logger = logging.getLogger(__name__)
 router = make_admin_router()
@@ -25,45 +29,51 @@ class BroadcastStatesGroup(StatesGroup):
     wait_message = State()
 
 
-def get_chat_word(number: int) -> str:
+get_user_word = get_default_word_builder("пользователям", "пользователю", "пользователям")
+get_kotoriy_bil_activniy_word = get_default_word_builder(
+    "которые были активны", "который был активен", "которые были активны"
+)
+get_day_word = get_default_word_builder("дней", "день", "дня")
+get_week_word = get_default_word_builder("недель", "неделя", "недели")
+
+
+def get_seconds_word(seconds: int) -> str:
     """
-    0 чатов
-    1 чат
-    2 чата
-    3 чата
-    4 чата
-    5 чатов
-    6 чатов
-    7 чатов
-    8 чатов
-    9 чатов
-    10 чатов
-    11 чатов
-    12 чатов
-    13 чатов
-    14 чатов
-    15 чатов
-    16 чатов
-    17 чатов
-    18 чатов
-    19 чатов
-    20 чатов
-    21 чат
-    ...
+    Возвращает человекочитаемое представление числа секунд
+
+    >>> get_seconds_word(0)
+    '0 сек'
+
+    >>> get_seconds_word(123)
+    '2 мин 3 сек'
+
+    >>> get_seconds_word(7320)
+    '2 ч 2 мин'
+
+    >>> get_seconds_word(86400)
+    '1 день'
+
+    >>> get_seconds_word(1209600)
+    '2 недели'
     """
-    number %= 100
-    if 5 <= number <= 20:
-        return "чатов"
+    weeks, remainder = divmod(seconds, 7 * 24 * 3600)
+    days, remainder = divmod(remainder, 24 * 3600)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
 
-    number %= 10
+    result = []
+    if weeks > 0:
+        result.append(f"{weeks} {get_week_word(weeks)}")
+    if days > 0:
+        result.append(f"{days} {get_day_word(days)}")
+    if hours > 0:
+        result.append(f"{hours} ч")
+    if minutes > 0:
+        result.append(f"{minutes} мин")
+    if seconds > 0 or len(result) == 0:
+        result.append(f"{seconds} сек")
 
-    if number == 1:
-        return "чат"
-
-    if 2 <= number <= 4:
-        return "чата"
-
-    return "чатов"
+    return " ".join(result)
 
 
 async def send_message(message: Message, chat_id: int, disable_notification: bool = False):
@@ -91,14 +101,34 @@ async def send_message(message: Message, chat_id: int, disable_notification: boo
     return False
 
 
+def apply_active_date_filter(stmt: Select, min_date: datetime) -> Select:
+    # noinspection PyTypeChecker
+    return stmt.join(User, User.telegram_user_id == TelegramChat.id).where(User.last_interaction >= min_date)
+
+
 async def broadcast_message(message: Message, db_session: AsyncSession):
     """
     Рассылает копию сообщения всем пользователям из базы данных
     """
+
+    last_interaction_min_date = datetime.now(UTC) - timedelta(seconds=ACTIVE_USER_TIMEOUT)
+
     # Считаем, сколько нужно разослать
-    count_stmt = select(func.count("*")).select_from(TelegramChat)
+    count_stmt = apply_active_date_filter(
+        stmt=select(func.count("*")).select_from(TelegramChat),
+        min_date=last_interaction_min_date,
+    )
     count = await db_session.scalar(count_stmt)
-    await message.reply(f"Начинаю рассылку в {count} {get_chat_word(count)}")
+
+    if count == 0:
+        await message.reply("Некому делать рассылку")
+        return
+
+    await message.reply(
+        f"Начинаю рассылку {count} {get_user_word(count)}, "
+        f"{get_kotoriy_bil_activniy_word(count)} не более, "
+        f"чем {get_seconds_word(ACTIVE_USER_TIMEOUT)} назад"
+    )
 
     logging_message_template = (
         "Отправлено {} из {}\nСредняя скорость отправки {:.1f} сообщений/сек\nОсталось около {:.0f} сек"
@@ -106,7 +136,7 @@ async def broadcast_message(message: Message, db_session: AsyncSession):
     logging_message = None
 
     errors = 0
-    chat_id_stmt = select(TelegramChat.id)
+    chat_id_stmt = apply_active_date_filter(select(TelegramChat.id), last_interaction_min_date)
     last_logging_time = start = global_start = time.perf_counter()
     for number, chat_id in enumerate((await db_session.scalars(chat_id_stmt)).yield_per(1000), start=1):
         try:
@@ -138,7 +168,7 @@ async def broadcast_message(message: Message, db_session: AsyncSession):
         start = finish
     global_finish = time.perf_counter()
 
-    logging_message = f"Рассылка в {count} {get_chat_word(count)} завершена за {global_finish - global_start:.1f} сек"
+    logging_message = f"Рассылка {count} {get_user_word(count)} завершена за {global_finish - global_start:.1f} сек"
 
     if errors == 0:
         logging_message += " без ошибок"

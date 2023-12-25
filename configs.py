@@ -23,6 +23,9 @@ DIALOG_DIAGRAMS_DIR = "dialog_diagrams"
 #: Включить генерацию диаграмм диалогов aiogram-dialogs
 ENABLE_DIALOG_DIAGRAMS_GENERATION = True
 
+#: Какое время пользователь считает активным для получения рассылки
+ACTIVE_USER_TIMEOUT = 60 * 60 * 24 * 14
+
 # ---------- Настройки админки ---------- #
 
 #: Максимально количество приложений на странице
