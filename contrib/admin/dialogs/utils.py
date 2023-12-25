@@ -4,6 +4,8 @@
 import html
 from typing import Any
 
+QUERY_KEY = "query"
+
 
 def html_escape(obj: Any) -> str:
     return html.escape(str(obj))

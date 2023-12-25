@@ -16,5 +16,7 @@ class AdminStates(StatesGroup):
     model_list = State()
     #: Список строк
     row_list = State()
+    #: Поиск строки
+    search_row = State()
     #: Детальный просмотр записи
     row_detail = State()

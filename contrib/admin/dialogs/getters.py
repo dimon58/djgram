@@ -8,10 +8,9 @@ from aiogram_dialog import DialogManager
 from sqlalchemy import Column, func, select
 
 from djgram.db.models import BaseModel
-from djgram.db.utils import get_fields_of_model
 
 from ..base import apps_admins
-from .utils import html_escape, prepare_rows
+from .utils import QUERY_KEY, html_escape, prepare_rows
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -61,13 +60,18 @@ async def get_rows(dialog_manager: DialogManager, **kwargs):
 
     page: int = dialog_manager.current_context().widget_data.get("rows", 0)
 
-    stmt = (
-        select(model_admin.model)
-        .order_by(model_admin.model.id.desc())
-        .offset(app.rows_per_page * page)
-        .limit(app.rows_per_page)
-    )
+    stmt = select(model_admin.model)
+    total_stmt = select(func.count("*")).select_from(model_admin.model)
+
+    if QUERY_KEY in dialog_manager.dialog_data:
+        query_filter = model_admin.generate_search_filter(dialog_manager.dialog_data[QUERY_KEY])
+
+        stmt = stmt.where(query_filter)
+        total_stmt = total_stmt.where(query_filter)
+
+    stmt = stmt.order_by(model_admin.model.id.desc()).offset(app.rows_per_page * page).limit(app.rows_per_page)
     rows = (await db_session.scalars(stmt)).all()
+    total = await db_session.scalar(total_stmt)
 
     data = []
 
@@ -104,9 +108,6 @@ async def get_rows(dialog_manager: DialogManager, **kwargs):
 
     rows = list(zip(ids, prepare_rows(rows), strict=True))
 
-    stmt = select(func.count("*")).select_from(model_admin.model)
-    total = await db_session.scalar(stmt)
-
     # Правильные единицы измерения. "Запись" в нужном числе и родительном падеже.
     _total = total % 100
 
@@ -126,6 +127,18 @@ async def get_rows(dialog_manager: DialogManager, **kwargs):
         "header": "│".join(model_admin.list_display),
         "total": total,
         "units": units,
+        "search_enable": len(model_admin.search_fields) > 0,
+    }
+
+
+async def get_search_description(dialog_manager: DialogManager, **kwargs):
+    app = apps_admins[dialog_manager.dialog_data["app_id"]]
+    model_admin = app.admin_models[dialog_manager.dialog_data["model_id"]]
+
+    return {
+        "app_name": app.verbose_name,
+        "model_name": model_admin.name,
+        "description": "Поиск по полям:\n- " + "\n- ".join(model_admin.search_fields),
     }
 
 
@@ -161,7 +174,7 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs):
 
     text = []
 
-    for field in get_fields_of_model(type(obj), model_admin.skip_synonyms_origin):
+    for field in model_admin.get_fields_of_model():
         # if not field.startswith("_"):
         text.append(render_row_field(obj, field, model_admin.show_docs))  # noqa: PERF401
 
