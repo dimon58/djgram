@@ -1,4 +1,5 @@
 import asyncio
+from contextlib import suppress
 from logging.config import fileConfig
 
 from alembic import context
@@ -90,10 +91,8 @@ async def run_async_migrations() -> None:
         if target_metadata.schema is not None:
             await connection.execute(text('set search_path to "%s"' % target_metadata.schema))
             # in SQLAlchemy v2+ the search path change needs to be committed
-            try:
+            with suppress(AttributeError):
                 await connection.commit()
-            except AttributeError:  # SQLAlchemy v1.4
-                ...
             # make use of non-supported SQLAlchemy attribute to ensure
             # the dialect reflects tables in terms of the current tenant name
             connection.dialect.default_schema_name = target_metadata.schema
