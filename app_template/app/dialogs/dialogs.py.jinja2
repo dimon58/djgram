@@ -5,9 +5,10 @@
 import logging
 
 from aiogram_dialog import Dialog, Window
-from aiogram_dialog.tools import render_transitions
 
 from djgram.configs import DIALOG_DIAGRAMS_DIR, ENABLE_DIALOG_DIAGRAMS_GENERATION
+from djgram.utils.diagrams import render_transitions_safe
+
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,7 @@ dialog = Dialog(  # todo: rename dialog
 )
 
 if ENABLE_DIALOG_DIAGRAMS_GENERATION:
-    render_transitions(
+    render_transitions_safe(
         dialog,
         title="Dialog",
         filename=DIALOG_DIAGRAMS_DIR / "dialog",
