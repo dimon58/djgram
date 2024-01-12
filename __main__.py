@@ -30,7 +30,7 @@ def startapp(name: str):
         click.echo(f"\033[31mПриложение {name} уже существует\033[0m", err=True)
         sys.exit()
     else:
-        os.makedirs(app_dir)  # noqa: PTH102
+        os.makedirs(app_dir)
 
     environment = jinja2.Environment(  # nosec # noqa: S701
         loader=jinja2.FileSystemLoader(APP_TEMPLATE_DIR),
@@ -74,7 +74,7 @@ def init():
     Инициализация проекта
     """
 
-    app_dir = os.getcwd()
+    app_dir = os.getcwd()  # noqa: PTH109
 
     # Копируем все файлы
     for dir_, _, files in os.walk(INIT_TEMPLATE_DIR):
@@ -88,9 +88,9 @@ def init():
 
     # Переименовываем example.env -> .env
     try:
-        os.rename(
-            os.path.join(app_dir, "example.env"),
-            os.path.join(app_dir, ".env"),
+        os.rename(  # noqa: PTH104
+            os.path.join(app_dir, "example.env"),  # noqa: PTH118
+            os.path.join(app_dir, ".env"),  # noqa: PTH118
         )
     except FileExistsError:
         click.echo("\033[33mFile .env already exists. Created example.env\033[0m")

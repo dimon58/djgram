@@ -28,15 +28,15 @@ class DatabasePaginatedScrollingGroup(Group):
     """
 
     def __init__(  # noqa: D107
-            self,
-            *buttons: Keyboard,
-            id: str,  # pylint: disable=redefined-builtin
-            width: int | None = None,
-            height: int = 0,
-            when: WhenCondition = None,
-            on_page_changed: (OnStateChanged | WidgetEventProcessor | None) = None,
-            hide_on_single_page: bool = False,
-            total_key="total",
+        self,
+        *buttons: Keyboard,
+        id: str,  # pylint: disable=redefined-builtin
+        width: int | None = None,
+        height: int = 0,
+        when: WhenCondition = None,
+        on_page_changed: (OnStateChanged | WidgetEventProcessor | None) = None,
+        hide_on_single_page: bool = False,
+        total_key="total",
     ):
         super().__init__(*buttons, id=id, width=width, when=when)
         self.height = height
@@ -46,9 +46,9 @@ class DatabasePaginatedScrollingGroup(Group):
 
     # pylint: disable=missing-function-docstring
     async def _render_keyboard(
-            self,
-            data: dict,
-            manager: DialogManager,
+        self,
+        data: dict,
+        manager: DialogManager,
     ) -> list[list[InlineKeyboardButton]]:
         kbd = await super()._render_keyboard(data, manager)
         total = data[self.total_key]
@@ -88,11 +88,11 @@ class DatabasePaginatedScrollingGroup(Group):
 
     # pylint: disable=missing-function-docstring
     async def _process_item_callback(
-            self,
-            callback: CallbackQuery,
-            data: str,
-            dialog: DialogProtocol,
-            manager: DialogManager,
+        self,
+        callback: CallbackQuery,
+        data: str,
+        dialog: DialogProtocol,
+        manager: DialogManager,
     ) -> bool:
         await self.set_page(callback, int(data), manager)
         return True
@@ -103,10 +103,10 @@ class DatabasePaginatedScrollingGroup(Group):
 
     # pylint: disable=missing-function-docstring
     async def set_page(
-            self,
-            event: ChatEvent,
-            page: int,
-            manager: DialogManager,
+        self,
+        event: ChatEvent,
+        page: int,
+        manager: DialogManager,
     ) -> None:
         manager.current_context().widget_data[self.widget_id] = page
         await self.on_page_changed.process_event(
