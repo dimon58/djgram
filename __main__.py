@@ -8,7 +8,11 @@ import jinja2
 
 BASE_DIR = Path(__file__).resolve().parent
 APP_TEMPLATE_DIR = BASE_DIR / "app_template" / "app"
+
 INIT_TEMPLATE_DIR = BASE_DIR / "app_template" / "init"
+INIT_COMMON_TEMPLATE_DIR = INIT_TEMPLATE_DIR / "common"
+INIT_BASE_TEMPLATE_DIR = INIT_TEMPLATE_DIR / "base"
+INIT_FULL_TEMPLATE_DIR = INIT_TEMPLATE_DIR / "full"
 
 
 @click.group()
@@ -68,23 +72,39 @@ def startapp(name: str):
     click.echo(f"\033[32mСоздано приложение {name}\033[0m")
 
 
+def render_folder(init_template_dir, app_dir):
+    for dir_, _, files in os.walk(init_template_dir):
+        for file_name in files:
+            original_file = os.path.join(dir_, file_name)  # noqa: PTH118
+            relative_path = os.path.join(os.path.relpath(dir_, init_template_dir), file_name)  # noqa: PTH118
+
+            output_file = Path(os.path.join(app_dir, relative_path))  # noqa: PTH118
+            output_file.parent.mkdir(exist_ok=True, parents=True)
+            shutil.copy(original_file, output_file)
+
+
 @cli.command()
-def init():
+@click.argument("type", type=click.Choice(["base", "full"], case_sensitive=False), default="base")
+def init(type: str):
     """
     Инициализация проекта
+
+    base - использует базу данных sqlite, хранит состояния в оперативной памяти, нет сбора аналитики
+
+    full - использует базу данных PostgreSql, хранит состояния в redis, есть сбор аналитики, работает через docker
     """
 
     app_dir = os.getcwd()  # noqa: PTH109
 
     # Копируем все файлы
-    for dir_, _, files in os.walk(INIT_TEMPLATE_DIR):
-        for file_name in files:
-            original_file = os.path.join(dir_, file_name)  # noqa: PTH118
-            relative_path = os.path.join(os.path.relpath(dir_, INIT_TEMPLATE_DIR), file_name)  # noqa: PTH118
+    render_folder(INIT_COMMON_TEMPLATE_DIR, app_dir)
 
-            output_file = Path(os.path.join(app_dir, relative_path))  # noqa: PTH118
-            output_file.parent.mkdir(exist_ok=True, parents=True)
-            shutil.copy(original_file, output_file)
+    if type == "base":
+        render_folder(INIT_BASE_TEMPLATE_DIR, app_dir)
+    elif type == "full":
+        render_folder(INIT_FULL_TEMPLATE_DIR, app_dir)
+    else:
+        click.echo("Not supported initialization type", err=True)
 
     # Переименовываем example.env -> .env
     try:

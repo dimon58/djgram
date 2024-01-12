@@ -1,0 +1,7 @@
+.idea
+.git
+.github
+.ruff_cache
+venv
+logs
+dialog_diagrams
