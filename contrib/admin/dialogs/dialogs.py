@@ -10,7 +10,6 @@ from aiogram import F
 from aiogram.enums import ParseMode
 from aiogram_dialog import Dialog, DialogManager, Window
 from aiogram_dialog.manager.manager import ManagerImpl
-from aiogram_dialog.tools import render_transitions
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import (
     Back,
@@ -33,6 +32,7 @@ from djgram.contrib.dialogs.database_paginated_scrolling_group import (
     DatabasePaginatedScrollingGroup,
 )
 from djgram.contrib.dialogs.utils import delete_last_message_from_dialog_manager
+from djgram.utils.diagrams import render_transitions_safe
 
 from .callbacks import (
     on_app_selected,
@@ -210,7 +210,7 @@ admin_dialog = Dialog(
 )
 
 if ENABLE_DIALOG_DIAGRAMS_GENERATION:
-    render_transitions(
+    render_transitions_safe(
         admin_dialog,
         title="Admin dialog",
         filename=os.path.join(DIALOG_DIAGRAMS_DIR, "admin_dialog"),  # noqa: PTH118
