@@ -17,7 +17,7 @@
    alembic upgrade head
    ```
 
-5. Запсукаем бота
+5. Запускаем бота
    ```shell
    python main.py
    ```

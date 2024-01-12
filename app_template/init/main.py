@@ -35,7 +35,9 @@ async def help_handler(message: Message):
     Обработчик команды /help
     """
 
-    await message.answer("Текст с помощью\n\n/help - помощь\n/start - запустить бота")
+    await message.answer(
+        "Тестовый эхо бот. Пока умеет только пересылать вам ваши сообщения.\n\n/help - помощь\n/start - запустить бота"
+    )
 
 
 @main_router.message()

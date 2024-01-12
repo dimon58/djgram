@@ -64,7 +64,7 @@ max-complexity = 10
 [tool.black]
 line-length = 120
 target-version = ['py311']
-force-exclude = "venv|data|requirements.txt|requirements-dev.txt"
+force-exclude = "venv|requirements.txt|requirements-dev.txt"
 
 
 # ==== isort ====

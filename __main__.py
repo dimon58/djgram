@@ -27,7 +27,7 @@ def startapp(name: str):
     app_dir = name
 
     if os.path.exists(app_dir):  # noqa: PTH110
-        click.echo(f"Приложение {name} уже существует", err=True)
+        click.echo(f"\033[31mПриложение {name} уже существует\033[0m", err=True)
         sys.exit()
     else:
         os.makedirs(app_dir)  # noqa: PTH102
@@ -65,7 +65,7 @@ def startapp(name: str):
                 output_file.parent.mkdir(exist_ok=True, parents=True)
                 shutil.copy(original_file, output_file)
 
-    click.echo(f"Создано приложение {name}")
+    click.echo(f"\033[32mСоздано приложение {name}\033[0m")
 
 
 @cli.command()
@@ -93,9 +93,10 @@ def init():
             os.path.join(app_dir, ".env"),
         )
     except FileExistsError:
-        click.echo("File .env already exists. Created example.env")
+        click.echo("\033[33mFile .env already exists. Created example.env\033[0m")
 
-    click.echo(f"djgram initialized")
+    click.echo("\033[32mdjgram initialized\033[0m")
+    click.echo("\033[35mRead generated readme.md file for further information\033[0m")
 
 
 if __name__ == "__main__":
