@@ -9,22 +9,21 @@ BASE_DIR = Path(__file__).resolve().parent
 env = dotenv_values(BASE_DIR / ".env")
 
 #: Включить режим отладки
-DEBUG = bool(int(env.get("DEBUG", "1")))
+DEBUG = bool(int(env.get("DEBUG", "1")))  # pyright: ignore [reportGeneralTypeIssues]
 
 # --------------------------------- api токены --------------------------------- #
 
 #: Токен телеграм бота
-TELEGRAM_BOT_TOKEN: str = env.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_BOT_TOKEN: str = env.get("TELEGRAM_BOT_TOKEN", "")  # pyright: ignore [reportGeneralTypeIssues]
 
 # ---------- База данных ---------- #
 
 # Данные для подключения к PostgreSQL
-POSTGRES_HOST = env.get("POSTGRES_HOST", "localhost")
-POSTGRES_PORT = env.get("POSTGRES_PORT", "5432")
-POSTGRES_DB = env.get("POSTGRES_DB", "local")
-POSTGRES_SCHEMA = env.get("POSTGRES_SCHEMA", "public")
-POSTGRES_USER = env.get("POSTGRES_USER", "admin")
-POSTGRES_PASSWORD = env.get("POSTGRES_PASSWORD", "admin")
+POSTGRES_HOST: str = env.get("POSTGRES_HOST", "localhost")  # pyright: ignore [reportGeneralTypeIssues]
+POSTGRES_PORT: int = int(env.get("POSTGRES_PORT", "5432"))  # pyright: ignore [reportGeneralTypeIssues]
+POSTGRES_DB: str = env.get("POSTGRES_DB", "local")  # pyright: ignore [reportGeneralTypeIssues]
+POSTGRES_USER: str = env.get("POSTGRES_USER", "admin")  # pyright: ignore [reportGeneralTypeIssues]
+POSTGRES_PASSWORD: str = env.get("POSTGRES_PASSWORD", "admin")  # pyright: ignore [reportGeneralTypeIssues]
 
 # https://docs.sqlalchemy.org/en/20/core/engines.html#database-urls
 DB_URL = "postgresql+asyncpg://{user}:{password}@{host}:{port}/{dbname}".format(  # noqa: UP032
@@ -42,19 +41,19 @@ DB_ENGINE_SETTINGS = {
 DB_SUPPORTS_ARRAYS = True
 
 # Данные для подключения к ClickHouse
-CLICKHOUSE_HOST = env.get("CLICKHOUSE_HOST", "localhost")
-CLICKHOUSE_PORT = env.get("CLICKHOUSE_PORT", 9000)
-CLICKHOUSE_DB = env.get("CLICKHOUSE_DB", "default")
-CLICKHOUSE_USER = env.get("CLICKHOUSE_USER", "default")
-CLICKHOUSE_PASSWORD = env.get("CLICKHOUSE_PASSWORD", "password")
+CLICKHOUSE_HOST: str = env.get("CLICKHOUSE_HOST", "localhost")  # pyright: ignore [reportGeneralTypeIssues]
+CLICKHOUSE_PORT: int = int(env.get("CLICKHOUSE_PORT", 9000))  # pyright: ignore [reportGeneralTypeIssues]
+CLICKHOUSE_DB: str = env.get("CLICKHOUSE_DB", "default")  # pyright: ignore [reportGeneralTypeIssues]
+CLICKHOUSE_USER: str = env.get("CLICKHOUSE_USER", "default")  # pyright: ignore [reportGeneralTypeIssues]
+CLICKHOUSE_PASSWORD: str = env.get("CLICKHOUSE_PASSWORD", "password")  # pyright: ignore [reportGeneralTypeIssues]
 
 #: Redis host
-REDIS_HOST = env.get("REDIS_HOST", "localhost")
+REDIS_HOST: str = env.get("REDIS_HOST", "localhost")  # pyright: ignore [reportGeneralTypeIssues]
 #: Redis port
-REDIS_PORT = int(env.get("REDIS_PORT", 6379))
+REDIS_PORT: int = int(env.get("REDIS_PORT", 6379))  # pyright: ignore [reportGeneralTypeIssues]
 
 #: Номер базы данных для хранилища машины конченых состояний
-REDIS_STORAGE_DB = int(env.get("REDIS_STORAGE_DB", 0))
+REDIS_STORAGE_DB: int = int(env.get("REDIS_STORAGE_DB", 0))  # pyright: ignore [reportGeneralTypeIssues]
 
 # ---------- Логирование ---------- #
 

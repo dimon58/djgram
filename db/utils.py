@@ -3,7 +3,7 @@
 """
 import logging
 from enum import Enum
-from typing import Any
+from typing import Any, TypeVar, cast
 
 from sqlalchemy import Column, inspect, select, update
 from sqlalchemy.dialects.postgresql import insert
@@ -13,6 +13,7 @@ from sqlalchemy.orm import RelationshipProperty, Synonym
 
 from djgram.db.models import BaseModel
 
+T = TypeVar("T", bound=BaseModel)
 logger = logging.getLogger(__name__)
 
 
@@ -31,7 +32,7 @@ class ReturnState(Enum):
     UPDATED = 2
 
 
-def get_fields_of_declarative_meta(model_class: BaseModel):
+def get_fields_of_declarative_meta(model_class: type[BaseModel]):
     """
     Получает множество всех полей абстрактной модели BaseModel.
     Нужно для получения всех полей модели apps.core.models.BaseModel
@@ -71,17 +72,17 @@ def get_fields_of_model(model_class: type[BaseModel], skip_synonyms_origin: bool
 
 async def get_or_create(
     session: AsyncSession,
-    model: type[BaseModel],
+    model: type[T],
     defaults: dict[str, Any] | None = None,
     **kwargs,
-) -> tuple[BaseModel, bool]:
+) -> tuple[T, bool]:
     """
     Аналог get_or_create в django
 
     https://stackoverflow.com/questions/2546207/does-sqlalchemy-have-an-equivalent-of-djangos-get-or-create
     """
     stmt = select(model).filter_by(**kwargs)
-    instance: BaseModel | None = await session.scalar(stmt)
+    instance: T | None = await session.scalar(stmt)
 
     if instance is not None:
         return instance, False
@@ -98,17 +99,17 @@ async def get_or_create(
     except IntegrityError:
         await session.rollback()
         instance = await session.scalar(stmt)
-        return instance, False
+        return cast(T, instance), False
 
     return instance, True
 
 
 async def insert_or_update(
     session: AsyncSession,
-    model: type[BaseModel],
+    model: type[T],
     keys: dict[str, Any],
     other_attr: dict[str, Any],
-) -> tuple[BaseModel, ReturnState]:
+) -> tuple[T, ReturnState]:
     """
     Создаёт объект, если его не было, обновляет, если требуется, иначе возвращает запись из бд
 
@@ -137,7 +138,7 @@ async def insert_or_update(
             )
             .returning(model)
         )
-        return await session.scalar(stmt), ReturnState.CREATED
+        return cast(T, await session.scalar(stmt)), ReturnState.CREATED
 
     # Проверяем поля на обновление
     for_update = {}
@@ -151,4 +152,4 @@ async def insert_or_update(
 
     # Иначе обновляем
     stmt = update(model).filter_by(**keys).values(**for_update).returning(model)
-    return await session.scalar(stmt), ReturnState.UPDATED
+    return cast(T, await session.scalar(stmt)), ReturnState.UPDATED

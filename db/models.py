@@ -1,37 +1,25 @@
 import datetime
 
-from sqlalchemy import Column, func
-from sqlalchemy.orm import Mapped, declarative_base, declared_attr
+from sqlalchemy import MetaData, func
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 from sqlalchemy.sql import sqltypes
 
 from djgram.configs import DB_METADATA
 from djgram.utils import utcnow
 
-Base = declarative_base(metadata=DB_METADATA)
+
+class Base(DeclarativeBase):
+    metadata = DB_METADATA or MetaData()
 
 
-class BaseEmptyModel(Base):
-    """
-    Абстрактная базовая модель
-    """
-
-    __abstract__ = True
-
-    # pylint: disable=no-self-argument
-    # noinspection PyMethodParameters,SpellCheckingInspection
-    @declared_attr
-    def __tablename__(cls) -> str:  # noqa: N805
-        return cls.__name__.lower()
-
-
-class BaseModel(BaseEmptyModel):
+class BaseModel(Base):
     """
     Абстрактная базовая модель с id
     """
 
     __abstract__ = True
 
-    id: Mapped[int] = Column(
+    id: Mapped[int] = mapped_column(
         sqltypes.Integer,
         nullable=False,
         primary_key=True,
@@ -41,13 +29,19 @@ class BaseModel(BaseEmptyModel):
     def __repr__(self):
         return f"<{self.__class__.__name__}(id={self.id!r})>"
 
+    # pylint: disable=no-self-argument
+    # noinspection PyMethodParameters,SpellCheckingInspection
+    @declared_attr.directive
+    def __tablename__(cls) -> str:  # noqa: N805
+        return cls.__name__.lower()
+
 
 class CreatedAtMixin:
     """
     Примесь для моделей со временем создания
     """
 
-    created_at: Mapped[datetime.datetime] = Column(
+    created_at: Mapped[datetime.datetime] = mapped_column(
         sqltypes.DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),  # pylint: disable=not-callable
@@ -59,11 +53,10 @@ class UpdatedAtMixin:
     Примесь для моделей со временем обновления
     """
 
-    updated_at: Mapped[datetime.datetime] = Column(
+    updated_at: Mapped[datetime.datetime] = mapped_column(
         sqltypes.DateTime(timezone=True),
         nullable=False,
-        server_default=func.now(),  # pylint: disable=not-callable
-        server_onupdate=func.now(),
+        server_default=func.now(),
         onupdate=utcnow,
     )
 

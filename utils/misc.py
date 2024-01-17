@@ -5,6 +5,7 @@ import time
 from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
+from typing import Any
 
 
 def utcnow() -> datetime.datetime:
@@ -14,7 +15,7 @@ def utcnow() -> datetime.datetime:
     return datetime.datetime.now(tz=datetime.UTC)
 
 
-def resolve_pyobj(str_path: str) -> any:
+def resolve_pyobj(str_path: str) -> Any:
     """
     Получает объект по пути
 
@@ -106,7 +107,7 @@ class MeasureResult:
     Результат измерения времени с помощью measure_time
     """
 
-    elapsed: int = 0
+    elapsed: float = 0
 
     def get_seconds_string(self):
         return f"Elapsed {self.elapsed:.2f} sec"
@@ -122,7 +123,7 @@ class MeasureResult:
 
 
 @contextmanager
-def measure_time() -> Generator[MeasureResult, None]:
+def measure_time() -> Generator[MeasureResult, None, None]:
     """
     Измеряет время с помощью контекстного менеджера
 

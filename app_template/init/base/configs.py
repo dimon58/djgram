@@ -9,12 +9,12 @@ BASE_DIR = Path(__file__).resolve().parent
 env = dotenv_values(BASE_DIR / ".env")
 
 #: Включить режим отладки
-DEBUG = bool(int(env.get("DEBUG", "1")))
+DEBUG = bool(int(env.get("DEBUG", "1")))  # pyright: ignore [reportGeneralTypeIssues]
 
 # --------------------------------- api токены --------------------------------- #
 
 #: Токен телеграм бота
-TELEGRAM_BOT_TOKEN: str = env.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_BOT_TOKEN: str = env.get("TELEGRAM_BOT_TOKEN", "")  # pyright: ignore [reportGeneralTypeIssues]
 
 # ---------- База данных ---------- #
 

@@ -7,11 +7,11 @@ DB_METADATA = None
 DB_SUPPORTS_ARRAYS = False
 
 # Настройки clickhouse
-CLICKHOUSE_HOST = "localhost"
-CLICKHOUSE_PORT = 9000
-CLICKHOUSE_DB = "default"
-CLICKHOUSE_USER = None
-CLICKHOUSE_PASSWORD = None
+CLICKHOUSE_HOST: str = "localhost"
+CLICKHOUSE_PORT: int = 9000
+CLICKHOUSE_DB: str = "default"
+CLICKHOUSE_USER: str = "default"
+CLICKHOUSE_PASSWORD: str = ""
 
 #: Таблица в clickhouse, в которую логируются все обновления телеграмм
 #   https://core.telegram.org/bots/api#getting-updates
