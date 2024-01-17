@@ -21,3 +21,8 @@
    ```shell
    python main.py
    ```
+
+6. Для разработки стоит включить `pre-commit` для поддержки качества кода, если вы используйте `git`
+   ```shell
+   pre-commit install
+   ```
