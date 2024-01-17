@@ -3,8 +3,8 @@
 """
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, ForeignKey, func
-from sqlalchemy.orm import Mapped, declared_attr, relationship
+from sqlalchemy import ForeignKey, func
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 from sqlalchemy.sql import sqltypes
 
 from djgram.contrib.telegram.models import TelegramUser
@@ -19,13 +19,13 @@ class AbstractUser(UpdatedAtMixin, BaseModel):
 
     __abstract__ = True
 
-    is_admin: Mapped[bool] = Column(
-        Boolean,
+    is_admin: Mapped[bool] = mapped_column(
+        sqltypes.Boolean,
         default=False,
         nullable=False,
         doc="Является ли пользователь администратором",
     )
-    telegram_user_id: Mapped[int] = Column(
+    telegram_user_id: Mapped[int] = mapped_column(
         ForeignKey(TelegramUser.id, ondelete="SET NULL"),
         nullable=False,
         doc="id пользователя в telegram. Он же id чата с ним.",
@@ -35,12 +35,12 @@ class AbstractUser(UpdatedAtMixin, BaseModel):
     def telegram_user(self) -> Mapped[TelegramUser]:
         return relationship(TelegramUser, lazy="selectin")
 
-    first_seen: Mapped[datetime] = Column(
+    first_seen: Mapped[datetime] = mapped_column(
         sqltypes.DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),  # pylint: disable=not-callable
     )
-    last_interaction = Column(
+    last_interaction: Mapped[datetime] = mapped_column(
         sqltypes.DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),  # pylint: disable=not-callable

@@ -2,6 +2,7 @@ import asyncio
 import logging
 import time
 from datetime import UTC, datetime, timedelta
+from typing import cast
 
 from aiogram.enums import ContentType
 from aiogram.exceptions import TelegramAPIError, TelegramRetryAfter
@@ -115,10 +116,11 @@ async def broadcast_message(message: Message, db_session: AsyncSession):
 
     # Считаем, сколько нужно разослать
     count_stmt = apply_active_date_filter(
-        stmt=select(func.count("*")).select_from(TelegramChat),
+        stmt=select(func.count()).select_from(TelegramChat),
         min_date=last_interaction_min_date,
     )
     count = await db_session.scalar(count_stmt)
+    count = cast(int, count)
 
     if count == 0:
         await message.reply("Некому делать рассылку")
@@ -196,9 +198,11 @@ async def broadcast_start(message: Message, db_session: AsyncSession, command: C
     # Удаляем команду в начале сообщения
     message.model_config["frozen"] = False
     if message.text:
+        # noinspection Pydantic
         message.text = command.args
 
     elif message.caption:
+        # noinspection Pydantic
         message.caption = command.args
     message.model_config["frozen"] = True
 

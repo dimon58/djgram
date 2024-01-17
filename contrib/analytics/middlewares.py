@@ -14,6 +14,7 @@ from aiogram.types import Update
 from djgram.configs import ANALYTICS_UPDATES_TABLE
 from djgram.db import clickhouse
 
+CONTENT_TYPE_KEY = "content_type"
 logger = logging.getLogger(__name__)
 
 
@@ -22,9 +23,7 @@ def get_update_dict_for_clickhouse(update: Update, execution_time: float):
     data["date"] = datetime.now(tz=UTC)
     data["execution_time"] = execution_time
     data["event_type"] = update.event_type  # property
-    if update.event_type == "message":
-        # noinspection PyUnresolvedReferences
-        data["content_type"] = update.event.content_type
+    data[CONTENT_TYPE_KEY] = getattr(update.event, CONTENT_TYPE_KEY, None)
 
     # Убираем лишние поля, которые могут появиться во время обработки update'а
     possible_fields = {"date", "execution_time", "event_type", "content_type"} | set(Update.model_fields.keys())
