@@ -1,5 +1,6 @@
 import asyncio
 from logging import Formatter, LogRecord, StreamHandler
+from typing import cast
 
 from aiogram import Bot
 from aiogram.types import BufferedInputFile
@@ -71,6 +72,7 @@ class TelegramHandler(StreamHandler):
 
             for chat_id in self.chat_ids_getter():
                 if record.exc_text:
+                    traceback_file = cast(BufferedInputFile, traceback_file)
                     coro = self.bot.send_document(
                         chat_id=chat_id,
                         document=traceback_file,

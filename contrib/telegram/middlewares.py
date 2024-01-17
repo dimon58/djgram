@@ -95,7 +95,7 @@ class TelegramMiddleware(BaseMiddleware):
         update: Update,
         data: dict[str, Any],
     ) -> Any:
-        db_session: AsyncSession = data.get("db_session")
+        db_session: AsyncSession | None = data.get("db_session")
         if db_session is None:
             raise ValueError(f"You should install DbSessionMiddleware to use {self.__class__.__name__}")
 

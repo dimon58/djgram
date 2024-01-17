@@ -4,8 +4,7 @@ There is telegram types models
 from typing import Literal
 
 import sqlalchemy
-from sqlalchemy import Column
-from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import expression, sqltypes
 
 from djgram.configs import DB_SUPPORTS_ARRAYS
@@ -20,7 +19,7 @@ class TelegramUser(TimeTrackableBaseModel):
     https://core.telegram.org/bots/api#user
     """
 
-    id: Mapped[int] = Column(
+    id: Mapped[int] = mapped_column(
         sqltypes.BigInteger,
         nullable=False,
         unique=True,
@@ -35,40 +34,40 @@ class TelegramUser(TimeTrackableBaseModel):
         ),
     )
 
-    is_bot: Mapped[bool] = Column(sqltypes.Boolean, doc="True, if this user is a bot")
+    is_bot: Mapped[bool] = mapped_column(sqltypes.Boolean, doc="True, if this user is a bot")
 
-    first_name: Mapped[str] = Column(sqltypes.String, doc="User's or bot's first name")
-    last_name: Mapped[str] = Column(sqltypes.String, nullable=True, doc="Optional. User's or bot's last name")
-    username: Mapped[str] = Column(sqltypes.String, nullable=True, doc="Optional. User's or bot's username")
+    first_name: Mapped[str] = mapped_column(sqltypes.String, doc="User's or bot's first name")
+    last_name: Mapped[str] = mapped_column(sqltypes.String, nullable=True, doc="Optional. User's or bot's last name")
+    username: Mapped[str] = mapped_column(sqltypes.String, nullable=True, doc="Optional. User's or bot's username")
 
-    language_code: Mapped[str] = Column(
+    language_code: Mapped[str] = mapped_column(
         sqltypes.String,
         nullable=True,
         doc="Optional. IETF language tag of the user's language",
     )
-    is_premium: Mapped[bool] = Column(
+    is_premium: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         default=False,
         nullable=True,
         server_default=expression.false(),
         doc="Optional. True, if this user is a Telegram Premium user",
     )
-    added_to_attachment_menu: Mapped[str] = Column(
+    added_to_attachment_menu: Mapped[str] = mapped_column(
         sqltypes.String,
         nullable=True,
         doc="Optional. True, if this user added the bot to the attachment menu",
     )
-    can_join_groups: Mapped[bool] = Column(
+    can_join_groups: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the bot can be invited to groups. Returned only in getMe.",
     )
-    can_read_all_group_messages: Mapped[bool] = Column(
+    can_read_all_group_messages: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if privacy mode is disabled for the bot. Returned only in getMe.",
     )
-    supports_inline_queries: Mapped[bool] = Column(
+    supports_inline_queries: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the bot supports inline queries. Returned only in getMe.",
@@ -106,14 +105,14 @@ class TelegramLocation(TimeTrackableBaseModel):
     https://core.telegram.org/bots/api#location
     """
 
-    longitude: Mapped[float] = Column(sqltypes.Float, doc="Longitude as defined by sender")
-    latitude: Mapped[float] = Column(sqltypes.Float, doc="Latitude as defined by sender")
-    horizontal_accuracy: Mapped[float] = Column(
+    longitude: Mapped[float] = mapped_column(sqltypes.Float, doc="Longitude as defined by sender")
+    latitude: Mapped[float] = mapped_column(sqltypes.Float, doc="Latitude as defined by sender")
+    horizontal_accuracy: Mapped[float] = mapped_column(
         sqltypes.Float,
         nullable=True,
         doc="Optional. The radius of uncertainty for the location, measured in meters; 0-1500",
     )
-    live_period: Mapped[int] = Column(
+    live_period: Mapped[int] = mapped_column(
         sqltypes.BigInteger,
         nullable=True,
         doc=(
@@ -121,12 +120,12 @@ class TelegramLocation(TimeTrackableBaseModel):
             "the location can be updated; in seconds. For active live locations only."
         ),
     )
-    heading: Mapped[int] = Column(
+    heading: Mapped[int] = mapped_column(
         sqltypes.BigInteger,
         nullable=True,
         doc="Optional. The direction in which user is moving, in degrees; 1-360. For active live locations only.",
     )
-    proximity_alert_radius: Mapped[int] = Column(
+    proximity_alert_radius: Mapped[int] = mapped_column(
         sqltypes.BigInteger,
         nullable=True,
         doc=(
@@ -144,28 +143,28 @@ class TelegramChatPhoto(TimeTrackableBaseModel):
     https://core.telegram.org/bots/api#chatphoto
     """
 
-    small_file_id: Mapped[str] = Column(
+    small_file_id: Mapped[str] = mapped_column(
         sqltypes.String,
         doc=(
             "File identifier of small (160x160) chat photo. This file_id can be used only for photo "
             "download and only for as long as the photo is not changed."
         ),
     )
-    small_file_unique_id: Mapped[str] = Column(
+    small_file_unique_id: Mapped[str] = mapped_column(
         sqltypes.String,
         doc=(
             "Unique file identifier of small (160x160) chat photo, which is supposed to be the "
             "same over time and for different bots. Can't be used to download or reuse the file."
         ),
     )
-    big_file_id: Mapped[str] = Column(
+    big_file_id: Mapped[str] = mapped_column(
         sqltypes.String,
         doc=(
             "File identifier of big (640x640) chat photo. This file_id can be used only for photo "
             "download and only for as long as the photo is not changed."
         ),
     )
-    big_file_unique_id: Mapped[str] = Column(
+    big_file_unique_id: Mapped[str] = mapped_column(
         sqltypes.String,
         doc=(
             "Unique file identifier of big (640x640) chat photo, which is supposed to be the "
@@ -182,57 +181,57 @@ class TelegramChatPermissions(TimeTrackableBaseModel):
     https://core.telegram.org/bots/api#chatpermissions
     """
 
-    can_send_messages: Mapped[bool] = Column(
+    can_send_messages: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the user is allowed to send text messages, contacts, invoices, locations and venues",
     )
-    can_send_audios: Mapped[bool] = Column(
+    can_send_audios: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the user is allowed to send audios",
     )
-    can_send_documents: Mapped[bool] = Column(
+    can_send_documents: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the user is allowed to send documents",
     )
-    can_send_photos: Mapped[bool] = Column(
+    can_send_photos: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the user is allowed to send photos",
     )
-    can_send_videos: Mapped[bool] = Column(
+    can_send_videos: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the user is allowed to send videos",
     )
-    can_send_video_notes: Mapped[bool] = Column(
+    can_send_video_notes: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the user is allowed to send video notes",
     )
-    can_send_voice_notes: Mapped[bool] = Column(
+    can_send_voice_notes: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the user is allowed to send voice notes",
     )
-    can_send_polls: Mapped[bool] = Column(
+    can_send_polls: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the user is allowed to send polls",
     )
-    can_send_other_messages: Mapped[bool] = Column(
+    can_send_other_messages: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the user is allowed to send animations, games, stickers and use inline bots",
     )
-    can_add_web_page_previews: Mapped[bool] = Column(
+    can_add_web_page_previews: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the user is allowed to add web page previews to their messages",
     )
-    can_change_info: Mapped[bool] = Column(
+    can_change_info: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc=(
@@ -240,17 +239,17 @@ class TelegramChatPermissions(TimeTrackableBaseModel):
             "Ignored in public supergroups"
         ),
     )
-    can_invite_users: Mapped[bool] = Column(
+    can_invite_users: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the user is allowed to invite new users to the chat",
     )
-    can_pin_messages: Mapped[bool] = Column(
+    can_pin_messages: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the user is allowed to pin messages. Ignored in public supergroups",
     )
-    can_manage_topics: Mapped[bool] = Column(
+    can_manage_topics: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc=(
@@ -268,11 +267,11 @@ class TelegramChatLocation(TimeTrackableBaseModel):
     https://core.telegram.org/bots/api#chatlocation
     """
 
-    location_id: Mapped[int] = Column(
+    location_id: Mapped[int] = mapped_column(
         sqlalchemy.ForeignKey(TelegramLocation.id, ondelete="SET NULL"),
         doc="The location to which the supergroup is connected. Can't be a live location.",
     )
-    address: Mapped[str] = Column(
+    address: Mapped[str] = mapped_column(
         sqltypes.String,
         doc="Location address; 1-64 characters, as defined by the chat owner",
     )
@@ -286,7 +285,7 @@ class TelegramChat(TimeTrackableBaseModel):
     https://core.telegram.org/bots/api#chat
     """
 
-    id: Mapped[int] = Column(
+    id: Mapped[int] = mapped_column(
         sqltypes.BigInteger,
         nullable=False,
         unique=True,
@@ -300,48 +299,48 @@ class TelegramChat(TimeTrackableBaseModel):
             "safe for storing this identifier."
         ),
     )
-    type: Mapped[Literal["private", "group", "supergroup", "channel"]] = Column(
+    type: Mapped[Literal["private", "group", "supergroup", "channel"]] = mapped_column(
         sqltypes.String,
         doc="Type of chat, can be either “private”, “group”, “supergroup” or “channel”",
     )
-    title: Mapped[str] = Column(
+    title: Mapped[str] = mapped_column(
         sqltypes.String,
         nullable=True,
         doc="Optional. Title, for supergroups, channels and group chats",
     )
-    username: Mapped[str] = Column(
+    username: Mapped[str] = mapped_column(
         sqltypes.String,
         nullable=True,
         doc="Optional. Username, for private chats, supergroups and channels if available",
     )
-    first_name: Mapped[str] = Column(
+    first_name: Mapped[str] = mapped_column(
         sqltypes.String,
         nullable=True,
         doc="Optional. First name of the other party in a private chat",
     )
-    last_name: Mapped[str] = Column(
+    last_name: Mapped[str] = mapped_column(
         sqltypes.String,
         nullable=True,
         doc="Optional. Last name of the other party in a private chat",
     )
-    is_forum: Mapped[bool] = Column(
+    is_forum: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the supergroup chat is a forum (has topics enabled)",
     )
-    photo_id: Mapped[int] = Column(
+    photo_id: Mapped[int] = mapped_column(
         sqlalchemy.ForeignKey(TelegramChatPhoto.id, ondelete="SET NULL"),
         nullable=True,
         doc="Optional. Chat photo. Returned only in getChat.",
     )
     if DB_SUPPORTS_ARRAYS:
-        active_usernames: Mapped[str] = Column(
+        active_usernames: Mapped[str] = mapped_column(
             sqltypes.ARRAY(sqltypes.String),
             nullable=True,
             doc="Optional. If non-empty, the list of all active chat usernames; "
             "for private chats, supergroups and channels. Returned only in getChat.",
         )
-    emoji_status_custom_emoji_id: Mapped[str] = Column(
+    emoji_status_custom_emoji_id: Mapped[str] = mapped_column(
         sqltypes.String,
         nullable=True,
         doc=(
@@ -349,12 +348,12 @@ class TelegramChat(TimeTrackableBaseModel):
             "Returned only in getChat."
         ),
     )
-    bio: Mapped[str] = Column(
+    bio: Mapped[str] = mapped_column(
         sqltypes.String,
         nullable=True,
         doc="Optional. Bio of the other party in a private chat. Returned only in getChat.",
     )
-    has_private_forwards: Mapped[bool] = Column(
+    has_private_forwards: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc=(
@@ -362,7 +361,7 @@ class TelegramChat(TimeTrackableBaseModel):
             "allows to use tg://user?id=<user_id> links only in chats with the user. Returned only in getChat."
         ),
     )
-    has_restricted_voice_and_video_messages: Mapped[bool] = Column(
+    has_restricted_voice_and_video_messages: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc=(
@@ -370,7 +369,7 @@ class TelegramChat(TimeTrackableBaseModel):
             "messages in the private chat. Returned only in getChat."
         ),
     )
-    join_to_send_messages: Mapped[bool] = Column(
+    join_to_send_messages: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc=(
@@ -378,7 +377,7 @@ class TelegramChat(TimeTrackableBaseModel):
             "Returned only in getChat."
         ),
     )
-    join_by_request: Mapped[bool] = Column(
+    join_by_request: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc=(
@@ -386,25 +385,25 @@ class TelegramChat(TimeTrackableBaseModel):
             "by supergroup administrators. Returned only in getChat."
         ),
     )
-    description: Mapped[str] = Column(
+    description: Mapped[str] = mapped_column(
         sqltypes.String,
         nullable=True,
         doc="Optional. Description, for groups, supergroups and channel chats. Returned only in getChat.",
     )
-    invite_link: Mapped[str] = Column(
+    invite_link: Mapped[str] = mapped_column(
         sqltypes.String,
         nullable=True,
         doc="Optional. Primary invite link, for groups, supergroups and channel chats. Returned only in getChat.",
     )
-    # pinned_message = Column(
+    # pinned_message = mapped_column(
     #     sqltypes.Message, nullable=True,
     #     doc="Optional. The most recent pinned message (by sending date). Returned only in getChat.")
-    permissions_id: Mapped[int] = Column(
+    permissions_id: Mapped[int] = mapped_column(
         sqlalchemy.ForeignKey(TelegramChatPermissions.id, ondelete="SET NULL"),
         nullable=True,
         doc="Optional. Default chat member permissions, for groups and supergroups. Returned only in getChat.",
     )
-    slow_mode_delay: Mapped[int] = Column(
+    slow_mode_delay: Mapped[int] = mapped_column(
         sqltypes.BigInteger,
         nullable=True,
         doc=(
@@ -412,7 +411,7 @@ class TelegramChat(TimeTrackableBaseModel):
             "consecutive messages sent by each unpriviledged user; in seconds. Returned only in getChat."
         ),
     )
-    message_auto_delete_time: Mapped[int] = Column(
+    message_auto_delete_time: Mapped[int] = mapped_column(
         sqltypes.BigInteger,
         nullable=True,
         doc=(
@@ -420,7 +419,7 @@ class TelegramChat(TimeTrackableBaseModel):
             "the chat will be automatically deleted; in seconds. Returned only in getChat."
         ),
     )
-    has_aggressive_anti_spam_enabled: Mapped[bool] = Column(
+    has_aggressive_anti_spam_enabled: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc=(
@@ -428,7 +427,7 @@ class TelegramChat(TimeTrackableBaseModel):
             "The field is only available to chat administrators. Returned only in getChat."
         ),
     )
-    has_hidden_members: Mapped[bool] = Column(
+    has_hidden_members: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc=(
@@ -436,22 +435,22 @@ class TelegramChat(TimeTrackableBaseModel):
             "Returned only in getChat."
         ),
     )
-    has_protected_content: Mapped[bool] = Column(
+    has_protected_content: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if messages from the chat can't be forwarded to other chats. Returned only in getChat.",
     )
-    sticker_set_name: Mapped[str] = Column(
+    sticker_set_name: Mapped[str] = mapped_column(
         sqltypes.String,
         nullable=True,
         doc="Optional. For supergroups, name of group sticker set. Returned only in getChat.",
     )
-    can_set_sticker_set: Mapped[bool] = Column(
+    can_set_sticker_set: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the bot can change the group sticker set. Returned only in getChat.",
     )
-    linked_chat_id: Mapped[int] = Column(
+    linked_chat_id: Mapped[int] = mapped_column(
         sqltypes.BigInteger,
         nullable=True,
         doc=(
@@ -463,7 +462,7 @@ class TelegramChat(TimeTrackableBaseModel):
             "are safe for storing this identifier. Returned only in getChat."
         ),
     )
-    location_id: Mapped[int] = Column(
+    location_id: Mapped[int] = mapped_column(
         sqlalchemy.ForeignKey(TelegramChatLocation.id, ondelete="SET NULL"),
         nullable=True,
         doc="Optional. For supergroups, the location to which the supergroup is connected. Returned only in getChat.",
