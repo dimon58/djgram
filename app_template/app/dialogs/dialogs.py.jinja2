@@ -3,6 +3,7 @@
 """
 
 import logging
+import os
 
 from aiogram_dialog import Dialog, Window
 
@@ -22,6 +23,6 @@ if ENABLE_DIALOG_DIAGRAMS_GENERATION:
     render_transitions_safe(
         dialog,
         title="Dialog",
-        filename=DIALOG_DIAGRAMS_DIR / "dialog",
+        filename=os.path.join(DIALOG_DIAGRAMS_DIR, "dialog"),  # noqa: PTH118
     )
     logger.info("Generated diagram for dialog todo: add dialog name")
