@@ -1,8 +1,9 @@
 """
 Геттеры для диалогов
 """
+import logging
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from aiogram_dialog import DialogManager
 from sqlalchemy import Column, func, select
@@ -14,6 +15,8 @@ from .utils import QUERY_KEY, html_escape, prepare_rows
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 
 # pylint: disable=unused-argument
@@ -58,10 +61,10 @@ async def get_rows(dialog_manager: DialogManager, **kwargs):
     app = apps_admins[dialog_manager.dialog_data["app_id"]]
     model_admin = app.admin_models[dialog_manager.dialog_data["model_id"]]
 
-    page: int = dialog_manager.current_context().widget_data.get("rows", 0)
+    page = cast(int, dialog_manager.current_context().widget_data.get("rows", 0))
 
     stmt = select(model_admin.model)
-    total_stmt = select(func.count("*")).select_from(model_admin.model)
+    total_stmt = select(func.count()).select_from(model_admin.model)
 
     if QUERY_KEY in dialog_manager.dialog_data:
         query_filter = model_admin.generate_search_filter(dialog_manager.dialog_data[QUERY_KEY])
@@ -71,7 +74,7 @@ async def get_rows(dialog_manager: DialogManager, **kwargs):
 
     stmt = stmt.order_by(model_admin.model.id.desc()).offset(app.rows_per_page * page).limit(app.rows_per_page)
     rows = (await db_session.scalars(stmt)).all()
-    total = await db_session.scalar(total_stmt)
+    total = cast(int, await db_session.scalar(total_stmt))
 
     data = []
 
@@ -167,10 +170,20 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs):
     model_admin = app.admin_models[dialog_manager.dialog_data["model_id"]]
     row_id = dialog_manager.dialog_data["row_id"]
 
-    model = model_admin.model
+    model: type[BaseModel] = model_admin.model
 
     stmt = select(model).where(model.id == row_id)
-    obj = await db_session.scalar(stmt)
+    obj: BaseModel | None = await db_session.scalar(stmt)
+    object_name = f"[{row_id}] {model.__name__}"
+
+    if obj is None:
+        logger.error("Not found %s with id = %s", model, row_id)
+        return {
+            "object_name": object_name,
+            "text": "NOT FOUND",
+            "app_name": app.verbose_name,
+            "model_name": model_admin.name,
+        }
 
     text = []
 
@@ -180,7 +193,7 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs):
 
     text = "\n".join(text)
     return {
-        "object_name": f"[{row_id}] {model.__name__}",
+        "object_name": object_name,
         "text": text,
         "app_name": app.verbose_name,
         "model_name": model_admin.name,

@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import sqltypes
 
 from djgram.configs import ADMIN_ROWS_PER_PAGE
-from djgram.db.models import Base
+from djgram.db.models import BaseModel
 from djgram.db.utils import get_fields_of_model
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class ModelAdmin:
     Модель админки, как в django (не относится к базе данных на прямую)
     """
 
-    model: type[Base] = None  # Модель
+    model: type[BaseModel]  # Модель в которой есть id
     name: str = ""  # Название
     list_display: list[str] = []  # Список колонок для показа при предпросмотре
     search_fields: list[str] = []  # Список полей, по которым производиться поиск
@@ -65,7 +65,7 @@ class ModelAdmin:
     @classmethod
     async def display_name(cls, db_session: AsyncSession) -> str:
         if cls.show_count:
-            count_stmt = select(func.count("*")).select_from(cls.model)
+            count_stmt = select(func.count()).select_from(cls.model)
             count = await db_session.scalar(count_stmt)
             return f"{cls.name} ({count})"
         return cls.name

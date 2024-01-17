@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any
 from aiogram import F
 from aiogram.enums import ParseMode
 from aiogram_dialog import Dialog, DialogManager, Window
-from aiogram_dialog.manager.manager import ManagerImpl
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import (
     Back,
@@ -51,7 +50,6 @@ from .getters import (
 from .states import AdminStates
 
 if TYPE_CHECKING:
-    from djgram.contrib.auth.models import User
     from djgram.contrib.telegram.models import TelegramUser
 logger = logging.getLogger(__name__)
 
@@ -68,7 +66,7 @@ def __log_admin_dialog_interaction(middleware_data, action):
     """
 
     telegram_user: TelegramUser = middleware_data["telegram_user"]
-    user: User = middleware_data["user"]
+    user = middleware_data["user"]
 
     full_name: str = telegram_user.get_full_name()
     logger.info(
@@ -89,7 +87,7 @@ async def on_admin_dialog_start(result: Any, dialog_manager: DialogManager):
 
 
 # pylint: disable=unused-argument
-async def on_admin_dialog_close(result: Any, dialog_manager: ManagerImpl):
+async def on_admin_dialog_close(result: Any, dialog_manager: DialogManager):
     """
     Обработчик закрытия диалога администрирования
 
