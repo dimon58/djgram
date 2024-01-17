@@ -1,6 +1,10 @@
 import datetime
 import importlib
 import operator
+import time
+from collections.abc import Generator
+from contextlib import contextmanager
+from dataclasses import dataclass
 
 
 def utcnow() -> datetime.datetime:
@@ -94,3 +98,43 @@ class LazyObject:
     __iter__ = new_method_proxy(iter)
     __len__ = new_method_proxy(len)
     __contains__ = new_method_proxy(operator.contains)
+
+
+@dataclass
+class MeasureResult:
+    """
+    Результат измерения времени с помощью measure_time
+    """
+
+    elapsed: int = 0
+
+    def get_seconds_string(self):
+        return f"Elapsed {self.elapsed:.2f} sec"
+
+    def get_milliseconds_string(self):
+        return f"Elapsed {self.elapsed * 1000:.2f} ms"
+
+    def get_microseconds_string(self):
+        return f"Elapsed {self.elapsed * 1000000:.2f} us"
+
+    def get_nanoseconds_string(self):
+        return f"Elapsed {self.elapsed * 1000000:.2f} ns"
+
+
+@contextmanager
+def measure_time() -> Generator[MeasureResult, None]:
+    """
+    Измеряет время с помощью контекстного менеджера
+
+
+    with measure_time() as td:
+        func()
+
+    print("Прошло", td.elapsed, "сек")
+    """
+    res = MeasureResult()
+    s = time.perf_counter()
+    yield res
+    e = time.perf_counter()
+
+    res.elapsed = e - s
