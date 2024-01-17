@@ -3,12 +3,12 @@ import logging
 from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import CallbackQuery, Message
-from aiogram_dialog.manager.manager import ManagerImpl
+from aiogram_dialog import DialogManager
 
 logger = logging.getLogger(__name__)
 
 
-def get_last_chat_id_and_message_id_from_dialog_manager(dialog_manager: ManagerImpl) -> tuple[int, int] | None:
+def get_last_chat_id_and_message_id_from_dialog_manager(dialog_manager: DialogManager) -> tuple[int, int] | None:
     """
     Возвращает кортеж (id чата, id последнего сообщения),
     если есть последнее сообщение, иначе None
@@ -26,8 +26,9 @@ def get_last_chat_id_and_message_id_from_dialog_manager(dialog_manager: ManagerI
     if not stack or not stack.last_message_id:
         return None
 
+    # Реально сюда передаётся экземпляр класса ManagerImpl
     # noinspection PyProtectedMember
-    return dialog_manager._data["event_chat"].id, stack.last_message_id
+    return dialog_manager._data["event_chat"].id, stack.last_message_id  # pyright: ignore [reportGeneralTypeIssues]
 
 
 async def remove_kbd(bot: Bot, chat_id: int | None, message_id: int | None) -> Message | None:
@@ -73,7 +74,7 @@ async def delete_message_safe(bot: Bot, chat_id: int, message_id: int) -> None:
             raise exc  # noqa: TRY201
 
 
-async def delete_last_message_from_dialog_manager(dialog_manager: ManagerImpl) -> None:
+async def delete_last_message_from_dialog_manager(dialog_manager: DialogManager) -> None:
     """
     Удаляет последние сообщение в диалоге, описываемом dialog_manager
     """

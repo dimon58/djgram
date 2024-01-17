@@ -2,9 +2,11 @@
 Аналог ScrollingGroup из aiogram_dialogs, но пагинация происходит на стороне базы данных
 """
 from collections.abc import Awaitable, Callable
+from typing import cast
 
 from aiogram.types import CallbackQuery, InlineKeyboardButton
 from aiogram_dialog.api.entities import ChatEvent
+from aiogram_dialog.api.internal import RawKeyboard
 from aiogram_dialog.api.protocols import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.common import ManagedWidget, WhenCondition
 from aiogram_dialog.widgets.kbd import Group, Keyboard
@@ -38,25 +40,28 @@ class DatabasePaginatedScrollingGroup(Group):
         hide_on_single_page: bool = False,
         total_key="total",
     ):
-        super().__init__(*buttons, id=id, width=width, when=when)
+        # Тут ошибка типизации width в Group.__init__
+        super().__init__(*buttons, id=id, width=width, when=when)  # pyright: ignore [reportGeneralTypeIssues]
         self.height = height
         self.on_page_changed = ensure_event_processor(on_page_changed)
         self.hide_on_single_page = hide_on_single_page
         self.total_key = total_key
+
+        self.widget_id = cast(str, self.widget_id)
 
     # pylint: disable=missing-function-docstring
     async def _render_keyboard(
         self,
         data: dict,
         manager: DialogManager,
-    ) -> list[list[InlineKeyboardButton]]:
+    ) -> RawKeyboard:
         kbd = await super()._render_keyboard(data, manager)
         total = data[self.total_key]
         pages = (total + self.height - 1) // self.height
         last_page = pages - 1
         if pages == 0 or (pages == 1 and self.hide_on_single_page):
             return kbd
-        current_page = min(last_page, self.get_page(manager))
+        current_page = min(last_page, self.get_page_number(manager))
         next_page = min(last_page, current_page + 1)
         prev_page = max(0, current_page - 1)
         pager = [
@@ -84,6 +89,8 @@ class DatabasePaginatedScrollingGroup(Group):
             ],
         ]
 
+        pager = cast(RawKeyboard, pager)
+
         return kbd + pager
 
     # pylint: disable=missing-function-docstring
@@ -94,15 +101,15 @@ class DatabasePaginatedScrollingGroup(Group):
         dialog: DialogProtocol,
         manager: DialogManager,
     ) -> bool:
-        await self.set_page(callback, int(data), manager)
+        await self.set_page_number(callback, int(data), manager)
         return True
 
     # pylint: disable=missing-function-docstring
-    def get_page(self, manager: DialogManager) -> int:
-        return manager.current_context().widget_data.get(self.widget_id, 0)
+    def get_page_number(self, manager: DialogManager) -> int:
+        return cast(int, manager.current_context().widget_data.get(self.widget_id, 0))
 
     # pylint: disable=missing-function-docstring
-    async def set_page(
+    async def set_page_number(
         self,
         event: ChatEvent,
         page: int,
@@ -124,11 +131,11 @@ class DatabasePaginatedScrollingGroup(Group):
 class ManagedDatabasePaginatedScrollingGroupAdapter(ManagedWidget[DatabasePaginatedScrollingGroup]):
     # pylint: disable=missing-function-docstring
     def get_page(self) -> int:
-        return self.widget.get_page(self.manager)
+        return self.widget.get_page_number(self.manager)
 
     # pylint: disable=missing-function-docstring
     async def set_page(self, page: int) -> None:
-        return await self.widget.set_page(
+        return await self.widget.set_page_number(
             self.manager.event,
             page,
             self.manager,

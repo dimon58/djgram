@@ -1,7 +1,7 @@
 import contextvars
 import logging
 
-UPDATE_ID = contextvars.ContextVar("UPDATE_ID", default=None)
+UPDATE_ID: contextvars.ContextVar[int|None] = contextvars.ContextVar("UPDATE_ID", default=None)
 
 
 class UpdateIdContextFilter(logging.Filter):

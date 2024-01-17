@@ -1,3 +1,4 @@
+# pyright: reportGeneralTypeIssues=false
 """
 Модуль для форматирования цветных логов
 """
