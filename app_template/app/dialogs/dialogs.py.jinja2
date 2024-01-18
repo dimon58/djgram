@@ -6,16 +6,24 @@ import logging
 import os
 
 from aiogram_dialog import Dialog, Window
+from aiogram_dialog.widgets.kbd import Button
+from aiogram_dialog.widgets.text import Const
 
 from djgram.configs import DIALOG_DIAGRAMS_DIR, ENABLE_DIALOG_DIAGRAMS_GENERATION
 from djgram.utils.diagrams import render_transitions_safe
 
+from . import callbacks
+from .state import DialogStates
 
 logger = logging.getLogger(__name__)
 
 dialog = Dialog(  # todo: rename dialog
     Window(
-
+        Const("Пример диалога"),
+        Button(
+            Const("Вывести приветствие"), id="say_hello", on_click=callbacks.say_hello
+        ),
+        state=DialogStates.state1,
     ),
 )
 

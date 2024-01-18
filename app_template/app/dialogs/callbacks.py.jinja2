@@ -4,4 +4,12 @@
 
 import logging
 
+from aiogram.types import CallbackQuery
+from aiogram_dialog import DialogManager
+from aiogram_dialog.widgets.kbd import Button
+
 logger = logging.getLogger(__name__)
+
+
+async def say_hello(callback: CallbackQuery, button: Button, manager: DialogManager):
+    await callback.message.answer("Привет мир!")
