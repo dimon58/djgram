@@ -14,6 +14,8 @@ from djgram.configs import ADMIN_ROWS_PER_PAGE
 from djgram.db.models import BaseModel
 from djgram.db.utils import get_fields_of_model
 
+from .rendering import AdminFieldRenderer, TextRenderer
+
 logger = logging.getLogger(__name__)
 
 
@@ -29,6 +31,7 @@ class ModelAdmin:
     search_fields: list[str] = []  # Список полей, по которым производиться поиск
     show_count: bool = True  # Показывать число записей
     show_docs: bool = True  # Показывать документацию, если есть
+    fields: list[str | AdminFieldRenderer] | None = None  # Список полей для показа, если None, то показываются все поля
 
     skip_synonyms_origin: bool = True  # Не показывать поля, для которых есть синонимы
 
@@ -71,8 +74,13 @@ class ModelAdmin:
         return cls.name
 
     @classmethod
-    def get_fields_of_model(cls) -> list[str]:
-        return get_fields_of_model(cls.model, cls.skip_synonyms_origin)
+    def get_fields_of_model(cls) -> list[AdminFieldRenderer]:
+        if cls.fields is not None:  # noqa: SIM108
+            fields = cls.fields
+        else:
+            fields = get_fields_of_model(cls.model, cls.skip_synonyms_origin)
+
+        return [TextRenderer(field) if isinstance(field, str) else field for field in fields]
 
     @classmethod
     def generate_search_filter(cls, query: str):

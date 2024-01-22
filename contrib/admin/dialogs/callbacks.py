@@ -8,8 +8,8 @@ from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
 
+from ..rendering import QUERY_KEY
 from .states import AdminStates
-from .utils import QUERY_KEY
 
 
 # pylint: disable=unused-argument
@@ -45,7 +45,7 @@ async def on_row_selected(callback: CallbackQuery, widget: Any, manager: DialogM
     """
     Обработчик выбора строки
     """
-    manager.dialog_data["row_id"] = int(row_id)
+    manager.dialog_data["row_id"] = row_id
     await manager.switch_to(AdminStates.row_detail)
 
 

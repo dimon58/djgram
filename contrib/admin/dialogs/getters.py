@@ -2,19 +2,19 @@
 Геттеры для диалогов
 """
 import logging
-from enum import Enum
 from typing import TYPE_CHECKING, cast
 
 from aiogram_dialog import DialogManager
-from sqlalchemy import Column, func, select
-
-from djgram.db.models import BaseModel
+from sqlalchemy import func, select
+from sqlalchemy.sql import sqltypes
 
 from ..base import apps_admins
-from .utils import QUERY_KEY, html_escape, prepare_rows
+from ..rendering import QUERY_KEY, get_field_by_path, prepare_rows
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
+
+    from djgram.db.models import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -83,18 +83,7 @@ async def get_rows(dialog_manager: DialogManager, **kwargs):
 
         # Обрабатываем колонки вида user__id, т.е. непрямых полей
         for column in model_admin.list_display:
-            _value = row
-            for chain in column.split("__"):
-                _prev_value = _value
-                _value = getattr(_value, chain)
-
-                # Если встретилось свойство, то достаём его значение
-                if isinstance(_value, property):
-                    _value = property.__get__(_value, _prev_value)
-
-            # Превращаем Enum в его значение
-            if isinstance(_value, Enum):
-                _value = _value.value
+            _value = get_field_by_path(row, column)
 
             _row.append(_value)
 
@@ -145,20 +134,6 @@ async def get_search_description(dialog_manager: DialogManager, **kwargs):
     }
 
 
-def render_row_field(obj: BaseModel, field: str, render_docs: bool) -> str:
-    res = [f"<strong>{field}</strong>"]
-
-    if render_docs:
-        column: Column = getattr(obj.__class__, field)
-        doc = getattr(column, "doc", None)  # У Relationship нет документации
-        if doc is not None:
-            res.append(f"<i>{html_escape(doc)}</i>")
-
-    res.append(f"<pre>{html_escape(getattr(obj, field))}</pre>")
-
-    return "\n".join(res)
-
-
 async def get_row_detail(dialog_manager: DialogManager, **kwargs):
     """
     Геттер для записи в бд
@@ -172,6 +147,8 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs):
 
     model: type[BaseModel] = model_admin.model
 
+    if isinstance(model.id.type, sqltypes.Integer):
+        row_id = int(row_id)
     stmt = select(model).where(model.id == row_id)
     obj: BaseModel | None = await db_session.scalar(stmt)
     object_name = f"[{row_id}] {model.__name__}"
@@ -189,7 +166,7 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs):
 
     for field in model_admin.get_fields_of_model():
         # if not field.startswith("_"):
-        text.append(render_row_field(obj, field, model_admin.show_docs))  # noqa: PERF401
+        text.append(field.render_for_obj(obj, model_admin.show_docs))  # noqa: PERF401
 
     text = "\n".join(text)
     return {
