@@ -1,5 +1,7 @@
 from contextlib import suppress
 
+MEDIA_DIR = None
+
 # Настройки базы данных
 DB_URL = "sqlite+aiosqlite:///db.sqlite3"
 DB_ENGINE_SETTINGS = {}
@@ -25,6 +27,9 @@ ENABLE_DIALOG_DIAGRAMS_GENERATION = True
 
 #: Какое время пользователь считает активным для получения рассылки
 ACTIVE_USER_TIMEOUT = 60 * 60 * 24 * 14
+
+TELEGRAM_BROADCAST_TIMEOUT = 0.05  # limit to 20 messages per second (max = 30)
+TELEGRAM_BROADCAST_LOGGING_PERIOD = 5  # sec
 
 # ---------- Настройки админки ---------- #
 
