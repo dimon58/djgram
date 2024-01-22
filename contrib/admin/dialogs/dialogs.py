@@ -4,11 +4,10 @@
 import logging
 import operator
 import os.path
-from typing import TYPE_CHECKING, Any
 
 from aiogram import F
 from aiogram.enums import ParseMode
-from aiogram_dialog import Dialog, DialogManager, Window
+from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import (
     Back,
@@ -30,10 +29,11 @@ from djgram.configs import (
 from djgram.contrib.dialogs.database_paginated_scrolling_group import (
     DatabasePaginatedScrollingGroup,
 )
-from djgram.contrib.dialogs.utils import delete_last_message_from_dialog_manager
 from djgram.utils.diagrams import render_transitions_safe
 
 from .callbacks import (
+    on_admin_dialog_close,
+    on_admin_dialog_start,
     on_app_selected,
     on_model_selected,
     on_row_selected,
@@ -49,54 +49,7 @@ from .getters import (
 )
 from .states import AdminStates
 
-if TYPE_CHECKING:
-    from djgram.contrib.telegram.models import TelegramUser
 logger = logging.getLogger(__name__)
-
-
-def __log_admin_dialog_interaction(middleware_data, action):
-    """
-    Логирует взаимодействие с диалогом
-
-    Просто общий кусок кода для on_admin_dialog_start и on_admin_dialog_close
-
-    Args:
-        middleware_data(dict): данные посредников telegram
-        action: действие с диалогом
-    """
-
-    telegram_user: TelegramUser = middleware_data["telegram_user"]
-    user = middleware_data["user"]
-
-    full_name: str = telegram_user.get_full_name()
-    logger.info(
-        f"{action} admin dialog with user [id={user.id}] "
-        f"[telegram_id={telegram_user.id}, username={telegram_user.username}] "
-        f"{full_name}",
-    )
-
-
-# pylint: disable=unused-argument
-async def on_admin_dialog_start(result: Any, dialog_manager: DialogManager):
-    """
-    Обработчик начала диалога администрирования
-
-    Просто логирует, что диалог начался
-    """
-    __log_admin_dialog_interaction(dialog_manager.middleware_data, "Start")
-
-
-# pylint: disable=unused-argument
-async def on_admin_dialog_close(result: Any, dialog_manager: DialogManager):
-    """
-    Обработчик закрытия диалога администрирования
-
-    Удаляет сообщение администрирования и логирует, что диалог окончен
-    """
-    __log_admin_dialog_interaction(dialog_manager.middleware_data, "Close")
-
-    await delete_last_message_from_dialog_manager(dialog_manager)
-
 
 admin_dialog = Dialog(
     # Выбор приложения

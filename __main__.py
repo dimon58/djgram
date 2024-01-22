@@ -72,7 +72,7 @@ def startapp(name: str):
     click.echo(f"\033[32mСоздано приложение {name}\033[0m")
 
 
-def render_folder(init_template_dir, app_dir):
+def render_folder(init_template_dir: str | os.PathLike, app_dir: str) -> None:
     for dir_, _, files in os.walk(init_template_dir):
         for file_name in files:
             original_file = os.path.join(dir_, file_name)  # noqa: PTH118

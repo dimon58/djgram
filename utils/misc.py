@@ -2,10 +2,12 @@ import datetime
 import importlib
 import operator
 import time
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Self, TypeVar
+
+T = TypeVar("T")
 
 
 def utcnow() -> datetime.datetime:
@@ -39,7 +41,7 @@ class LazyObject:
     _wrapped = None
     _is_init = False
 
-    def __init__(self, factory):
+    def __init__(self, factory: Callable | type):
         """
         Args:
             factory: initializer for object
@@ -47,25 +49,25 @@ class LazyObject:
         # Assign using __dict__ to avoid the setattr method.
         self.__dict__["_factory"] = factory
 
-    def _setup(self):
+    def _setup(self) -> None:
         self._wrapped = self._factory()
         self._is_init = True
 
     @staticmethod
-    def new_method_proxy(func):
+    def new_method_proxy(func: Callable[..., T]) -> Callable[..., T]:
         """
         Util function to help us route functions
         to the nested object.
         """
 
-        def inner(self, *args):
+        def inner(self: Self, *args, **kwargs) -> T:
             if not self._is_init:
                 self._setup()
-            return func(self._wrapped, *args)
+            return func(self._wrapped, *args, **kwargs)
 
         return inner
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: Any):
         # These are special names that are on the LazyObject.
         # every other attribute should be on the wrapped object.
         if name in {"_is_init", "_wrapped"}:
@@ -75,7 +77,7 @@ class LazyObject:
                 self._setup()
             setattr(self._wrapped, name, value)
 
-    def __delattr__(self, name):
+    def __delattr__(self, name: str):
         if name == "_wrapped":
             raise TypeError("can't delete _wrapped.")
         if not self._is_init:
@@ -109,16 +111,16 @@ class MeasureResult:
 
     elapsed: float = 0
 
-    def get_seconds_string(self):
+    def get_seconds_string(self) -> str:
         return f"Elapsed {self.elapsed:.2f} sec"
 
-    def get_milliseconds_string(self):
+    def get_milliseconds_string(self) -> str:
         return f"Elapsed {self.elapsed * 1000:.2f} ms"
 
-    def get_microseconds_string(self):
+    def get_microseconds_string(self) -> str:
         return f"Elapsed {self.elapsed * 1000000:.2f} us"
 
-    def get_nanoseconds_string(self):
+    def get_nanoseconds_string(self) -> str:
         return f"Elapsed {self.elapsed * 1000000:.2f} ns"
 
 

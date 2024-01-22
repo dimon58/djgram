@@ -38,7 +38,7 @@ class DatabasePaginatedScrollingGroup(Group):
         when: WhenCondition = None,
         on_page_changed: (OnStateChanged | WidgetEventProcessor | None) = None,
         hide_on_single_page: bool = False,
-        total_key="total",
+        total_key: str = "total",
     ):
         # Тут ошибка типизации width в Group.__init__
         super().__init__(*buttons, id=id, width=width, when=when)  # pyright: ignore [reportGeneralTypeIssues]

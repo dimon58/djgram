@@ -12,7 +12,7 @@ def render_transitions_safe(
     title: str = "Aiogram Dialog",
     filename: str = "aiogram_dialog",
     format: str = "png",
-):
+) -> None:
     """
     Рендерит диаграммы диалогов
 

@@ -3,11 +3,12 @@
 """
 import logging
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from dataclasses import field as dc_field
 from typing import ClassVar
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import ColumnElement, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import sqltypes
 
@@ -28,18 +29,18 @@ class ModelAdmin:
 
     model: ClassVar[type[BaseModel]]  # Модель в которой есть id
     name: ClassVar[str] = ""  # Название
-    list_display: ClassVar[list[str]] = []  # Список колонок для показа при предпросмотре
-    search_fields: ClassVar[list[str]] = []  # Список полей, по которым производиться поиск
+    list_display: ClassVar[Sequence[str]] = []  # Список колонок для показа при предпросмотре
+    search_fields: ClassVar[Sequence[str]] = []  # Список полей, по которым производиться поиск
     show_count: ClassVar[bool] = True  # Показывать число записей
     show_docs: ClassVar[bool] = True  # Показывать документацию, если есть
 
     # Список полей для показа, если None, то показываются все поля
-    fields: ClassVar[list[str | AdminFieldRenderer] | None] = None
+    fields: ClassVar[Sequence[str | AdminFieldRenderer] | None] = None
 
     skip_synonyms_origin: ClassVar[bool] = True  # Не показывать поля, для которых есть синонимы
 
     @classmethod
-    def __check_fields_exists(cls, fields, allowed_fields, list_name):
+    def __check_fields_exists(cls, fields: Sequence[str], allowed_fields: set[str], list_name: str) -> None:
         extra_fields = set(fields) - allowed_fields
 
         errors = set()
@@ -86,7 +87,7 @@ class ModelAdmin:
         return [TextRenderer(field) if isinstance(field, str) else field for field in fields]
 
     @classmethod
-    def generate_search_filter(cls, query: str):
+    def generate_search_filter(cls, query: str) -> ColumnElement[bool]:
         ors = []
 
         allowed_fields = set(get_fields_of_model(cls.model, skip_synonyms_origin=True))
@@ -120,14 +121,14 @@ class AppAdmin:
 
     rows_per_page: int = ADMIN_ROWS_PER_PAGE
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """
         Регистрирует админку для приложения
         """
         apps_admins.append(self)
         logger.info(f'Registered "{self.verbose_name}" admin')
 
-    def register(self, admin_model: type[ModelAdmin]):
+    def register(self, admin_model: type[ModelAdmin]) -> None:
         self.admin_models.append(admin_model)
 
 

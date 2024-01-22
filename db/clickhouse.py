@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import AsyncGenerator, Iterable
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -9,13 +9,13 @@ from asynch.connection import Connection
 from djgram import configs
 
 
-def monkey_patch_asynch():
+def monkey_patch_asynch() -> None:
     """
     Фикс сериализации json для datetime внутри словарей и не только
     """
     from asynch.proto.columns.jsoncolumn import JsonColumn
 
-    async def write_items(self, items):
+    async def write_items(self: JsonColumn, items: list[Any]) -> None:
         items = [x if isinstance(x, str) else orjson.dumps(x) for x in items]
         await self.string_column.write_items(items)
 
@@ -37,7 +37,7 @@ async def get_connection() -> Connection:
 
 
 @asynccontextmanager
-async def connection():
+async def connection() -> AsyncGenerator[Connection, None]:
     """
     Обертка над get_connection в виде контекстного менеджера
     """

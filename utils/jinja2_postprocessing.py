@@ -23,7 +23,7 @@
 """
 
 
-def telegramify(rendered, collapse_spaces=True):
+def telegramify(rendered: str, collapse_spaces: bool = True) -> str:
     """
     Костыльный метод добавляющий поддержку тега <br> в сообщения телеграмм.
 

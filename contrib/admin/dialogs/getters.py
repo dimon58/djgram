@@ -2,7 +2,7 @@
 Геттеры для диалогов
 """
 import logging
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from aiogram_dialog import DialogManager
 from sqlalchemy import func, select
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 # pylint: disable=unused-argument
-async def get_apps(**kwargs):
+async def get_apps(**kwargs) -> dict[str, Any]:
     """
     Геттер возможных приложений
     """
@@ -31,7 +31,7 @@ async def get_apps(**kwargs):
     }
 
 
-async def get_models(dialog_manager: DialogManager, **kwargs):
+async def get_models(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
     """
     Геттер возможных моделей
     """
@@ -51,7 +51,7 @@ async def get_models(dialog_manager: DialogManager, **kwargs):
 
 
 # pylint: disable=too-many-locals
-async def get_rows(dialog_manager: DialogManager, **kwargs):
+async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
     """
     Геттер строк для модели
     """
@@ -123,7 +123,7 @@ async def get_rows(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def get_search_description(dialog_manager: DialogManager, **kwargs):
+async def get_search_description(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
     app = apps_admins[dialog_manager.dialog_data["app_id"]]
     model_admin = app.admin_models[dialog_manager.dialog_data["model_id"]]
 
@@ -134,7 +134,7 @@ async def get_search_description(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def get_row_detail(dialog_manager: DialogManager, **kwargs):
+async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
     """
     Геттер для записи в бд
     """

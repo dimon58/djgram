@@ -14,7 +14,7 @@ class TelegramFormatter(Formatter):
     разделяет новой строкой метаинформацию и сообщение
     """
 
-    def format(self, record):
+    def format(self, record: LogRecord) -> str:
         """
         Format the specified record as text.
 

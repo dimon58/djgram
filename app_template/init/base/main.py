@@ -49,7 +49,7 @@ async def echo_handler(message: Message):
     await message.copy_to(message.chat.id)
 
 
-def setup_routers(dp: Dispatcher):
+def setup_routers(dp: Dispatcher) -> None:
     """
     Установка роутеров
     """

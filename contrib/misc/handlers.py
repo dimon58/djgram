@@ -3,7 +3,7 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram_dialog import DialogManager
 
 
-async def cancel_handler(message: Message, state: FSMContext, dialog_manager: DialogManager):
+async def cancel_handler(message: Message, state: FSMContext, dialog_manager: DialogManager) -> None:
     """
     Команда сброса состояния
     """

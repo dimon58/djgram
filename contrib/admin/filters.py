@@ -5,7 +5,7 @@ from aiogram import F, Router
 from aiogram.filters import MagicData
 
 
-def make_admin_router(parent_router: Router | None = None):
+def make_admin_router(parent_router: Router | None = None) -> Router:
     """
     Создает роутер, доступ к которому имеют только администраторы.
 

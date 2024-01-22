@@ -60,7 +60,7 @@ def prepare_rows(rows: list[list[Any]]) -> list[str]:
     return row_stings
 
 
-def get_field_by_path(obj: BaseModel, field: str):
+def get_field_by_path(obj: BaseModel, field: str) -> Any:
     """
     Возвращает значения поля объекта по пути
 
@@ -120,7 +120,7 @@ def get_field_by_path(obj: BaseModel, field: str):
 
 
 class AdminFieldRenderer:
-    def __init__(self, field, title: str | None = None, docs: str | None = None):
+    def __init__(self, field: str, title: str | None = None, docs: str | None = None):
         """
         Args:
             field: Путь до поля, в том числе составной, разделённый __, как в django.
@@ -159,7 +159,7 @@ class AdminFieldRenderer:
 
         return f"<i>{html_escape(doc)}</i>"
 
-    def get_title(self):
+    def get_title(self) -> str:
         """
         Возвращает названия поля с учётом возможного переопределения
         """

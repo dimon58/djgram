@@ -18,7 +18,7 @@ CONTENT_TYPE_KEY = "content_type"
 logger = logging.getLogger(__name__)
 
 
-def get_update_dict_for_clickhouse(update: Update, execution_time: float):
+def get_update_dict_for_clickhouse(update: Update, execution_time: float) -> dict[str, Any]:
     data = update.model_dump()
     data["date"] = datetime.now(tz=UTC)
     data["execution_time"] = execution_time
@@ -35,7 +35,7 @@ def get_update_dict_for_clickhouse(update: Update, execution_time: float):
 
 
 # pylint: disable=too-few-public-methods
-async def save_event_to_clickhouse(update: Update, execution_time: float):
+async def save_event_to_clickhouse(update: Update, execution_time: float) -> int | None:
     """
     Сохраняет update в clickhouse
     """
@@ -43,11 +43,12 @@ async def save_event_to_clickhouse(update: Update, execution_time: float):
 
     try:
         async with clickhouse.connection() as clickhouse_connection:
-            await clickhouse.insert_dict(clickhouse_connection, ANALYTICS_UPDATES_TABLE, data)
+            return await clickhouse.insert_dict(clickhouse_connection, ANALYTICS_UPDATES_TABLE, data)
 
     # pylint: disable=broad-exception-caught
     except Exception as exc:
         logger.exception(f"Inserting in clickhouse error: {exc.__class__.__name__}: {exc}")  # noqa: TRY401
+        return None
 
 
 class SaveUpdateToClickHouseMiddleware(BaseMiddleware, ABC):

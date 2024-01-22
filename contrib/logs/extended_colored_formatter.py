@@ -16,7 +16,7 @@ class ExtendedColoredFormatter(ColoredFormatter):
     Форматирует цветом ещё и название уровня логов
     """
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         """
         Apply level-specific styling to log records.
         Also colorize levelname.

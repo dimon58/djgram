@@ -30,7 +30,10 @@ class AuthMiddleware(BaseMiddleware, ABC):
     """
 
     @staticmethod
-    async def get_user(telegram_user: TelegramUser, db_session: AsyncSession):
+    async def get_user(
+        telegram_user: TelegramUser,
+        db_session: AsyncSession,
+    ) -> User:  # pyright: ignore [reportGeneralTypeIssues]
         user, user_created = await get_or_create(
             session=db_session,
             model=User,
@@ -46,7 +49,7 @@ class AuthMiddleware(BaseMiddleware, ABC):
 
         return user
 
-    async def add_user_to_data(self, telegram_user: TelegramUser, data: dict[str, Any]):
+    async def add_user_to_data(self, telegram_user: TelegramUser, data: dict[str, Any]) -> None:
         """
         Добавляет пользователя в data
         """

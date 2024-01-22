@@ -16,7 +16,7 @@ from djgram.db.middlewares import DbSessionMiddleware
 logger = logging.getLogger(__name__)
 
 
-def setup_router(dp: Dispatcher):
+def setup_router(dp: Dispatcher) -> None:
     dp.message.register(cancel_handler, Command("cancel"))
     dp.include_router(communication_router)
     dp.include_router(admin_router)
@@ -24,7 +24,7 @@ def setup_router(dp: Dispatcher):
     logger.info("djgram routers setup")
 
 
-def setup_middlewares(dp: Dispatcher, analytics: bool):
+def setup_middlewares(dp: Dispatcher, analytics: bool) -> None:
     dp.update.outer_middleware(TraceMiddleware())
     if analytics:
         dp.update.outer_middleware(SaveUpdateToClickHouseMiddleware())
@@ -35,7 +35,7 @@ def setup_middlewares(dp: Dispatcher, analytics: bool):
     logger.info("djgram middlewares setup")
 
 
-def setup(dp: Dispatcher, *, analytics=True):
+def setup(dp: Dispatcher, *, analytics: bool = True) -> None:
     """
     Установка djgram
 

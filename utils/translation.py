@@ -1,13 +1,16 @@
+from collections.abc import Callable
+
+
 def get_default_word_builder(
     word_0: str,
     word_1: str,
     word_234: str,
-):
+) -> Callable[[int], str]:
     """
     Создаёт функции для постановки существительного в нужное число
     """
 
-    def inner(number: int):
+    def inner(number: int) -> str:
         """
         Ставит слово "чат" в нужное число в зависимости от number. Например:
 

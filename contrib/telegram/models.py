@@ -88,7 +88,7 @@ class TelegramUser(TimeTrackableBaseModel):
 
         return f"{self.first_name} {self.last_name}"
 
-    def get_telegram_href_a_tag(self):
+    def get_telegram_href_a_tag(self) -> str:
         """
         Возвращает ссылку на пользователя в виде поддерживаемого тега для сообщения телеграмм
 
