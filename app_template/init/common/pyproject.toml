@@ -11,12 +11,13 @@ python_files = [
 select = ["ALL"]
 ignore = [
     "A002", "A003", "ARG001", "ARG002", "C901", "COM812", "D100",
-    "D101", "D102", "D103", "D105", "D106", "D200", "D202", "D205", "D212", "D415", "DJ001",
-    "EM101", "EM102", "ERA001", "FBT001", "FBT002", "G004", "I001", "INP001",
-    "PLR0912", "PLR0913", "PLR2004", "PT009", "PTH103", "PTH120", "PTH122", "PTH123",
-    "RUF001", "RUF002", "RUF003", "RUF012", "S308", "SLF001", "TID252", "TRY003", "TRY401",
+    "D101", "D102", "D103", "D105", "D200", "D202", "D205", "D212", "D415",
+    "EM101", "EM102", "ERA001", "FBT001", "FBT002", "G004", "INP001",
+    "PLR0912", "PLR0913", "PLR2004", "PTH103", "PTH120", "PTH122", "PTH123",
+    "RUF001", "RUF002", "RUF003", "RUF012", "TID252", "TRY003",
+    "ANN002", "ANN003", "ANN101", "ANN102", "ANN201", "ANN204", "ANN401",
 
-    "ANN", "FIX",  "TD",
+    "FIX", "TD",
 ]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
