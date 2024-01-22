@@ -77,7 +77,7 @@ LOGGING_CONFIG = {
     "filters": {
         "update_filter": {
             "()": "djgram.contrib.logs.context.UpdateIdContextFilter",
-        }
+        },
     },
     "formatters": {
         "default": {

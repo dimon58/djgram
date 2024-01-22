@@ -63,7 +63,7 @@ async def broadcast(
         try:
             success = await send_method(chat_id=chat_id, **kwargs)
         except RecursionError as exc:
-            logger.exception(exc)
+            logger.exception("Too many attempts to send message", exc_info=exc)
             errors += 1
         else:
             if not success:

@@ -5,6 +5,7 @@ import logging
 import sys
 from dataclasses import dataclass
 from dataclasses import field as dc_field
+from typing import ClassVar
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,15 +26,17 @@ class ModelAdmin:
     Модель админки, как в django (не относится к базе данных на прямую)
     """
 
-    model: type[BaseModel]  # Модель в которой есть id
-    name: str = ""  # Название
-    list_display: list[str] = []  # Список колонок для показа при предпросмотре
-    search_fields: list[str] = []  # Список полей, по которым производиться поиск
-    show_count: bool = True  # Показывать число записей
-    show_docs: bool = True  # Показывать документацию, если есть
-    fields: list[str | AdminFieldRenderer] | None = None  # Список полей для показа, если None, то показываются все поля
+    model: ClassVar[type[BaseModel]]  # Модель в которой есть id
+    name: ClassVar[str] = ""  # Название
+    list_display: ClassVar[list[str]] = []  # Список колонок для показа при предпросмотре
+    search_fields: ClassVar[list[str]] = []  # Список полей, по которым производиться поиск
+    show_count: ClassVar[bool] = True  # Показывать число записей
+    show_docs: ClassVar[bool] = True  # Показывать документацию, если есть
 
-    skip_synonyms_origin: bool = True  # Не показывать поля, для которых есть синонимы
+    # Список полей для показа, если None, то показываются все поля
+    fields: ClassVar[list[str | AdminFieldRenderer] | None] = None
+
+    skip_synonyms_origin: ClassVar[bool] = True  # Не показывать поля, для которых есть синонимы
 
     @classmethod
     def __check_fields_exists(cls, fields, allowed_fields, list_name):

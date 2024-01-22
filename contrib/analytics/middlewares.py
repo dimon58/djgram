@@ -47,7 +47,7 @@ async def save_event_to_clickhouse(update: Update, execution_time: float):
 
     # pylint: disable=broad-exception-caught
     except Exception as exc:
-        logger.exception(f"Inserting in clickhouse error: {exc.__class__.__name__}: {exc}")
+        logger.exception(f"Inserting in clickhouse error: {exc.__class__.__name__}: {exc}")  # noqa: TRY401
 
 
 class SaveUpdateToClickHouseMiddleware(BaseMiddleware, ABC):

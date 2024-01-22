@@ -8,7 +8,7 @@ from aiogram_dialog import DialogManager
 logger = logging.getLogger(__name__)
 
 
-def get_last_chat_id_and_message_id_from_dialog_manager(dialog_manager: DialogManager) -> tuple[int, int] | None:
+def get_chat_id_and_last_message_id_from_dialog_manager(dialog_manager: DialogManager) -> tuple[int, int] | None:
     """
     Возвращает кортеж (id чата, id последнего сообщения),
     если есть последнее сообщение, иначе None
@@ -28,7 +28,9 @@ def get_last_chat_id_and_message_id_from_dialog_manager(dialog_manager: DialogMa
 
     # Реально сюда передаётся экземпляр класса ManagerImpl
     # noinspection PyProtectedMember
-    return dialog_manager._data["event_chat"].id, stack.last_message_id  # pyright: ignore [reportGeneralTypeIssues]
+
+    chat_id = dialog_manager._data["event_chat"].id  # noqa: SLF001 # pyright: ignore [reportGeneralTypeIssues]
+    return chat_id, stack.last_message_id
 
 
 async def remove_kbd(bot: Bot, chat_id: int | None, message_id: int | None) -> Message | None:
@@ -78,7 +80,7 @@ async def delete_last_message_from_dialog_manager(dialog_manager: DialogManager)
     """
     Удаляет последние сообщение в диалоге, описываемом dialog_manager
     """
-    res = get_last_chat_id_and_message_id_from_dialog_manager(dialog_manager)
+    res = get_chat_id_and_last_message_id_from_dialog_manager(dialog_manager)
     if res is None:
         return
 
