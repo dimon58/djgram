@@ -5,11 +5,11 @@ import logging
 from enum import Enum
 from typing import Any, TypeVar, cast
 
-from sqlalchemy import Column, inspect, select, update
+from sqlalchemy import inspect, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import RelationshipProperty, Synonym
+from sqlalchemy.orm import MappedColumn, RelationshipProperty, Synonym
 
 from djgram.db.models import BaseModel
 
@@ -32,17 +32,19 @@ class ReturnState(Enum):
     UPDATED = 2
 
 
-def get_fields_of_declarative_meta(model_class: type[BaseModel]):
+def get_fields_of_declarative_meta(model_class: type) -> set[str]:
     """
     Получает множество всех полей абстрактной модели BaseModel.
     Нужно для получения всех полей модели apps.core.models.BaseModel
 
-    Отличается от метода get_fields_of_model тем, что не вызывает ошибку
+    Отличается от метода get_fields_of_model тем, что не вызывает ошибки
 
-    sqlalchemy.exc.NoInspectionAvailable:
+    - sqlalchemy.exc.NoInspectionAvailable:
     No inspection system is available for object of type <class 'sqlalchemy.orm.decl_api.DeclarativeMeta'>
+    - sqlalchemy.exc.NoInspectionAvailable:
+    No inspection system is available for object of type <class 'sqlalchemy.orm.decl_api.DeclarativeAttributeIntercept'>
     """
-    return {field for field, value in model_class.__dict__.items() if isinstance(value, Column)}
+    return {field for field, value in model_class.__dict__.items() if isinstance(value, MappedColumn)}
 
 
 def get_fields_of_model(model_class: type[BaseModel], skip_synonyms_origin: bool) -> list[str]:
@@ -73,6 +75,7 @@ def get_fields_of_model(model_class: type[BaseModel], skip_synonyms_origin: bool
 async def get_or_create(
     session: AsyncSession,
     model: type[T],
+    with_for_update: bool = False,
     defaults: dict[str, Any] | None = None,
     **kwargs,
 ) -> tuple[T, bool]:
@@ -82,6 +85,8 @@ async def get_or_create(
     https://stackoverflow.com/questions/2546207/does-sqlalchemy-have-an-equivalent-of-djangos-get-or-create
     """
     stmt = select(model).filter_by(**kwargs)
+    if with_for_update:
+        stmt = stmt.with_for_update()
     instance: T | None = await session.scalar(stmt)
 
     if instance is not None:

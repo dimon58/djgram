@@ -10,7 +10,7 @@ from aiogram.types import Chat, Update, User
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from djgram.contrib.telegram.models import TelegramChat, TelegramUser
-from djgram.db.models import BaseModel
+from djgram.db.models import BaseModel, CreatedAtMixin, UpdatedAtMixin
 from djgram.db.utils import (
     ReturnState,
     get_fields_of_declarative_meta,
@@ -37,7 +37,11 @@ class TelegramMiddleware(BaseMiddleware):
         "permissions_id",
     }
 
-    __base_model_fields = get_fields_of_declarative_meta(BaseModel) | {"created_at", "updated_at"}
+    __base_model_fields = (
+        get_fields_of_declarative_meta(BaseModel)
+        | get_fields_of_declarative_meta(CreatedAtMixin)
+        | get_fields_of_declarative_meta(UpdatedAtMixin)
+    )
     __telegram_user_fields = set(TelegramUser.__table__.columns.keys()) - __base_model_fields
     __telegram_chat_fields = set(TelegramChat.__table__.columns.keys()) - __base_model_fields - CHAT_EXCLUDED_FIELDS
 
