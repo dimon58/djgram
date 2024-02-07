@@ -8,22 +8,6 @@ python_files = [
 
 # ==== ruff ====
 [tool.ruff]
-select = ["ALL"]
-ignore = [
-    "A002", "A003", "ARG001", "ARG002", "C901", "COM812", "D100",
-    "D101", "D102", "D103", "D105", "D200", "D202", "D205", "D212", "D415",
-    "EM101", "EM102", "ERA001", "FBT001", "FBT002", "G004", "INP001",
-    "PLR0912", "PLR0913", "PLR2004", "PTH103", "PTH120", "PTH122", "PTH123",
-    "RUF001", "RUF002", "RUF003", "RUF012", "TID252", "TRY003",
-    "ANN002", "ANN003", "ANN101", "ANN102", "ANN201", "ANN204", "ANN401",
-
-    "FIX", "TD",
-]
-
-# Allow autofix for all enabled rules (when `--fix`) is provided.
-fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
-unfixable = []
-
 # Exclude a variety of commonly ignored directories.
 exclude = [".bzr",
     ".direnv",
@@ -40,6 +24,7 @@ exclude = [".bzr",
     ".tox",
     ".venv",
     "__pypackages__",
+    "__pycache__",
     "_build",
     "buck-out",
     "build",
@@ -54,10 +39,28 @@ line-length = 120
 # Assume Python 3.11
 target-version = "py311"
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "A002", "A003", "ARG001", "ARG002", "C901", "COM812", "D100",
+    "D101", "D102", "D103", "D105", "D200", "D202", "D205", "D212", "D415",
+    "EM101", "EM102", "ERA001", "FBT001", "FBT002", "G004", "INP001",
+    "PLR0912", "PLR0913", "PLR2004", "PTH103", "PTH120", "PTH122", "PTH123",
+    "RUF001", "RUF002", "RUF003", "RUF012", "TID252", "TRY003",
+    "ANN002", "ANN003", "ANN101", "ANN102", "ANN201", "ANN204", "ANN401",
+    "FIX", "TD",
+]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
+unfixable = []
+
+
+
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 # Unlike Flake8, default to a complexity level of 10.
 max-complexity = 10
 

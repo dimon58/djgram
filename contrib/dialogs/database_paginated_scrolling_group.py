@@ -41,7 +41,7 @@ class DatabasePaginatedScrollingGroup(Group):
         total_key: str = "total",
     ):
         # Тут ошибка типизации width в Group.__init__
-        super().__init__(*buttons, id=id, width=width, when=when)  # pyright: ignore [reportGeneralTypeIssues]
+        super().__init__(*buttons, id=id, width=width, when=when)  # pyright: ignore [reportArgumentType]
         self.height = height
         self.on_page_changed = ensure_event_processor(on_page_changed)
         self.hide_on_single_page = hide_on_single_page

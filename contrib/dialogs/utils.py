@@ -29,7 +29,7 @@ def get_chat_id_and_last_message_id_from_dialog_manager(dialog_manager: DialogMa
     # Реально сюда передаётся экземпляр класса ManagerImpl
     # noinspection PyProtectedMember
 
-    chat_id = dialog_manager._data["event_chat"].id  # noqa: SLF001 # pyright: ignore [reportGeneralTypeIssues]
+    chat_id = dialog_manager._data["event_chat"].id  # noqa: SLF001 # pyright: ignore [reportAttributeAccessIssue]
     return chat_id, stack.last_message_id
 
 

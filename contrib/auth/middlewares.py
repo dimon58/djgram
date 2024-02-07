@@ -15,6 +15,7 @@ from djgram.contrib.telegram.models import TelegramUser
 from djgram.db.utils import get_or_create
 
 from .models import User
+from .user_model_base import AbstractUser
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ class AuthMiddleware(BaseMiddleware, ABC):
     async def get_user(
         telegram_user: TelegramUser,
         db_session: AsyncSession,
-    ) -> User:  # pyright: ignore [reportGeneralTypeIssues]
+    ) -> AbstractUser:
         user, user_created = await get_or_create(
             session=db_session,
             model=User,

@@ -1,3 +1,4 @@
+# ruff: noqa: I001
 import asyncio
 from contextlib import suppress
 from logging.config import fileConfig
