@@ -1,6 +1,7 @@
 """
 Посредники для аутентификации
 """
+
 import logging
 from abc import ABC
 from collections.abc import Awaitable, Callable

@@ -2,8 +2,10 @@ import logging
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
+from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
+from aiogram_dialog.widgets.kbd import Select
 
 logger = logging.getLogger(__name__)
 
@@ -91,3 +93,14 @@ async def delete_last_message_from_dialog_manager(dialog_manager: DialogManager)
         chat_id=chat_id,
         message_id=message_id,
     )
+
+
+def set_value_and_switch_to(key: str, next_state: State):
+    async def on_click(callback: CallbackQuery, widget: Select, manager: DialogManager, value: str) -> None:
+        old_value = manager.dialog_data.get(key)
+        manager.dialog_data[key] = value
+
+        logger.debug("Changed dialog data for %s (%s: %s -> %s)", manager.current_context().id, key, old_value, value)
+        await manager.switch_to(next_state)
+
+    return on_click

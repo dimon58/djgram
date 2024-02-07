@@ -1,6 +1,7 @@
 """
 There is telegram types models
 """
+
 from typing import Literal
 
 import sqlalchemy

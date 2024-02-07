@@ -1,13 +1,17 @@
 import datetime
 import importlib
-import operator
+import logging
 import time
-from collections.abc import Callable, Generator
+from collections.abc import Awaitable, Generator, Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Self, TypeVar
+from typing import Any, Literal, TypeVar
+
+from pydantic import BaseModel
 
 T = TypeVar("T")
+
+logger = logging.getLogger(__name__)
 
 
 def utcnow() -> datetime.datetime:
@@ -35,72 +39,6 @@ def resolve_pyobj(str_path: str) -> Any:
     module = importlib.import_module(path)
 
     return getattr(module, name)
-
-
-class LazyObject:
-    _wrapped = None
-    _is_init = False
-
-    def __init__(self, factory: Callable | type):
-        """
-        Args:
-            factory: initializer for object
-        """
-        # Assign using __dict__ to avoid the setattr method.
-        self.__dict__["_factory"] = factory
-
-    def _setup(self) -> None:
-        self._wrapped = self._factory()
-        self._is_init = True
-
-    @staticmethod
-    def new_method_proxy(func: Callable[..., T]) -> Callable[..., T]:
-        """
-        Util function to help us route functions
-        to the nested object.
-        """
-
-        def inner(self: Self, *args, **kwargs) -> T:
-            if not self._is_init:
-                self._setup()
-            return func(self._wrapped, *args, **kwargs)
-
-        return inner
-
-    def __setattr__(self, name: str, value: Any):
-        # These are special names that are on the LazyObject.
-        # every other attribute should be on the wrapped object.
-        if name in {"_is_init", "_wrapped"}:
-            self.__dict__[name] = value
-        else:
-            if not self._is_init:
-                self._setup()
-            setattr(self._wrapped, name, value)
-
-    def __delattr__(self, name: str):
-        if name == "_wrapped":
-            raise TypeError("can't delete _wrapped.")
-        if not self._is_init:
-            self._setup()
-        delattr(self._wrapped, name)
-
-    __getattr__ = new_method_proxy(getattr)
-    __bytes__ = new_method_proxy(bytes)
-    __str__ = new_method_proxy(str)
-    __bool__ = new_method_proxy(bool)
-    __dir__ = new_method_proxy(dir)
-    __hash__ = new_method_proxy(hash)
-    __class__ = property(new_method_proxy(operator.attrgetter("__class__")))
-    __eq__ = new_method_proxy(operator.eq)
-    __lt__ = new_method_proxy(operator.lt)
-    __gt__ = new_method_proxy(operator.gt)
-    __ne__ = new_method_proxy(operator.ne)
-    __getitem__ = new_method_proxy(operator.getitem)
-    __setitem__ = new_method_proxy(operator.setitem)
-    __delitem__ = new_method_proxy(operator.delitem)
-    __iter__ = new_method_proxy(iter)
-    __len__ = new_method_proxy(len)
-    __contains__ = new_method_proxy(operator.contains)
 
 
 @dataclass
@@ -141,3 +79,40 @@ def measure_time() -> Generator[MeasureResult, None, None]:
     e = time.perf_counter()
 
     res.elapsed = e - s
+
+
+@contextmanager
+def unfreeze_model(model: BaseModel) -> Iterator[None]:
+    """
+    Делает модель pydantic доступной для изменения
+    """
+    model.model_config["frozen"] = False
+    yield
+    model.model_config["frozen"] = True
+
+
+async def try_run_async(
+    coro: Awaitable[T],
+    exception_class: type[Exception] | Sequence[type[Exception]] = Exception,
+    max_attempts: int = 3,
+) -> tuple[Literal[True], T] | tuple[Literal[False], None]:
+    """
+    Пытает выполнить корутину несколько раз, пока не получиться
+
+    Args:
+        coro: корутина, которую нужно выполнить
+        exception_class: класс или классы исключений для отлавливания
+        max_attempts: максимальное число попыток выполнить корутину
+
+    Returns:
+        (успешность выполнения, результат или None)
+    """
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return True, await coro
+        except exception_class as exc:
+            logger.exception("failed %s/%s attempt to run %s", attempt, max_attempts, coro, exc_info=exc)
+
+    logger.error("Failed to run %s %s times", coro, max_attempts)
+
+    return False, None
