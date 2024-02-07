@@ -5,8 +5,7 @@ try:
 
 except ImportError:
 
-    class User(AbstractUser):
-        ...
+    class User(AbstractUser): ...
 
 else:
     if not issubclass(USER_MODEL, AbstractUser):

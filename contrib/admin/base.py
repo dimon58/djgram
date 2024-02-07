@@ -1,6 +1,7 @@
 """
 Базовые классы для работы приложения администрирования
 """
+
 import logging
 import sys
 from collections.abc import Sequence

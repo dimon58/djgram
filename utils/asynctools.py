@@ -11,6 +11,8 @@ def run_async_from_sync(coro: Coroutine) -> None:
     """
     try:
         loop = asyncio.get_running_loop()
-        loop.create_task(coro)  # noqa: RUF006
+        runner = loop.create_task
     except RuntimeError:
-        asyncio.run(coro)
+        runner = asyncio.run
+
+    runner(coro)

@@ -1,6 +1,7 @@
 """
 Точка входа для запуска бота
 """
+
 import asyncio
 import logging.config
 

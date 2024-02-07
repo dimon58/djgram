@@ -1,6 +1,7 @@
 """
 Аналог ScrollingGroup из aiogram_dialogs, но пагинация происходит на стороне базы данных
 """
+
 from collections.abc import Awaitable, Callable
 from typing import cast
 
@@ -36,7 +37,7 @@ class DatabasePaginatedScrollingGroup(Group):
         width: int | None = None,
         height: int = 0,
         when: WhenCondition = None,
-        on_page_changed: (OnStateChanged | WidgetEventProcessor | None) = None,
+        on_page_changed: OnStateChanged | WidgetEventProcessor | None = None,
         hide_on_single_page: bool = False,
         total_key: str = "total",
     ):

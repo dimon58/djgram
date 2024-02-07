@@ -1,6 +1,7 @@
 """
 Геттеры для диалогов
 """
+
 import logging
 from typing import TYPE_CHECKING, Any, cast
 

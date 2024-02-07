@@ -1,6 +1,7 @@
 """
 Модели для базы данных
 """
+
 from datetime import datetime
 
 from sqlalchemy import ForeignKey, func
