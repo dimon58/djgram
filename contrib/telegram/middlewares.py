@@ -58,7 +58,7 @@ class TelegramMiddleware(BaseMiddleware):
         )
 
         if telegram_user_state == ReturnState.CREATED:
-            logger.info(f"New Telegram user [{telegram_user.id}] {user.full_name}")
+            logger.info("New Telegram user [%s] %s", telegram_user.id, user.full_name)
 
         return telegram_user, telegram_user_state == ReturnState.CREATED
 
@@ -74,7 +74,7 @@ class TelegramMiddleware(BaseMiddleware):
         )
 
         if telegram_chat_state == ReturnState.CREATED:
-            logger.info(f"New Telegram chat [{chat.id}]")
+            logger.info("New Telegram %s chat [%s]", chat.type, chat.id)
 
         return telegram_chat, telegram_chat_state == ReturnState.CREATED
 

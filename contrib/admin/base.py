@@ -50,20 +50,20 @@ class ModelAdmin:
                 errors.add(extra_field)
 
         if len(errors) > 0:
-            logger.critical(f"У {cls} есть лишние поля в {list_name}: {sorted(errors)}")
+            logger.critical("У %s есть лишние поля в %s: %s", cls, list_name, sorted(errors))
             sys.exit()
 
     def __init_subclass__(cls, **kwargs):
         if cls.model is None:
-            logger.critical(f"У {cls} не определена модель")
+            logger.critical("У %s не определена модель", cls)
             sys.exit()
 
         if len(cls.list_display) == 0:
-            logger.critical(f"У {cls} не заполнен list_display")
+            logger.critical("У %s не заполнен list_display", cls)
             sys.exit()
 
         if cls.name == "":
-            logger.critical(f"У {cls} не заполнен name")
+            logger.critical("У %s не заполнен name", cls)
             sys.exit()
 
         allowed_fields = set(get_fields_of_model(cls.model, skip_synonyms_origin=False))

@@ -118,15 +118,19 @@ async def send_message_copy(message: Message, chat_id: int, disable_notification
         await message.send_copy(chat_id, disable_notification=disable_notification)
 
     except TelegramRetryAfter as e:
-        logger.warning(f"[BROADCAST] Target [ID:{chat_id}]: Flood limit is exceeded. Sleep {e.retry_after} seconds.")
+        logger.warning(
+            "[BROADCAST] Target [ID:%s]: Flood limit is exceeded. Sleep %s seconds.",
+            chat_id,
+            e.retry_after,
+        )
         await asyncio.sleep(e.retry_after)
         return await send_message_copy(message, chat_id)  # Recursive call
 
     except TelegramAPIError as exc:
-        logger.exception(f"[BROADCAST] Target [ID:{chat_id}]: failed", exc_info=exc)
+        logger.exception("[BROADCAST] Target [ID:%s]: failed", chat_id, exc_info=exc)
 
     else:
-        logger.info(f"[BROADCAST] Target [ID:{chat_id}]: success")
+        logger.info("[BROADCAST] Target [ID:%s]: success", chat_id)
         return True
 
     return False
