@@ -1,13 +1,19 @@
+import asyncio
 import datetime
 import importlib
+import logging
 import operator
 import time
-from collections.abc import Callable, Generator
-from contextlib import contextmanager
+from collections.abc import Awaitable, Callable, Sequence
+from contextlib import AbstractContextManager, contextmanager
 from dataclasses import dataclass
 from typing import Any, Self, TypeVar
 
+from pydantic import BaseModel
+
 T = TypeVar("T")
+_FROZEN_KEY = "frozen"
+logger = logging.getLogger(__name__)
 
 
 def utcnow() -> datetime.datetime:
@@ -125,7 +131,7 @@ class MeasureResult:
 
 
 @contextmanager
-def measure_time() -> Generator[MeasureResult, None, None]:
+def measure_time() -> AbstractContextManager[MeasureResult]:
     """
     Измеряет время с помощью контекстного менеджера
 
@@ -141,3 +147,43 @@ def measure_time() -> Generator[MeasureResult, None, None]:
     e = time.perf_counter()
 
     res.elapsed = e - s
+
+
+@contextmanager
+def unfreeze_model(model: BaseModel) -> AbstractContextManager[None]:
+    frozen = model.model_config[_FROZEN_KEY]
+    model.model_config[_FROZEN_KEY] = False
+    yield
+    model.model_config[_FROZEN_KEY] = frozen
+
+
+async def try_run_async(
+    coro: Awaitable[T],
+    max_attempts: int = 3,
+    exception_class: type[Exception] | Sequence[type[Exception]] = Exception,
+    sleep_time: float = 0.0,
+) -> tuple[True, T] | tuple[False, None]:
+    """
+    Пытается выполнить функцию несколько раз и вернуть её результат
+
+    Args:
+        coro: корутина, которую нужно запустить
+        max_attempts: максимальное число попыток выполнить
+        exception_class: ожидаемый класс или классы исключений
+        sleep_time: время ожидания между попытками
+
+    Returns:
+        Успешность выполнения и результат
+    """
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return True, await coro
+        except exception_class as exc:
+            logger.exception("[attempt %s/%s] Failed to run %s", attempt, max_attempts, coro, exc_info=exc)
+
+        if sleep_time and attempt < max_attempts:
+            await asyncio.sleep(sleep_time)
+
+    logger.error("%s failed %s times", coro, max_attempts)
+
+    return False, None
