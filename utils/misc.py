@@ -1,15 +1,11 @@
-import asyncio
 import datetime
 import importlib
-import logging
 import operator
 import time
-from collections.abc import Awaitable, Callable, Sequence
-from contextlib import AbstractContextManager, contextmanager
+from collections.abc import Callable, Iterator, Generator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any, Self, TypeVar
-
-from pydantic import BaseModel
 
 T = TypeVar("T")
 _FROZEN_KEY = "frozen"
@@ -43,72 +39,6 @@ def resolve_pyobj(str_path: str) -> Any:
     return getattr(module, name)
 
 
-class LazyObject:
-    _wrapped = None
-    _is_init = False
-
-    def __init__(self, factory: Callable | type):
-        """
-        Args:
-            factory: initializer for object
-        """
-        # Assign using __dict__ to avoid the setattr method.
-        self.__dict__["_factory"] = factory
-
-    def _setup(self) -> None:
-        self._wrapped = self._factory()
-        self._is_init = True
-
-    @staticmethod
-    def new_method_proxy(func: Callable[..., T]) -> Callable[..., T]:
-        """
-        Util function to help us route functions
-        to the nested object.
-        """
-
-        def inner(self: Self, *args, **kwargs) -> T:
-            if not self._is_init:
-                self._setup()
-            return func(self._wrapped, *args, **kwargs)
-
-        return inner
-
-    def __setattr__(self, name: str, value: Any):
-        # These are special names that are on the LazyObject.
-        # every other attribute should be on the wrapped object.
-        if name in {"_is_init", "_wrapped"}:
-            self.__dict__[name] = value
-        else:
-            if not self._is_init:
-                self._setup()
-            setattr(self._wrapped, name, value)
-
-    def __delattr__(self, name: str):
-        if name == "_wrapped":
-            raise TypeError("can't delete _wrapped.")
-        if not self._is_init:
-            self._setup()
-        delattr(self._wrapped, name)
-
-    __getattr__ = new_method_proxy(getattr)
-    __bytes__ = new_method_proxy(bytes)
-    __str__ = new_method_proxy(str)
-    __bool__ = new_method_proxy(bool)
-    __dir__ = new_method_proxy(dir)
-    __hash__ = new_method_proxy(hash)
-    __class__ = property(new_method_proxy(operator.attrgetter("__class__")))
-    __eq__ = new_method_proxy(operator.eq)
-    __lt__ = new_method_proxy(operator.lt)
-    __gt__ = new_method_proxy(operator.gt)
-    __ne__ = new_method_proxy(operator.ne)
-    __getitem__ = new_method_proxy(operator.getitem)
-    __setitem__ = new_method_proxy(operator.setitem)
-    __delitem__ = new_method_proxy(operator.delitem)
-    __iter__ = new_method_proxy(iter)
-    __len__ = new_method_proxy(len)
-    __contains__ = new_method_proxy(operator.contains)
-
-
 @dataclass
 class MeasureResult:
     """
@@ -131,7 +61,7 @@ class MeasureResult:
 
 
 @contextmanager
-def measure_time() -> AbstractContextManager[MeasureResult]:
+def measure_time() -> Generator[MeasureResult, None, None]:
     """
     Измеряет время с помощью контекстного менеджера
 
@@ -150,7 +80,10 @@ def measure_time() -> AbstractContextManager[MeasureResult]:
 
 
 @contextmanager
-def unfreeze_model(model: BaseModel) -> AbstractContextManager[None]:
+def unfreeze_model(model: BaseModel) -> Iterator[None]:
+    """
+    Делает модель pydantic доступной для изменения
+    """
     frozen = model.model_config[_FROZEN_KEY]
     model.model_config[_FROZEN_KEY] = False
     yield
@@ -164,7 +97,7 @@ async def try_run_async(
     sleep_time: float = 0.0,
 ) -> tuple[True, T] | tuple[False, None]:
     """
-    Пытается выполнить функцию несколько раз и вернуть её результат
+    Пытается выполнить функцию несколько раз и вернуть её результат, пока не получиться
 
     Args:
         coro: корутина, которую нужно запустить
@@ -173,7 +106,7 @@ async def try_run_async(
         sleep_time: время ожидания между попытками
 
     Returns:
-        Успешность выполнения и результат
+        Успешность выполнения, результат или None
     """
     for attempt in range(1, max_attempts + 1):
         try:
