@@ -24,7 +24,7 @@ class DbSessionMiddleware(BaseMiddleware):
         data: dict[str, Any],
     ) -> Any:
         async with async_session_maker() as db_session:
-            db_session.begin()
+            await db_session.begin()
 
             data["db_session"] = db_session
 
