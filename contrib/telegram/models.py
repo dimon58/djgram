@@ -420,6 +420,14 @@ class TelegramChat(TimeTrackableBaseModel):
             "the chat will be automatically deleted; in seconds. Returned only in getChat."
         ),
     )
+    unrestrict_boost_count: Mapped[int] = mapped_column(
+        sqltypes.BigInteger,
+        nullable=True,
+        doc=(
+            "	Optional. For supergroups, the minimum number of boosts that a non-administrator user "
+            "needs to add in order to ignore slow mode and chat permissions. Returned only in getChat."
+        ),
+    )
     has_aggressive_anti_spam_enabled: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
@@ -450,6 +458,12 @@ class TelegramChat(TimeTrackableBaseModel):
         sqltypes.Boolean,
         nullable=True,
         doc="Optional. True, if the bot can change the group sticker set. Returned only in getChat.",
+    )
+    custom_emoji_sticker_set_name: Mapped[str] = mapped_column(
+        sqltypes.String,
+        nullable=True,
+        doc="Optional. For supergroups, the name of the group's custom emoji sticker set. "
+            "Custom emoji from this set can be used by all users and bots in the group. Returned only in getChat.",
     )
     linked_chat_id: Mapped[int] = mapped_column(
         sqltypes.BigInteger,
