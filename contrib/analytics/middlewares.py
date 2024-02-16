@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_update_dict_for_clickhouse(update: Update, execution_time: float) -> dict[str, Any]:
-    data = update.model_dump()
+    data = update.model_dump(mode="json")
     data["date"] = datetime.now(tz=UTC)
     data["execution_time"] = execution_time
     data["event_type"] = update.event_type  # property
