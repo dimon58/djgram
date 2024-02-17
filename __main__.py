@@ -103,6 +103,14 @@ def init(type: str):
         render_folder(INIT_BASE_TEMPLATE_DIR, app_dir)
     elif type == "full":
         render_folder(INIT_FULL_TEMPLATE_DIR, app_dir)
+        clickhouse_scripts = os.path.join(app_dir, "docker", "clickhouse")  # noqa: PTH118
+        os.makedirs(clickhouse_scripts, exist_ok=True)
+        djgram_path = Path(__file__).resolve().parent
+        sqls = djgram_path / "contrib" / "analytics" / "sql"
+        for file in os.listdir(sqls):
+            file_path = sqls / file
+            if file_path.is_file():
+                shutil.copy(file_path, clickhouse_scripts)
     else:
         click.echo("Not supported initialization type", err=True)
 

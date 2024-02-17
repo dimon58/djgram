@@ -1,5 +1,5 @@
-from collections.abc import Iterable
-from contextlib import AbstractAsyncContextManager, asynccontextmanager
+from collections.abc import Iterable, AsyncGenerator
+from contextlib import asynccontextmanager
 from typing import Any
 
 import orjson
@@ -37,7 +37,7 @@ async def get_connection() -> Connection:
 
 
 @asynccontextmanager
-async def connection() -> AbstractAsyncContextManager[Connection]:
+async def connection() -> AsyncGenerator[Connection, None, None]:
     """
     Обертка над get_connection в виде контекстного менеджера
     """
