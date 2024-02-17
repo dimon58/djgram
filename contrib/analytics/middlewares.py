@@ -10,7 +10,6 @@ from time import perf_counter
 from typing import Any
 
 from aiogram import BaseMiddleware, Bot
-from aiogram.client.default import Default
 from aiogram.types import Update
 
 from djgram.configs import ANALYTICS_UPDATES_TABLE
@@ -19,20 +18,28 @@ from djgram.db import clickhouse
 CONTENT_TYPE_KEY = "content_type"
 logger = logging.getLogger(__name__)
 
+try:
+    # noinspection PyUnresolvedReferences
+    from aiogram.client.default import Default
 
-def set_defaults(data: dict, bot: Bot) -> dict:
-    """
-    Устанавливает все значения defaults в данных
-    """
+    def set_defaults(data: dict, bot: Bot) -> dict:
+        """
+        Устанавливает все значения defaults в данных
+        """
 
-    for key, value in data.items():
-        if isinstance(value, Default):
-            data[key] = bot.default[value.name]
+        for key, value in data.items():
+            if isinstance(value, Default):
+                data[key] = bot.default[value.name]
 
-        elif isinstance(value, dict):
-            data[key] = set_defaults(value, bot)
+            elif isinstance(value, dict):
+                data[key] = set_defaults(value, bot)
 
-    return data
+        return data
+
+except ImportError:
+
+    def set_defaults(data: dict, bot: Bot) -> dict:
+        return data
 
 
 def get_update_dict_for_clickhouse(update: Update, execution_time: float, bot: Bot) -> dict[str, Any]:

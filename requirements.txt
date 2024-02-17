@@ -1,4 +1,4 @@
-aiogram>=3.4.0,<4.0.0
+aiogram>=3.0.0,<4.0.0
 aiogram-dialog[tools]>=2.0.0,<3.0.0
 asynch[compression]~=0.2.3
 click~=8.1.7
