@@ -37,7 +37,7 @@ async def get_connection() -> Connection:
 
 
 @asynccontextmanager
-async def connection() -> AsyncGenerator[Connection, None, None]:
+async def connection() -> AsyncGenerator[Connection, None]:
     """
     Обертка над get_connection в виде контекстного менеджера
     """

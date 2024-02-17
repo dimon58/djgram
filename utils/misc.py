@@ -6,7 +6,7 @@ import time
 from collections.abc import Awaitable, Generator, Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, TypeVar
+from typing import Any, Literal, TypeVar
 
 from pydantic import BaseModel
 
@@ -87,7 +87,7 @@ def unfreeze_model(model: BaseModel) -> Iterator[None]:
     """
     Делает модель pydantic доступной для изменения
     """
-    frozen = model.model_config[_FROZEN_KEY]
+    frozen = model.model_config.get(_FROZEN_KEY, False)
     model.model_config[_FROZEN_KEY] = False
     yield
     model.model_config[_FROZEN_KEY] = frozen
@@ -98,7 +98,7 @@ async def try_run_async(
     max_attempts: int = 3,
     exception_class: type[Exception] | Sequence[type[Exception]] = Exception,
     sleep_time: float = 0.0,
-) -> tuple[True, T] | tuple[False, None]:
+) -> tuple[Literal[True], T] | tuple[Literal[False], None]:
     """
     Пытается выполнить функцию несколько раз и вернуть её результат, пока не получиться
 

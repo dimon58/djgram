@@ -1,5 +1,5 @@
 from asyncio import current_task
-from collections.abc import Iterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from sqlalchemy.ext.asyncio import (
@@ -23,7 +23,7 @@ async_session_maker: async_sessionmaker[AsyncSession] = async_sessionmaker(
 
 
 @asynccontextmanager
-async def get_async_scoped_session() -> Iterator[AsyncSession]:
+async def get_async_scoped_session() -> AsyncGenerator[AsyncSession, None]:
     """
     Функция получения сессии для работы с celery
 
