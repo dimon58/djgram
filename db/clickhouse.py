@@ -1,4 +1,4 @@
-from collections.abc import Iterable, AsyncGenerator
+from collections.abc import AsyncGenerator, Iterable
 from contextlib import asynccontextmanager
 from typing import Any
 

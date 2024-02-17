@@ -463,7 +463,7 @@ class TelegramChat(TimeTrackableBaseModel):
         sqltypes.String,
         nullable=True,
         doc="Optional. For supergroups, the name of the group's custom emoji sticker set. "
-            "Custom emoji from this set can be used by all users and bots in the group. Returned only in getChat.",
+        "Custom emoji from this set can be used by all users and bots in the group. Returned only in getChat.",
     )
     linked_chat_id: Mapped[int] = mapped_column(
         sqltypes.BigInteger,
