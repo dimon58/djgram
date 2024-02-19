@@ -33,15 +33,17 @@ CREATE TABLE IF NOT EXISTS general_statistics
 
 CREATE TABLE IF NOT EXISTS bot_statistics
 (
-    `date`                 DateTime64,
-    `collection_time`      Float64,
+    `date`                  DateTime64,
+    `collection_time`       Float64,
 
-    `uptime`               Float64,
-    `active_request_count` UInt64,
-    `head_update_id`       UInt64,
-    `request_count_per_sec`    Float64,
-    `update_count_per_sec`     Float64,
-    `username`             String
+    `uptime`                Float64,
+    `active_request_count`  UInt64,
+    `pending_update_count`  UInt64,
+    `head_update_id`        UInt64,
+    `request_count_per_sec` Float64,
+    `tail_update_id` Nullable(UInt64),
+    `update_count_per_sec`  Float64,
+    `username`              String
 )
     ENGINE = MergeTree()
         ORDER BY (date);
