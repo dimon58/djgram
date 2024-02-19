@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS bot_statistics
     `collection_time`       Float64,
 
     `uptime`                Float64,
-    `active_request_count`  UInt64,
-    `pending_update_count`  UInt64,
+    `active_request_count`  UInt64 DEFAULT 0,
+    `pending_update_count`  UInt64 DEFAULT 0,
     `head_update_id`        UInt64,
     `request_count_per_sec` Float64,
     `tail_update_id` Nullable(UInt64),
