@@ -169,9 +169,10 @@ async def collect_stats() -> tuple[StatDictType, ...]:
 
 
 async def collect_and_save() -> None:
-    general, *bots = await collect_stats()
-
     try:
+
+        general, *bots = await collect_stats()
+
         async with clickhouse.connection() as clickhouse_connection:
             await clickhouse.insert_dict(
                 clickhouse_connection,
@@ -186,12 +187,15 @@ async def collect_and_save() -> None:
                     bot,
                 )
 
-        logger.debug("Saved local server statistics to clickhouse")
+        logger.debug("Local server statistics saved to clickhouse")
 
     # pylint: disable=broad-exception-caught
     except Exception as exc:
         logger.exception(
-            "Inserting in clickhouse error: %s: %s", exc.__class__.__name__, exc, exc_info=exc  # noqa: TRY401
+            "Local server statistics saving to clickhouse error: %s: %s",
+            exc.__class__.__name__,
+            exc, # noqa: TRY401
+            exc_info=exc,
         )
         return
 
