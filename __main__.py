@@ -116,7 +116,7 @@ def init(type: str):
 
     # Переименовываем example.env -> .env
     try:
-        os.rename(  # noqa: PTH104
+        shutil.copy(  # noqa: PTH104
             os.path.join(app_dir, "example.env"),  # noqa: PTH118
             os.path.join(app_dir, ".env"),  # noqa: PTH118
         )
