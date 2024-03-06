@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from aiogram import BaseMiddleware
+from aiogram.enums import ChatType
 from aiogram.types import Update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -68,6 +69,12 @@ class AuthMiddleware(BaseMiddleware, ABC):
         update: Update,
         data: dict[str, Any],
     ) -> Any:
+
+        chat = data.get("telegram_chat")
+
+        if chat is not None and chat.type == ChatType.CHANNEL:
+            return await handler(update, data)
+
         user = data.get("telegram_user")
         if user is None:
             raise ValueError(f"You should install TelegramMiddleware to use {self.__class__.__name__}")

@@ -6,6 +6,7 @@ import asyncio
 import logging.config
 
 from aiogram import Bot, Dispatcher, Router
+from aiogram.enums import UpdateType
 from aiogram.filters import Command
 from aiogram.fsm.storage.redis import DefaultKeyBuilder, RedisStorage
 from aiogram.types import Message
@@ -81,7 +82,7 @@ async def main() -> None:
     setup_djgram(dp)
     setup_routers(dp)
 
-    await dp.start_polling(bot, skip_updates=False)
+    await dp.start_polling(bot, skip_updates=False, allowed_updates=list(UpdateType))
 
 
 if __name__ == "__main__":
