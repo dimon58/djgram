@@ -90,15 +90,14 @@ async def run_sql(sql: str) -> None:
         clickhouse_connection.cursor() as cursor,
     ):
         for statement in sql.split(";"):
-            statement = statement.strip()
-            if statement == "":
+            query = statement.strip()
+            if query == "":
                 continue
-            await cursor.execute(statement)
+            await cursor.execute(query)
 
 
 def run_sql_from_sync(sql: str) -> None:
     """
     Выполняет sql в clickhouse, может быть вызвано из синхронной функции
     """
-    loop = asyncio.get_running_loop()
-    loop.create_task(run_sql(sql))
+    asyncio.get_running_loop().create_task(run_sql(sql))

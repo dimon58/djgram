@@ -68,7 +68,7 @@ max-complexity = 10
 [tool.black]
 line-length = 120
 target-version = ['py311']
-force-exclude = "venv|requirements.txt|requirements-dev.txt"
+force-exclude = ".venv|venv|requirements.txt|requirements-dev.txt"
 
 
 # ==== isort ====
@@ -81,7 +81,7 @@ include_trailing_comma = true
 force_grid_wrap = 0
 use_parentheses = true
 known_first_party = []
-skip = ["venv/"]
+skip = [".venv", "venv/"]
 skip_glob = []
 
 # ==== pyright ====
@@ -90,6 +90,7 @@ exclude = [
     ".mypy_cache",
     "**/__pycache__",
     "dev",
+    ".venv",
     "venv",
     "migrations/env.py",
 ]
@@ -97,7 +98,7 @@ exclude = [
 
 # ==== bandit ====
 [tool.bandit]
-exclude_dirs = ["dev", "venv"]
+exclude_dirs = ["dev", ".venv", "venv"]
 skips = ["B703", "B308"]
 
 
@@ -105,6 +106,7 @@ skips = ["B703", "B308"]
 [tool.pylint.main]
 jobs = 0
 ignore-paths = [
+    ".venv",
     "venv",
 ]
 # Разрешение f-string в логировании
@@ -115,5 +117,5 @@ max-line-length = 120
 
 
 # ==== misc ====
-venv = "venv"
+venv = ".venv"
 pythonVersion = "3.11"
