@@ -3,7 +3,6 @@
 """
 
 import logging
-from abc import ABC
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from time import perf_counter
@@ -13,6 +12,7 @@ from aiogram import BaseMiddleware, Bot
 from aiogram.types import Update
 
 from djgram.configs import ANALYTICS_UPDATES_TABLE
+from djgram.contrib.analytics.misc import UPDATE_DDL_SQL
 from djgram.db import clickhouse
 
 CONTENT_TYPE_KEY = "content_type"
@@ -78,10 +78,15 @@ async def save_event_to_clickhouse(update: Update, execution_time: float, bot: B
         return None
 
 
-class SaveUpdateToClickHouseMiddleware(BaseMiddleware, ABC):
+class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
     """
     Сохраняет все update'ы в ClickHouse
     """
+
+    def __init__(self):
+        logger.debug("Ensuring clickhouse tables for updates")
+        with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:
+            clickhouse.run_sql_from_sync(sql_file.read())
 
     async def __call__(
         self,

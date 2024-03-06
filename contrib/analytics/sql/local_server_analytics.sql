@@ -1,3 +1,5 @@
+-- Скрипт создания таблиц для сбора статистики локального сервера bot api
+
 CREATE TABLE IF NOT EXISTS general_statistics
 (
     `date`                       DateTime64,

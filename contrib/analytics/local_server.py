@@ -13,6 +13,7 @@ from djgram.configs import (
     ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_COLLECTION_PERIOD,
     ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_GENERAL_TABLE,
 )
+from djgram.contrib.analytics.misc import UPDATE_DDL_SQL
 from djgram.db import clickhouse
 from djgram.utils.async_tools import PeriodicTask
 
@@ -194,13 +195,17 @@ async def collect_and_save() -> None:
         logger.exception(
             "Local server statistics saving to clickhouse error: %s: %s",
             exc.__class__.__name__,
-            exc, # noqa: TRY401
+            exc,  # noqa: TRY401
             exc_info=exc,
         )
         return
 
 
 async def run_telegram_local_server_stats_collection_in_background() -> None:
+    logger.debug("Ensuring clickhouse tables for local server statistics")
+    with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:
+        await clickhouse.run_sql(sql_file.read())
+
     logger.info(
         "Start local server statistics collection every %s sec",
         ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_COLLECTION_PERIOD,

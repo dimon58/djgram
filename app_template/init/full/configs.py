@@ -45,7 +45,7 @@ CLICKHOUSE_HOST: str = env.get("CLICKHOUSE_HOST", "localhost")  # pyright: ignor
 CLICKHOUSE_PORT: int = int(env.get("CLICKHOUSE_PORT", 9000))  # pyright: ignore [reportArgumentType]
 CLICKHOUSE_DB: str = env.get("CLICKHOUSE_DB", "default")  # pyright: ignore [reportAssignmentType]
 CLICKHOUSE_USER: str = env.get("CLICKHOUSE_USER", "default")  # pyright: ignore [reportAssignmentType]
-CLICKHOUSE_PASSWORD: str = env.get("CLICKHOUSE_PASSWORD", "password")  # pyright: ignore [reportAssignmentType]
+CLICKHOUSE_PASSWORD: str = env.get("CLICKHOUSE_PASSWORD", "")  # pyright: ignore [reportAssignmentType]
 
 #: Redis host
 REDIS_HOST: str = env.get("REDIS_HOST", "localhost")  # pyright: ignore [reportAssignmentType]

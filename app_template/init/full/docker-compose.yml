@@ -24,7 +24,6 @@ services:
       - "9009:9009"
     volumes:
       - clickhouse-data:/var/lib/clickhouse
-      - ./docker/clickhouse:/docker-entrypoint-initdb.d
     ulimits:
       nproc: 65535
       nofile:

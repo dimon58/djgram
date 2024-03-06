@@ -1,3 +1,4 @@
+import asyncio
 from collections.abc import AsyncGenerator, Iterable
 from contextlib import asynccontextmanager
 from typing import Any
@@ -76,3 +77,28 @@ async def insert_dict(client: Connection, table_name: str, data: dict[str, Any])
     values = (tuple(data.values()),)
     async with client.cursor() as cursor:
         return await cursor.execute(sql, values)
+
+
+async def run_sql(sql: str) -> None:
+    """
+    Выполняет sql в clickhouse
+
+    Будут проблемы с запросами, содержащими ";" не в качестве окончания запроса
+    """
+    async with (
+        connection() as clickhouse_connection,
+        clickhouse_connection.cursor() as cursor,
+    ):
+        for statement in sql.split(";"):
+            statement = statement.strip()
+            if statement == "":
+                continue
+            await cursor.execute(statement)
+
+
+def run_sql_from_sync(sql: str) -> None:
+    """
+    Выполняет sql в clickhouse, может быть вызвано из синхронной функции
+    """
+    loop = asyncio.get_running_loop()
+    loop.create_task(run_sql(sql))

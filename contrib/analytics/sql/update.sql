@@ -1,3 +1,4 @@
+-- Скрипт создания таблиц для сбора статистики update'ов telegram
 -- noinspection SqlResolveForFile @ object-type/"JSON"
 
 SET allow_experimental_object_type = 1;
