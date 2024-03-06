@@ -11,7 +11,6 @@ from aiogram.fsm.storage.redis import DefaultKeyBuilder, RedisStorage
 from aiogram.types import Message
 from redis.asyncio.client import Redis
 
-import djgram
 from configs import (
     LOGGING_CONFIG,
     REDIS_HOST,
@@ -22,6 +21,7 @@ from configs import (
 
 # noinspection PyUnresolvedReferences
 from djgram.db.models import BaseModel  # noqa: F401 нужно для корректной работы alembic
+from djgram.setup import setup_djgram
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
@@ -78,7 +78,7 @@ async def main() -> None:
     dp = Dispatcher(storage=storage)
     bot = Bot(TELEGRAM_BOT_TOKEN)
 
-    djgram.setup(dp)
+    setup_djgram(dp)
     setup_routers(dp)
 
     await dp.start_polling(bot, skip_updates=False)

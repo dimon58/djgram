@@ -35,7 +35,7 @@ def setup_middlewares(dp: Dispatcher, analytics: bool) -> None:
     logger.info("djgram middlewares setup")
 
 
-def setup(dp: Dispatcher, *, analytics: bool = True) -> None:
+def setup_djgram(dp: Dispatcher, *, analytics: bool = True) -> None:
     """
     Установка djgram
 

@@ -10,11 +10,11 @@ from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
-import djgram
 from configs import LOGGING_CONFIG, TELEGRAM_BOT_TOKEN
 
 # noinspection PyUnresolvedReferences
 from djgram.db.models import BaseModel  # noqa: F401 нужно для корректной работы alembic
+from djgram.setup import setup_djgram
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
@@ -68,7 +68,7 @@ async def main() -> None:
     dp = Dispatcher(storage=storage)
     bot = Bot(TELEGRAM_BOT_TOKEN)
 
-    djgram.setup(dp, analytics=False)
+    setup_djgram(dp, analytics=False)
     setup_routers(dp)
 
     await dp.start_polling(bot, skip_updates=False)
