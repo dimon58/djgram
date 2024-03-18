@@ -6,7 +6,7 @@ services:
     image: redis:7.2-alpine
     command: --port ${REDIS_PORT:-6379}
     hostname: redis
-    restart: unless-stopped
+    restart: always
     volumes:
       - redis-data:/data
     ports:
@@ -17,7 +17,7 @@ services:
   clickhouse:
     image: clickhouse/clickhouse-server:23.8-alpine
     hostname: clickhouse
-    restart: unless-stopped
+    restart: always
     ports:
       - "8123:8123"
       - "9000:9000"
@@ -35,7 +35,7 @@ services:
   postgres:
     image: postgres:16.1-alpine
     hostname: postgres
-    restart: unless-stopped
+    restart: always
     volumes:
       - postgres-data:/var/lib/postgresql/data
     env_file:
