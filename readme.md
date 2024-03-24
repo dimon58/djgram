@@ -2,7 +2,7 @@
 
 Пока предварительно нужно установить несколько библиотек
 ```shell
-pip install click
+pip install click jinja2
 ```
 
 ```shell
