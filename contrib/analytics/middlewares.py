@@ -83,7 +83,7 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
     Сохраняет все update'ы в ClickHouse
     """
 
-    def __init__(self):  # noqa: D107
+    def __init__(self):
         logger.debug("Ensuring clickhouse tables for updates")
         with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:
             clickhouse.run_sql_from_sync(sql_file.read())
