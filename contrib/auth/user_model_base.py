@@ -20,6 +20,13 @@ class AbstractUser(UpdatedAtMixin, BaseModel):
 
     __abstract__ = True
 
+    banned: Mapped[bool] = mapped_column(
+        sqltypes.Boolean,
+        default=False,
+        nullable=False,
+        doc="Забанен ли пользователь",
+    )
+
     is_admin: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
         default=False,

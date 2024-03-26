@@ -40,6 +40,13 @@ ACTIVE_USER_TIMEOUT = 60 * 60 * 24 * 14
 TELEGRAM_BROADCAST_TIMEOUT = 0.05  # limit to 20 messages per second (max = 30)
 TELEGRAM_BROADCAST_LOGGING_PERIOD = 5  # sec
 
+#: Нужно ли отправлять сообщение забаненым людям
+ENABLE_BAN_MESSAGE = True
+#: Сообщение, которое видят забаненные люди
+BAN_MESSAGE = "Доступ ограничен"
+#: Включить доступ для забаненных админов
+ENABLE_ACCESS_FOR_BANNED_ADMINS = True
+
 # ---------- Настройки админки ---------- #
 
 #: Максимально количество приложений на странице
