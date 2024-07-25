@@ -38,6 +38,7 @@ class AbstractUser(UpdatedAtMixin, BaseModel):
         nullable=False,
         doc="id пользователя в telegram. Он же id чата с ним.",
     )
+    telegram_user: Mapped[TelegramUser] = relationship(TelegramUser)
 
     @declared_attr
     def telegram_user(self) -> Mapped[TelegramUser]:
