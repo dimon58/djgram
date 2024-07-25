@@ -1,10 +1,10 @@
 -r djgram/requirements.txt
 
 # Работа с telegram
-aiogram==3.4.1
+aiogram==3.10.0
 
 # Работа с базой данных
-alembic==1.13.1
+alembic==1.13.2
 aiosqlite==0.20.0
 
 # Прочее
