@@ -6,7 +6,7 @@ import asyncio
 import logging.config
 
 from aiogram import Bot, Dispatcher, Router
-from aiogram.filters import Command
+from aiogram.filters import Command, CommandStart
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 main_router = Router()
 
 
-@main_router.message(Command("start"))
+@main_router.message(CommandStart())
 async def start_handler(message: Message):
     """
     Обработчик команды /start
