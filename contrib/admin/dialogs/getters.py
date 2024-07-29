@@ -9,6 +9,7 @@ from aiogram_dialog import DialogManager
 from sqlalchemy import func, select
 from sqlalchemy.sql import sqltypes
 
+from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
 from ..base import apps_admins
 from ..rendering import QUERY_KEY, get_field_by_path, prepare_rows
 
@@ -37,7 +38,7 @@ async def get_models(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
     Геттер возможных моделей
     """
 
-    db_session = dialog_manager.middleware_data["db_session"]
+    db_session = dialog_manager.middleware_data[MIDDLEWARE_DB_SESSION_KEY]
 
     app_id = dialog_manager.dialog_data["app_id"]
 
@@ -57,7 +58,7 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
     Геттер строк для модели
     """
 
-    db_session: AsyncSession = dialog_manager.middleware_data["db_session"]
+    db_session: AsyncSession = dialog_manager.middleware_data[MIDDLEWARE_DB_SESSION_KEY]
 
     app = apps_admins[dialog_manager.dialog_data["app_id"]]
     model_admin = app.admin_models[dialog_manager.dialog_data["model_id"]]
@@ -140,7 +141,7 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, A
     Геттер для записи в бд
     """
 
-    db_session: AsyncSession = dialog_manager.middleware_data["db_session"]
+    db_session: AsyncSession = dialog_manager.middleware_data[MIDDLEWARE_DB_SESSION_KEY]
 
     app = apps_admins[dialog_manager.dialog_data["app_id"]]
     model_admin = app.admin_models[dialog_manager.dialog_data["model_id"]]

@@ -14,7 +14,7 @@ from djgram.contrib.auth.middlewares import MIDDLEWARE_USER_KEY
 from djgram.contrib.dialogs.utils import delete_last_message_from_dialog_manager
 from ..rendering import QUERY_KEY
 from .states import AdminStates
-from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_CHAT_KEY
+from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_USER_KEY
 
 if TYPE_CHECKING:
     from djgram.contrib.telegram.models import TelegramUser
@@ -32,7 +32,7 @@ def __log_admin_dialog_interaction(middleware_data: dict, action: str) -> None:
         action: действие с диалогом
     """
 
-    telegram_user: TelegramUser = middleware_data[MIDDLEWARE_TELEGRAM_CHAT_KEY]
+    telegram_user: TelegramUser = middleware_data[MIDDLEWARE_TELEGRAM_USER_KEY]
     user = middleware_data[MIDDLEWARE_USER_KEY]
 
     full_name: str = telegram_user.get_full_name()

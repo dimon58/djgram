@@ -18,8 +18,9 @@ from djgram.configs import (
     ENABLE_ACCESS_FOR_BANNED_ADMINS,
     ENABLE_BAN_MESSAGE,
 )
-from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_CHAT_KEY
+from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_CHAT_KEY, MIDDLEWARE_TELEGRAM_USER_KEY
 from djgram.contrib.telegram.models import TelegramUser
+from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
 from djgram.db.utils import get_or_create
 
 from .models import User
@@ -69,7 +70,7 @@ class AuthMiddleware(BaseMiddleware, ABC):
         Добавляет пользователя в data
         """
 
-        db_session = data.get("db_session")
+        db_session = data.get(MIDDLEWARE_DB_SESSION_KEY)
         if db_session is None:
             raise ValueError(f"You should install DbSessionMiddleware to use {self.__class__.__name__}")
 
@@ -89,7 +90,7 @@ class AuthMiddleware(BaseMiddleware, ABC):
         if chat is not None and chat.type == ChatType.CHANNEL:
             return await handler(update, data)
 
-        user = data.get(MIDDLEWARE_TELEGRAM_CHAT_KEY)
+        user = data.get(MIDDLEWARE_TELEGRAM_USER_KEY)
         if user is None:
             raise ValueError(f"You should install TelegramMiddleware to use {self.__class__.__name__}")
 

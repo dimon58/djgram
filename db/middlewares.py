@@ -7,6 +7,8 @@ from aiogram.types import Update
 
 from djgram.db import async_session_maker
 
+MIDDLEWARE_DB_SESSION_KEY = "db_session"
+
 logger = logging.getLogger(__name__)
 
 
@@ -26,7 +28,7 @@ class DbSessionMiddleware(BaseMiddleware):
         async with async_session_maker() as db_session:
             await db_session.begin()
 
-            data["db_session"] = db_session
+            data[MIDDLEWARE_DB_SESSION_KEY] = db_session
 
             result = await handler(update, data)
 

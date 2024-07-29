@@ -11,6 +11,7 @@ from aiogram.types import Chat, Update, User
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from djgram.contrib.telegram.models import TelegramChat, TelegramUser
+from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
 from djgram.db.models import BaseModel, CreatedAtMixin, UpdatedAtMixin
 from djgram.db.utils import (
     ReturnState,
@@ -103,7 +104,7 @@ class TelegramMiddleware(BaseMiddleware):
         update: Update,
         data: dict[str, Any],
     ) -> Any:
-        db_session: AsyncSession | None = data.get("db_session")
+        db_session: AsyncSession | None = data.get(MIDDLEWARE_DB_SESSION_KEY)
         if db_session is None:
             raise ValueError(f"You should install DbSessionMiddleware to use {self.__class__.__name__}")
 
