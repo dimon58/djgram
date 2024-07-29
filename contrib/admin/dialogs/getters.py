@@ -63,7 +63,7 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
     app = apps_admins[dialog_manager.dialog_data["app_id"]]
     model_admin = app.admin_models[dialog_manager.dialog_data["model_id"]]
 
-    page = cast(int, dialog_manager.current_context().widget_data.get("rows", 0))
+    page = cast(int, dialog_manager.current_context().widget_data.get("page", 0))
 
     stmt = select(model_admin.model)
     total_stmt = select(func.count()).select_from(model_admin.model)
