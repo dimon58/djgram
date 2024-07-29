@@ -90,7 +90,7 @@ async def run_async_migrations() -> None:
         # PostgreSQL will emit all CREATE / ALTER / DROP statements
         # in terms of this schema by default
         if target_metadata.schema is not None:
-            await connection.execute(text('set search_path to "%s"' % target_metadata.schema))
+            await connection.execute(text(f'set search_path to "{target_metadata.schema}"'))
             # in SQLAlchemy v2+ the search path change needs to be committed
             with suppress(AttributeError):
                 await connection.commit()
