@@ -45,7 +45,7 @@ ENABLE_BAN_MESSAGE = True
 #: Сообщение, которое видят забаненные люди
 BAN_MESSAGE = "Доступ ограничен"
 #: Включить доступ для забаненных админов
-ENABLE_ACCESS_FOR_BANNED_ADMINS = True
+ENABLE_ACCESS_FOR_BANNED_ADMINS = False
 
 # ---------- Настройки админки ---------- #
 
