@@ -26,7 +26,7 @@ async def get_apps(**kwargs) -> dict[str, Any]:
     Геттер возможных приложений
     """
 
-    apps = [(app_id, app.verbose_name) for app_id, app in enumerate(apps_admins)]
+    apps = [(app_id, app.verbose_name) for app_id, app in enumerate(apps_admins) if len(app.admin_models) > 0]
     return {
         "apps": apps,
     }

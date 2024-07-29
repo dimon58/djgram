@@ -48,7 +48,7 @@ async def on_admin_dialog_start(result: Any, dialog_manager: DialogManager):
 
     Просто логирует, что диалог начался
     """
-    __log_admin_dialog_interaction(dialog_manager.middleware_data, "Start")
+    __log_admin_dialog_interaction(dialog_manager.middleware_data, "Started")
 
 
 # pylint: disable=unused-argument
@@ -58,7 +58,7 @@ async def on_admin_dialog_close(result: Any, dialog_manager: DialogManager):
 
     Удаляет сообщение администрирования и логирует, что диалог окончен
     """
-    __log_admin_dialog_interaction(dialog_manager.middleware_data, "Close")
+    __log_admin_dialog_interaction(dialog_manager.middleware_data, "Closed")
 
     await delete_last_message_from_dialog_manager(dialog_manager)
 
