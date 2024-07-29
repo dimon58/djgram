@@ -18,11 +18,14 @@ from djgram.configs import (
     ENABLE_ACCESS_FOR_BANNED_ADMINS,
     ENABLE_BAN_MESSAGE,
 )
+from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_CHAT_KEY
 from djgram.contrib.telegram.models import TelegramUser
 from djgram.db.utils import get_or_create
 
 from .models import User
 from .user_model_base import AbstractUser
+
+MIDDLEWARE_USER_KEY = "user"
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +74,7 @@ class AuthMiddleware(BaseMiddleware, ABC):
             raise ValueError(f"You should install DbSessionMiddleware to use {self.__class__.__name__}")
 
         user = await self.get_user(telegram_user, db_session)
-        data["user"] = user
+        data[MIDDLEWARE_USER_KEY] = user
         return user
 
     async def __call__(
@@ -81,12 +84,12 @@ class AuthMiddleware(BaseMiddleware, ABC):
         data: dict[str, Any],
     ) -> Any:
 
-        chat = data.get("telegram_chat")
+        chat = data.get(MIDDLEWARE_TELEGRAM_CHAT_KEY)
 
         if chat is not None and chat.type == ChatType.CHANNEL:
             return await handler(update, data)
 
-        user = data.get("telegram_user")
+        user = data.get(MIDDLEWARE_TELEGRAM_CHAT_KEY)
         if user is None:
             raise ValueError(f"You should install TelegramMiddleware to use {self.__class__.__name__}")
 

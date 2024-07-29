@@ -18,6 +18,9 @@ from djgram.db.utils import (
     insert_or_update,
 )
 
+MIDDLEWARE_TELEGRAM_USER_KEY = "telegram_user"
+MIDDLEWARE_TELEGRAM_CHAT_KEY = "telegram_chat"
+
 logger = logging.getLogger(__name__)
 
 
@@ -109,9 +112,13 @@ class TelegramMiddleware(BaseMiddleware):
         telegram_user_created = telegram_chat_created = False
 
         if user is not None:
-            data["telegram_user"], telegram_user_created = await self.save_telegram_user_to_db(user, db_session)
+            data[MIDDLEWARE_TELEGRAM_USER_KEY], telegram_user_created = await self.save_telegram_user_to_db(
+                user, db_session
+            )
         if chat is not None:
-            data["telegram_chat"], telegram_chat_created = await self.save_telegram_chat_to_db(chat, db_session)
+            data[MIDDLEWARE_TELEGRAM_CHAT_KEY], telegram_chat_created = await self.save_telegram_chat_to_db(
+                chat, db_session
+            )
 
         if telegram_user_created or telegram_chat_created:
             await db_session.commit()
