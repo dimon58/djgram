@@ -41,6 +41,16 @@ class DatabasePaginatedScrollingGroup(Group):
         hide_on_single_page: bool = False,
         total_key: str = "total",
     ):
+        """
+        :param buttons: элементы для рендера
+        :param id: название ключа, по которому в данных виджета лежит номер страницы или None, если нулевая
+        :param width: число элементов по горизонтали
+        :param height: число элементов по вертикали
+        :param when: магический фильтр
+        :param on_page_changed:
+        :param hide_on_single_page: нужно ли скрывать элементы управления при наличии только одной страницы
+        :param total_key: ключ, по которому из геттера передаётся общее число элементов
+        """
         # Тут ошибка типизации width в Group.__init__
         super().__init__(*buttons, id=id, width=width, when=when)  # pyright: ignore [reportArgumentType]
         self.height = height
