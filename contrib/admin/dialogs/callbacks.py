@@ -9,6 +9,7 @@ from aiogram.enums import ContentType
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
+from aiogram_dialog.widgets.kbd import Button
 
 from djgram.contrib.auth.middlewares import MIDDLEWARE_USER_KEY
 from djgram.contrib.dialogs.utils import delete_last_message_from_dialog_manager
@@ -91,6 +92,11 @@ async def on_search_row_input(message: Message, message_input: MessageInput, man
 
     manager.dialog_data[QUERY_KEY] = message.text
     await manager.switch_to(AdminStates.row_list)
+
+
+# pylint: disable=unused-argument
+async def reset_search_query(callback_query: CallbackQuery, button: Button, manager: DialogManager):
+    manager.dialog_data.pop(QUERY_KEY, None)
 
 
 # pylint: disable=unused-argument

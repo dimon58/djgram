@@ -17,6 +17,7 @@ from aiogram_dialog.widgets.kbd import (
     ScrollingGroup,
     Select,
     SwitchTo,
+    Button,
 )
 from aiogram_dialog.widgets.text import Const, Format
 
@@ -40,6 +41,7 @@ from .callbacks import (
     on_row_selected,
     on_search_row_input,
     reset_page,
+    reset_search_query,
 )
 from .getters import (
     get_apps,
@@ -49,6 +51,7 @@ from .getters import (
     get_search_description,
 )
 from .states import AdminStates
+from ..rendering import QUERY_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -120,8 +123,22 @@ admin_dialog = Dialog(
             height=ADMIN_ROWS_PER_PAGE,
             hide_on_single_page=True,
         ),
-        SwitchTo(Const("🔍 Поиск"), id="search", state=AdminStates.search_row, when=F["search_enable"]),
-        Row(Back(Const("\u25c0 Назад"), on_click=reset_page), Cancel(Const("\u23f9 Завершить"))),
+        SwitchTo(
+            Const("🔍 Поиск"),
+            id="search",
+            state=AdminStates.search_row,
+            when=F["search_enable"],
+        ),
+        Button(
+            Const("↺ Сбросить поисковый запрос"),
+            id="reset_search_query",
+            on_click=reset_search_query,
+            when=F["dialog_data"][QUERY_KEY],
+        ),
+        Row(
+            Back(Const("\u25c0 Назад"), on_click=reset_page),
+            Cancel(Const("\u23f9 Завершить")),
+        ),
         getter=get_rows,
         state=AdminStates.row_list,
         preview_add_transitions=[
@@ -135,7 +152,10 @@ admin_dialog = Dialog(
         Format("->->{model_name}"),
         Format("\nВведите поисковый запрос\n\n{description}"),
         MessageInput(on_search_row_input),
-        Row(Back(Const("\u25c0 Назад"), on_click=reset_page), Cancel(Const("\u23f9 Завершить"))),
+        Row(
+            Back(Const("\u25c0 Назад"), on_click=reset_page),
+            Cancel(Const("\u23f9 Завершить")),
+        ),
         getter=get_search_description,
         state=AdminStates.search_row,
         preview_add_transitions=[
@@ -150,7 +170,11 @@ admin_dialog = Dialog(
         Format("->->->{object_name}"),
         Format("\n{text}"),
         Row(
-            SwitchTo(Const("\u25c0 Назад"), id="back_to_row_select", state=AdminStates.row_list),
+            SwitchTo(
+                Const("\u25c0 Назад"),
+                id="back_to_row_select",
+                state=AdminStates.row_list,
+            ),
             Cancel(Const("\u23f9 Завершить")),
         ),
         getter=get_row_detail,
