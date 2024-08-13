@@ -147,10 +147,7 @@ async def insert_or_update(
         return cast(T, await session.scalar(stmt)), ReturnState.CREATED
 
     # Проверяем поля на обновление
-    for_update = {}
-    for field, value in other_attr.items():
-        if getattr(instance, field) != value:
-            for_update[field] = value
+    for_update = {field: value for field, value in other_attr.items() if getattr(instance, field) != value}
 
     # Если ничего не обновлено, то возвращаем объект из базы
     if len(for_update) == 0:

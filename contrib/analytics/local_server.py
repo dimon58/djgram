@@ -203,7 +203,7 @@ async def collect_and_save() -> None:
 
 async def run_telegram_local_server_stats_collection_in_background() -> None:
     logger.debug("Ensuring clickhouse tables for local server statistics")
-    with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:  # noqa: ASYNC101
+    with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:  # noqa: ASYNC230
         await clickhouse.run_sql(sql_file.read())
 
     logger.info(

@@ -33,7 +33,7 @@ class DatabasePaginatedScrollingGroup(Group):
     В геттере нужно указать поле total, которое будет означать общее число элементов.
     """
 
-    def __init__(  # noqa: D107
+    def __init__(
         self,
         *buttons: Keyboard,
         id: str,  # pylint: disable=redefined-builtin
@@ -123,7 +123,7 @@ class DatabasePaginatedScrollingGroup(Group):
         return cast(int, manager.current_context().widget_data.get(self.widget_id, 0))
 
     @staticmethod
-    def get_page_number_from_manager(manager: DialogManager, key: str):
+    def get_page_number_from_manager(manager: DialogManager, key: str) -> int:
         return cast(int, manager.current_context().widget_data.get(key, 0))
 
     # pylint: disable=missing-function-docstring
