@@ -2,6 +2,7 @@
 Посредники для аналитики
 """
 
+import asyncio
 import logging
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
@@ -43,18 +44,17 @@ except ImportError:
 
 
 def get_update_dict_for_clickhouse(update: Update, execution_time: float, bot: Bot) -> dict[str, Any]:
-    data = update.model_dump(mode="python")
-    data = set_defaults(data, bot)
-    data["date"] = datetime.now(tz=UTC)
-    data["execution_time"] = execution_time
-    data["event_type"] = update.event_type  # property
-    data[CONTENT_TYPE_KEY] = getattr(update.event, CONTENT_TYPE_KEY, None)
+    event = update.model_dump(mode="python")
+    event = set_defaults(event, bot)
 
-    # Убираем лишние поля, которые могут появиться во время обработки update'а
-    possible_fields = {"date", "execution_time", "event_type", "content_type"} | set(Update.model_fields.keys())
-    for key in data:
-        if key not in possible_fields:
-            data.pop(key)
+    data = {
+        "date": datetime.now(tz=UTC),
+        "execution_time": execution_time,
+        "event_type": update.event_type,  # property
+        CONTENT_TYPE_KEY: getattr(update.event, CONTENT_TYPE_KEY, None),
+        "update_id": event.pop("update_id"),
+        "event": event,
+    }
 
     return data
 
@@ -97,6 +97,8 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
         start = perf_counter()
         result = await handler(update, data)
         finish = perf_counter()
-        await save_event_to_clickhouse(update, finish - start, data["bot"])
+
+        # noinspection PyAsyncCall
+        asyncio.create_task(save_event_to_clickhouse(update, finish - start, data["bot"]))
 
         return result

@@ -36,15 +36,15 @@ def setup_middlewares(dp: Dispatcher, analytics: bool) -> None:
     logger.info("djgram middlewares setup")
 
 
-def setup_djgram(dp: Dispatcher, *, analytics: bool = True, add_limiter: bool = True) -> None:
+def setup_djgram(dp: Dispatcher, *, add_limiter: bool = True, analytics: bool = False) -> None:
     """
     Установка djgram
 
     Args:
         dp: диспетчер
-        analytics: включить сохранение аналитики в ClickHouse
         add_limiter: включить лимитер со стандартными настройками
             https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this
+        analytics: включить сохранение аналитики в ClickHouse
     """
     setup_middlewares(dp, analytics=analytics)
     setup_router(dp)
