@@ -47,7 +47,7 @@ def get_update_dict_for_clickhouse(update: Update, execution_time: float, bot: B
     event = update.model_dump(mode="python")
     event = set_defaults(event, bot)
 
-    data = {
+    return {
         "date": datetime.now(tz=UTC),
         "execution_time": execution_time,
         "event_type": update.event_type,  # property
@@ -55,8 +55,6 @@ def get_update_dict_for_clickhouse(update: Update, execution_time: float, bot: B
         "update_id": event.pop("update_id"),
         "event": event,
     }
-
-    return data
 
 
 # pylint: disable=too-few-public-methods
@@ -88,6 +86,11 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
         with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:
             clickhouse.run_sql_from_sync(sql_file.read())
 
+        # Задачи сохранения аналитики в clickhouse
+        # Временно сохраняем из тут, чтобы сборщик мусора не убил раньше времени
+        # https://docs.python.org/3.12/library/asyncio-task.html#asyncio.create_task
+        self.pending_tasks = set[asyncio.Task]()
+
     async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
         self,
         handler: Callable[[Update, dict[str, Any]], Awaitable[Any]],
@@ -98,7 +101,9 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
         result = await handler(update, data)
         finish = perf_counter()
 
-        # noinspection PyAsyncCall
-        asyncio.create_task(save_event_to_clickhouse(update, finish - start, data["bot"]))
+        task = asyncio.create_task(save_event_to_clickhouse(update, finish - start, data["bot"]))
+        task.add_done_callback(self.pending_tasks.remove)
+        # Храним ссылку на задачу, чтобы она не уничтожилась в процессе выполнения
+        self.pending_tasks.add(task)
 
         return result
