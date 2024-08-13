@@ -14,7 +14,7 @@ from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.base import BaseSession
 from aiogram.exceptions import TelegramRetryAfter
-from aiogram.methods import GetChat, TelegramMethod
+from aiogram.methods import GetChat, TelegramMethod, SendMessage
 from cachetools import TTLCache
 from limiter import Limiter
 
@@ -99,13 +99,9 @@ class LimitCaller:
 
     async def call(self, chat_id: int, coro: Coroutine[T]) -> T:
         if chat_id < 0:
-            return await self._call_with_limit(
-                chat_id, coro, self.groups_limiter, self._group_max_rate, 20
-            )
+            return await self._call_with_limit(chat_id, coro, self.groups_limiter, self._group_max_rate, 20)
 
-        return await self._call_with_limit(
-            chat_id, coro, self.chats_limiter, self._user_max_rate, 1
-        )
+        return await self._call_with_limit(chat_id, coro, self.chats_limiter, self._user_max_rate, 3)
 
 
 class LimitedBot(Bot):
@@ -149,7 +145,8 @@ class LimitedBot(Bot):
 
                 # run request
                 coro = self.session(self, method, timeout=request_timeout)
-                if hasattr(method, "chat_id") and not isinstance(method, GetChat):
+                # if hasattr(method, "chat_id") and not isinstance(method, GetChat):
+                if isinstance(method, SendMessage):
                     return await self.caller.call(method.chat_id, coro)
 
                 return await coro
