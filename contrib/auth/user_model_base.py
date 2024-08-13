@@ -5,7 +5,7 @@
 from datetime import datetime
 
 from sqlalchemy import ForeignKey, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 from sqlalchemy.sql import sqltypes
 
 from djgram.contrib.telegram.models import TelegramUser
@@ -38,7 +38,11 @@ class AbstractUser(UpdatedAtMixin, BaseModel):
         nullable=False,
         doc="id пользователя в telegram. Он же id чата с ним.",
     )
-    telegram_user: Mapped[TelegramUser] = relationship(TelegramUser, lazy="selectin")
+    telegram_user: Mapped[TelegramUser] = relationship(TelegramUser)
+
+    @declared_attr
+    def telegram_user(self) -> Mapped[TelegramUser]:
+        return relationship(TelegramUser, lazy="selectin")
 
     first_seen: Mapped[datetime] = mapped_column(
         sqltypes.DateTime(timezone=True),
