@@ -18,7 +18,10 @@ from djgram.configs import (
     ENABLE_ACCESS_FOR_BANNED_ADMINS,
     ENABLE_BAN_MESSAGE,
 )
-from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_CHAT_KEY, MIDDLEWARE_TELEGRAM_USER_KEY
+from djgram.contrib.telegram.middlewares import (
+    MIDDLEWARE_TELEGRAM_CHAT_KEY,
+    MIDDLEWARE_TELEGRAM_USER_KEY,
+)
 from djgram.contrib.telegram.models import TelegramUser
 from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
 from djgram.db.utils import get_or_create

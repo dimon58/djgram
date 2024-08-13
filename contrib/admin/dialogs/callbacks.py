@@ -13,9 +13,10 @@ from aiogram_dialog.widgets.kbd import Button
 
 from djgram.contrib.auth.middlewares import MIDDLEWARE_USER_KEY
 from djgram.contrib.dialogs.utils import delete_last_message_from_dialog_manager
+from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_USER_KEY
+
 from ..rendering import QUERY_KEY
 from .states import AdminStates
-from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_USER_KEY
 
 if TYPE_CHECKING:
     from djgram.contrib.telegram.models import TelegramUser

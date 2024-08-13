@@ -12,12 +12,12 @@ from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import (
     Back,
+    Button,
     Cancel,
     Row,
     ScrollingGroup,
     Select,
     SwitchTo,
-    Button,
 )
 from aiogram_dialog.widgets.text import Const, Format
 
@@ -33,6 +33,7 @@ from djgram.contrib.dialogs.database_paginated_scrolling_group import (
 )
 from djgram.utils.diagrams import render_transitions_safe
 
+from ..rendering import QUERY_KEY
 from .callbacks import (
     on_admin_dialog_close,
     on_admin_dialog_start,
@@ -51,7 +52,6 @@ from .getters import (
     get_search_description,
 )
 from .states import AdminStates
-from ..rendering import QUERY_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +78,7 @@ admin_dialog = Dialog(
         preview_add_transitions=[
             SwitchTo(Const("model_list"), "model_list", state=AdminStates.model_list),
         ],
+        disable_web_page_preview=True,
     ),
     # Выбор модели
     Window(
@@ -102,6 +103,7 @@ admin_dialog = Dialog(
         preview_add_transitions=[
             SwitchTo(Const("row_list"), "row_list", state=AdminStates.row_list),
         ],
+        disable_web_page_preview=True,
     ),
     # Выбор строки
     Window(
@@ -144,6 +146,7 @@ admin_dialog = Dialog(
         preview_add_transitions=[
             SwitchTo(Const("row_detail"), "row_detail", state=AdminStates.row_detail),
         ],
+        disable_web_page_preview=True,
     ),
     # Поиск строки
     Window(
@@ -161,6 +164,7 @@ admin_dialog = Dialog(
         preview_add_transitions=[
             SwitchTo(Const("row_detail"), "row_detail", state=AdminStates.row_detail),
         ],
+        disable_web_page_preview=True,
     ),
     # Детальный вид записи
     Window(
@@ -180,6 +184,7 @@ admin_dialog = Dialog(
         getter=get_row_detail,
         state=AdminStates.row_detail,
         parse_mode=ParseMode.HTML,
+        disable_web_page_preview=True,
     ),
     on_start=on_admin_dialog_start,
     on_close=on_admin_dialog_close,
