@@ -8,6 +8,7 @@ from djgram.contrib.admin import router as admin_router
 from djgram.contrib.analytics.middlewares import SaveUpdateToClickHouseMiddleware
 from djgram.contrib.auth.middlewares import AuthMiddleware
 from djgram.contrib.communication import router as communication_router
+from djgram.contrib.limits.limiter import patch_bot_with_limiter
 from djgram.contrib.logs.middlewares import TraceMiddleware
 from djgram.contrib.misc.handlers import cancel_handler
 from djgram.contrib.telegram.middlewares import TelegramMiddleware
@@ -35,16 +36,21 @@ def setup_middlewares(dp: Dispatcher, analytics: bool) -> None:
     logger.info("djgram middlewares setup")
 
 
-def setup_djgram(dp: Dispatcher, *, analytics: bool = True) -> None:
+def setup_djgram(dp: Dispatcher, *, analytics: bool = True, add_limiter: bool = True) -> None:
     """
     Установка djgram
 
     Args:
         dp: диспетчер
         analytics: включить сохранение аналитики в ClickHouse
+        add_limiter: включить лимитер со стандартными настройками
+            https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this
     """
     setup_middlewares(dp, analytics=analytics)
     setup_router(dp)
     setup_dialogs(dp)
+
+    if add_limiter:
+        patch_bot_with_limiter()
 
     logger.info("djgram setup")
