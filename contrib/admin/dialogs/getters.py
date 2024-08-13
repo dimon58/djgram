@@ -9,8 +9,7 @@ from aiogram_dialog import DialogManager
 from sqlalchemy import func, select
 from sqlalchemy.sql import sqltypes
 
-from djgram.contrib.dialogs.database_paginated_scrolling_group import (
-    DEFAULT_TOTAL_KEY, DatabasePaginatedScrollingGroup)
+from djgram.contrib.dialogs.database_paginated_scrolling_group import DEFAULT_TOTAL_KEY, DatabasePaginatedScrollingGroup
 from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
 
 from ..base import apps_admins

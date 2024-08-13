@@ -10,23 +10,31 @@ from aiogram import F
 from aiogram.enums import ParseMode
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import (Back, Button, Cancel, Row,
-                                        ScrollingGroup, Select, SwitchTo)
+from aiogram_dialog.widgets.kbd import Back, Button, Cancel, Row, ScrollingGroup, Select, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 
-from djgram.configs import (ADMIN_APPS_PER_PAGE, ADMIN_MODELS_PER_PAGE,
-                            ADMIN_ROWS_PER_PAGE, DIALOG_DIAGRAMS_DIR,
-                            ENABLE_DIALOG_DIAGRAMS_GENERATION)
-from djgram.contrib.dialogs.database_paginated_scrolling_group import (
-    DEFAULT_TOTAL_KEY, DatabasePaginatedScrollingGroup)
+from djgram.configs import (
+    ADMIN_APPS_PER_PAGE,
+    ADMIN_MODELS_PER_PAGE,
+    ADMIN_ROWS_PER_PAGE,
+    DIALOG_DIAGRAMS_DIR,
+    ENABLE_DIALOG_DIAGRAMS_GENERATION,
+)
+from djgram.contrib.dialogs.database_paginated_scrolling_group import DEFAULT_TOTAL_KEY, DatabasePaginatedScrollingGroup
 from djgram.utils.diagrams import render_transitions_safe
 
 from ..rendering import QUERY_KEY
-from .callbacks import (on_admin_dialog_close, on_admin_dialog_start,
-                        on_app_selected, on_model_selected, on_row_selected,
-                        on_search_row_input, reset_page, reset_search_query)
-from .getters import (get_apps, get_models, get_row_detail, get_rows,
-                      get_search_description)
+from .callbacks import (
+    on_admin_dialog_close,
+    on_admin_dialog_start,
+    on_app_selected,
+    on_model_selected,
+    on_row_selected,
+    on_search_row_input,
+    reset_page,
+    reset_search_query,
+)
+from .getters import get_apps, get_models, get_row_detail, get_rows, get_search_description
 from .states import AdminStates
 
 logger = logging.getLogger(__name__)

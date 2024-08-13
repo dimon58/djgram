@@ -61,7 +61,9 @@ class ExtendedColoredFormatter(ColoredFormatter):
             copy.__dict__.update(record.__dict__)
             copy.msg = ansi_wrap(coerce_string(record.msg), **style)  # pyright: ignore [reportAttributeAccessIssue]
             # Отличие
-            copy.levelname = ansi_wrap(coerce_string(record.levelname), **style)  # pyright: ignore [reportAttributeAccessIssue]
+            copy.levelname = ansi_wrap(
+                coerce_string(record.levelname), **style
+            )  # pyright: ignore [reportAttributeAccessIssue]
             record = copy  # pyright: ignore [reportAssignmentType]
 
         # Delegate the remaining formatting to the base formatter.
