@@ -1,4 +1,3 @@
-from abc import ABC
 from collections.abc import Awaitable, Callable
 from typing import Any
 
@@ -9,12 +8,12 @@ from .context import UPDATE_ID
 
 
 # pylint: disable=too-few-public-methods
-class TraceMiddleware(BaseMiddleware, ABC):
+class TraceMiddleware(BaseMiddleware):
     """
     Записывает в контекст логгера update_id
     """
 
-    async def __call__(
+    async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
         self,
         handler: Callable[[Update, dict[str, Any]], Awaitable[Any]],
         update: Update,

@@ -96,7 +96,7 @@ def unfreeze_model(model: BaseModel) -> Iterator[None]:
 async def try_run_async(
     coro: Awaitable[T],
     max_attempts: int = 3,
-    exception_class: type[Exception] | Sequence[type[Exception]] = Exception,
+    exception_class: type[Exception] | tuple[type[Exception], ...] = Exception,
     sleep_time: float = 0.0,
 ) -> tuple[Literal[True], T] | tuple[Literal[False], None]:
     """

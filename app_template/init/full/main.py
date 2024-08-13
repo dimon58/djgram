@@ -8,7 +8,10 @@ import logging.config
 from aiogram import Bot, Dispatcher, Router
 from aiogram.enums import UpdateType
 from aiogram.filters import Command, CommandStart
-from aiogram.fsm.storage.redis import DefaultKeyBuilder, RedisStorage
+from aiogram.fsm.storage.redis import (
+    DefaultKeyBuilder,  # pyright: ignore [reportPrivateImportUsage]
+    RedisStorage,
+)
 from aiogram.types import Message
 from redis.asyncio.client import Redis
 

@@ -88,7 +88,7 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
         with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:
             clickhouse.run_sql_from_sync(sql_file.read())
 
-    async def __call__(
+    async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
         self,
         handler: Callable[[Update, dict[str, Any]], Awaitable[Any]],
         update: Update,

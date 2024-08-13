@@ -98,7 +98,7 @@ class TelegramMiddleware(BaseMiddleware):
 
         return user, chat
 
-    async def __call__(
+    async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
         self,
         handler: Callable[[Update, dict[str, Any]], Awaitable[Any]],
         update: Update,

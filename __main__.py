@@ -61,8 +61,7 @@ def startapp(name: str):
                 output_file = Path(os.path.join(app_dir, relative_path[: -len(template_format)]))  # noqa: PTH118
                 output_file.parent.mkdir(exist_ok=True, parents=True)
 
-                with open(output_file, "w", encoding="utf8") as output_file_io:
-                    template.stream(app_name=name).dump(output_file_io)
+                template.stream(app_name=name).dump(output_file.as_posix())
 
             else:
                 output_file = Path(os.path.join(app_dir, relative_path))  # noqa: PTH118

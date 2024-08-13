@@ -3,7 +3,6 @@
 """
 
 import logging
-from abc import ABC
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from typing import Any
@@ -35,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 # pylint: disable=too-few-public-methods
-class AuthMiddleware(BaseMiddleware, ABC):
+class AuthMiddleware(BaseMiddleware):
     """
     Базовый функционал посредника для авторизации
 
@@ -81,7 +80,7 @@ class AuthMiddleware(BaseMiddleware, ABC):
         data[MIDDLEWARE_USER_KEY] = user
         return user
 
-    async def __call__(
+    async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
         self,
         handler: Callable[[Update, dict[str, Any]], Awaitable[Any]],
         update: Update,

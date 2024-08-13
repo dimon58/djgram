@@ -19,7 +19,7 @@ class DbSessionMiddleware(BaseMiddleware):
     https://docs.aiogram.dev/en/dev-3.x/dispatcher/middlewares.html#arguments-specification
     """
 
-    async def __call__(
+    async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
         self,
         handler: Callable[[Update, dict[str, Any]], Awaitable[Any]],
         update: Update,

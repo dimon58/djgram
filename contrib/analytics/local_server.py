@@ -22,7 +22,7 @@ StatDictType: TypeAlias = dict[str, StatValueType]
 
 logger = logging.getLogger(__name__)
 try:
-    from configs import TELEGRAM_LOCAL_SERVER_STATS_URL
+    from configs import TELEGRAM_LOCAL_SERVER_STATS_URL  # pyright: ignore [reportAttributeAccessIssue]
 except ImportError:
     logger.critical("You need to specify TELEGRAM_LOCAL_SERVER_STATS_URL setting to collect stats from local server")
     sys.exit(1)
