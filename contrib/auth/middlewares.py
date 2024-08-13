@@ -92,11 +92,11 @@ class AuthMiddleware(BaseMiddleware):
         if chat is not None and chat.type == ChatType.CHANNEL:
             return await handler(update, data)
 
-        user = data.get(MIDDLEWARE_TELEGRAM_USER_KEY)
-        if user is None:
+        telegram_user = data.get(MIDDLEWARE_TELEGRAM_USER_KEY)
+        if telegram_user is None:
             raise ValueError(f"You should install TelegramMiddleware to use {self.__class__.__name__}")
 
-        user = await self.add_user_to_data(user, data)
+        user = await self.add_user_to_data(telegram_user, data)
 
         # Если единственный админ забанит сам себя, то будет плохо
         if user.banned and not (ENABLE_ACCESS_FOR_BANNED_ADMINS and user.is_admin):

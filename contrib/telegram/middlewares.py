@@ -7,7 +7,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 from aiogram import BaseMiddleware
-from aiogram.types import Chat, Update, User
+from aiogram.types import Chat, ChatBoostRemoved, ChatBoostUpdated, Update, User
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from djgram.contrib.telegram.models import TelegramChat, TelegramUser
@@ -83,17 +83,83 @@ class TelegramMiddleware(BaseMiddleware):
         return telegram_chat, telegram_chat_state == ReturnState.CREATED
 
     @staticmethod
-    def get_user_and_chat(update: Update) -> tuple[User | None, Chat | None]:
-        """
+    def get_telegram_user_and_chat(update: Update) -> tuple[User | None, Chat | None]:
+        r"""
         Возвращает пользователя и чат telegram
+
+
+        В таблице указаны расположения пользователя и чата в объекте события
+
+        \* значит, что нет полноценного поля, но есть его части
+
+        +-----------------------------+-----------------------------+----------------------+
+        | Тип события                 | Путь до пользователя        | Путь до чата         |
+        +=============================+=============================+======================+
+        | BusinessConnection          | user                        | *user_chat_id        |
+        +-----------------------------+-----------------------------+----------------------+
+        | BusinessMessagesDeleted     |                             | chat                 |
+        +-----------------------------+-----------------------------+----------------------+
+        | CallbackQuery               | from_user                   | message.chat         |
+        +-----------------------------+-----------------------------+----------------------+
+        | ChatBoostRemoved            | Optional[boost.source.user] |                      |
+        +-----------------------------+-----------------------------+----------------------+
+        | ChatBoostUpdated            | Optional[boost.source.user] | chat                 |
+        +-----------------------------+-----------------------------+----------------------+
+        | ChatJoinRequest             | from_user                   | chat                 |
+        +-----------------------------+-----------------------------+----------------------+
+        | ChatMemberUpdated           | from_user                   | chat                 |
+        +-----------------------------+-----------------------------+----------------------+
+        | ChosenInlineResult          | from_user                   |                      |
+        +-----------------------------+-----------------------------+----------------------+
+        | InlineQuery                 | from_user                   | *chat_type           |
+        +-----------------------------+-----------------------------+----------------------+
+        | Message                     | from_user                   | chat                 |
+        +-----------------------------+-----------------------------+----------------------+
+        | MessageReactionCountUpdated |                             | chat                 |
+        +-----------------------------+-----------------------------+----------------------+
+        | MessageReactionUpdated      | user                        | chat  or *actor_chat |
+        +-----------------------------+-----------------------------+----------------------+
+        | Poll                        |                             |                      |
+        +-----------------------------+-----------------------------+----------------------+
+        | PollAnswer                  | Optional[user]              |                      |
+        +-----------------------------+-----------------------------+----------------------+
+        | PreCheckoutQuery            | from_user                   |                      |
+        +-----------------------------+-----------------------------+----------------------+
+        | ShippingQuery               | from_user                   |                      |
+        +-----------------------------+-----------------------------+----------------------+
         """
 
         event = update.event
 
+        # CallbackQuery
+        # ChatJoinRequest
+        # ChatMemberUpdated
+        # ChosenInlineResult
+        # InlineQuery
+        # Message
+        # PreCheckoutQuery
+        # ShippingQuery
         user = getattr(event, "from_user", None)
-        chat = getattr(event, "chat", None)
+        if user is None:
+            # BusinessConnection
+            # MessageReactionUpdated
+            # PollAnswer
+            user = getattr(event, "user", None)
+        # ChatBoostRemoved
+        # ChatBoostUpdated
+        if user is None and isinstance(event, ChatBoostRemoved | ChatBoostUpdated):
+            user = event.boost.source.user
 
+        # BusinessMessagesDeleted
+        # ChatBoostUpdated
+        # ChatJoinRequest
+        # ChatMemberUpdated
+        # Message
+        # MessageReactionCountUpdated
+        # MessageReactionUpdated
+        chat = getattr(event, "chat", None)
         if chat is None and (message := getattr(event, "message", None)) is not None:
+            # CallbackQuery
             chat = message.chat
 
         return user, chat
@@ -108,17 +174,17 @@ class TelegramMiddleware(BaseMiddleware):
         if db_session is None:
             raise ValueError(f"You should install DbSessionMiddleware to use {self.__class__.__name__}")
 
-        user, chat = self.get_user_and_chat(update)
+        telegram_user, telegram_chat = self.get_telegram_user_and_chat(update)
 
         telegram_user_created = telegram_chat_created = False
 
-        if user is not None:
+        if telegram_user is not None:
             data[MIDDLEWARE_TELEGRAM_USER_KEY], telegram_user_created = await self.save_telegram_user_to_db(
-                user, db_session
+                telegram_user, db_session
             )
-        if chat is not None:
+        if telegram_chat is not None:
             data[MIDDLEWARE_TELEGRAM_CHAT_KEY], telegram_chat_created = await self.save_telegram_chat_to_db(
-                chat, db_session
+                telegram_chat, db_session
             )
 
         if telegram_user_created or telegram_chat_created:
