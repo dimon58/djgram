@@ -14,7 +14,7 @@ from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.base import BaseSession
 from aiogram.exceptions import TelegramRetryAfter
-from aiogram.methods import GetChat, TelegramMethod, SendMessage
+from aiogram.methods import SendMessage, TelegramMethod
 from cachetools import TTLCache
 from limiter import Limiter
 
@@ -61,12 +61,8 @@ class LimitCaller:
 
         self.main_limiter = Limiter(self._overall_max_rate)
         # 2**63 = no limit for cache size
-        self.groups_limiter = TTLCache[Limiter](
-            maxsize=2**63, ttl=LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS
-        )
-        self.chats_limiter = TTLCache[Limiter](
-            maxsize=2**63, ttl=LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS
-        )
+        self.groups_limiter = TTLCache[Limiter](maxsize=2**63, ttl=LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS)
+        self.chats_limiter = TTLCache[Limiter](maxsize=2**63, ttl=LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS)
 
     async def _call_with_limit(
         self,
@@ -130,9 +126,7 @@ class LimitedBot(Bot):
 
         self.caller = limiter
 
-    async def _call(
-        self, method: TelegramMethod[T], request_timeout: int | None = None
-    ) -> Awaitable[T]:
+    async def _call(self, method: TelegramMethod[T], request_timeout: int | None = None) -> Awaitable[T]:
         """
         Just to not modify __init__ method
         """
@@ -168,9 +162,7 @@ class LimitedBot(Bot):
                 # Allow other requests to be processed
                 self._retry_after_event.set()
 
-    async def __call__(
-        self, method: TelegramMethod[T], request_timeout: int | None = None
-    ) -> Awaitable[T]:
+    async def __call__(self, method: TelegramMethod[T], request_timeout: int | None = None) -> Awaitable[T]:
         caller = getattr(self, "caller", None)
         if not caller:
             self.caller = LimitCaller()
