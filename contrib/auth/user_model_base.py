@@ -41,7 +41,7 @@ class AbstractUser(UpdatedAtMixin, BaseModel):
     telegram_user: Mapped[TelegramUser] = relationship(TelegramUser)
 
     @declared_attr
-    def telegram_user(self) -> Mapped[TelegramUser]:
+    def telegram_user(self) -> Mapped[TelegramUser]:  # noqa: F811
         return relationship(TelegramUser, lazy="selectin")
 
     first_seen: Mapped[datetime] = mapped_column(

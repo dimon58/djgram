@@ -3,7 +3,7 @@ import datetime
 import importlib
 import logging
 import time
-from collections.abc import Awaitable, Generator, Iterator, Sequence
+from collections.abc import Awaitable, Generator, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any, Literal, TypeVar
