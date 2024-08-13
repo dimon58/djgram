@@ -22,6 +22,9 @@ OnStateChanged = Callable[
 ]
 
 
+DEFAULT_TOTAL_KEY = "total"
+
+
 # pylint: disable=too-many-ancestors
 class DatabasePaginatedScrollingGroup(Group):
     """
@@ -39,7 +42,7 @@ class DatabasePaginatedScrollingGroup(Group):
         when: WhenCondition = None,
         on_page_changed: OnStateChanged | WidgetEventProcessor | None = None,
         hide_on_single_page: bool = False,
-        total_key: str = "total",
+        total_key: str = DEFAULT_TOTAL_KEY,
     ):
         """
         :param buttons: элементы для рендера
@@ -118,6 +121,10 @@ class DatabasePaginatedScrollingGroup(Group):
     # pylint: disable=missing-function-docstring
     def get_page_number(self, manager: DialogManager) -> int:
         return cast(int, manager.current_context().widget_data.get(self.widget_id, 0))
+
+    @staticmethod
+    def get_page_number_from_manager(manager: DialogManager, key: str):
+        return cast(int, manager.current_context().widget_data.get(key, 0))
 
     # pylint: disable=missing-function-docstring
     async def set_page_number(

@@ -9,6 +9,8 @@ from aiogram_dialog import DialogManager
 from sqlalchemy import func, select
 from sqlalchemy.sql import sqltypes
 
+from djgram.contrib.dialogs.database_paginated_scrolling_group import (
+    DEFAULT_TOTAL_KEY, DatabasePaginatedScrollingGroup)
 from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
 
 from ..base import apps_admins
@@ -64,7 +66,7 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
     app = apps_admins[dialog_manager.dialog_data["app_id"]]
     model_admin = app.admin_models[dialog_manager.dialog_data["model_id"]]
 
-    page = cast(int, dialog_manager.current_context().widget_data.get("page", 0))
+    page = DatabasePaginatedScrollingGroup.get_page_number_from_manager(dialog_manager, "page")
 
     stmt = select(model_admin.model)
     total_stmt = select(func.count()).select_from(model_admin.model)
@@ -120,7 +122,7 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
         "app_name": app.verbose_name,
         "model_name": model_admin.name,
         "header": "│".join(model_admin.list_display),
-        "total": total,
+        DEFAULT_TOTAL_KEY: total,
         "units": units,
         "search_enable": len(model_admin.search_fields) > 0,
     }
