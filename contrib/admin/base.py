@@ -98,8 +98,8 @@ class ModelAdmin:
                 widget = cls.widgets_override.get(field, AutoRenderer)(field)
             else:
                 new_class = cls.widgets_override.get(field.field)
-                if new_class is not None:
-                    widget = new_class(field.field)
+                widget = new_class(field.field) if new_class is not None else field
+
             widgets.append(widget)
 
         return widgets

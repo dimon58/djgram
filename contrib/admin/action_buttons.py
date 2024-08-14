@@ -80,12 +80,12 @@ class DownloadFileActionButton(AbstractObjectActionButton):
             return
 
         async with ChatActionSender(
-            bot=callback_query.bot,
-            chat_id=callback_query.message.chat.id,
+            bot=callback_query.bot,  # pyright: ignore [reportArgumentType]
+            chat_id=callback_query.message.chat.id,  # pyright: ignore [reportOptionalMemberAccess]
             action=ChatAction.UPLOAD_DOCUMENT,
         ):
-            await callback_query.bot.send_document(
-                chat_id=callback_query.message.chat.id,
+            await callback_query.bot.send_document(  # pyright: ignore [reportOptionalMemberAccess]
+                chat_id=callback_query.message.chat.id,  # pyright: ignore [reportOptionalMemberAccess]
                 document=BufferedInputFile(
                     file=file.file.read(),
                     filename=file["filename"],

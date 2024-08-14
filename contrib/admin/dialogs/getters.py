@@ -143,20 +143,20 @@ async def get_search_description(dialog_manager: DialogManager, **kwargs) -> dic
 
 async def get_admin_object_detail_context(
     dialog_manager: DialogManager,
-) -> tuple[AppAdmin, type[T], type[ModelAdmin], T, Any]:
+) -> tuple[AppAdmin, type[T], type[ModelAdmin], T | None, Any]:
     db_session: AsyncSession = dialog_manager.middleware_data[MIDDLEWARE_DB_SESSION_KEY]
 
     app: AppAdmin = apps_admins[dialog_manager.dialog_data["app_id"]]
     model_admin: type[ModelAdmin] = app.admin_models[dialog_manager.dialog_data["model_id"]]
     row_id: Any = dialog_manager.dialog_data["row_id"]
 
-    model: type[BaseModel] = model_admin.model
+    model: type[T] = model_admin.model  # pyright: ignore [reportAssignmentType]
 
     if isinstance(model.id.type, sqltypes.Integer):
         row_id = int(row_id)
 
     stmt = select(model).where(model.id == row_id)
-    obj: BaseModel | None = await db_session.scalar(stmt)
+    obj: T | None = await db_session.scalar(stmt)
 
     return app, model, model_admin, obj, row_id
 
