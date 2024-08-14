@@ -3,7 +3,7 @@
 """
 
 import logging
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from aiogram_dialog import DialogManager
 from sqlalchemy import func, select
@@ -11,14 +11,17 @@ from sqlalchemy.sql import sqltypes
 
 from djgram.contrib.dialogs.database_paginated_scrolling_group import DEFAULT_TOTAL_KEY, DatabasePaginatedScrollingGroup
 from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
+from djgram.db.models import BaseModel
 
-from ..base import apps_admins
+from ..base import AppAdmin, ModelAdmin, apps_admins
 from ..rendering import QUERY_KEY, get_field_by_path, prepare_rows
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
-    from djgram.db.models import BaseModel
+
+T = TypeVar("T", bound=BaseModel)
+
 
 logger = logging.getLogger(__name__)
 
@@ -138,23 +141,32 @@ async def get_search_description(dialog_manager: DialogManager, **kwargs) -> dic
     }
 
 
-async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
-    """
-    Геттер для записи в бд
-    """
-
+async def get_admin_object_detail_context(
+    dialog_manager: DialogManager,
+) -> tuple[AppAdmin, type[T], type[ModelAdmin], T, Any]:
     db_session: AsyncSession = dialog_manager.middleware_data[MIDDLEWARE_DB_SESSION_KEY]
 
-    app = apps_admins[dialog_manager.dialog_data["app_id"]]
-    model_admin = app.admin_models[dialog_manager.dialog_data["model_id"]]
-    row_id = dialog_manager.dialog_data["row_id"]
+    app: AppAdmin = apps_admins[dialog_manager.dialog_data["app_id"]]
+    model_admin: type[ModelAdmin] = app.admin_models[dialog_manager.dialog_data["model_id"]]
+    row_id: Any = dialog_manager.dialog_data["row_id"]
 
     model: type[BaseModel] = model_admin.model
 
     if isinstance(model.id.type, sqltypes.Integer):
         row_id = int(row_id)
+
     stmt = select(model).where(model.id == row_id)
     obj: BaseModel | None = await db_session.scalar(stmt)
+
+    return app, model, model_admin, obj, row_id
+
+
+async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
+    """
+    Геттер для записи в бд
+    """
+
+    app, model, model_admin, obj, row_id = await get_admin_object_detail_context(dialog_manager)
     object_name = f"[{row_id}] {model.__name__}"
 
     if obj is None:
@@ -178,4 +190,5 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, A
         "text": text,
         "app_name": app.verbose_name,
         "model_name": model_admin.name,
+        "file_buttons": [(button.button_id, button.title) for button in model_admin.object_action_buttons],
     }

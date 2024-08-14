@@ -17,6 +17,7 @@ from djgram.configs import ADMIN_ROWS_PER_PAGE
 from djgram.db.models import BaseModel
 from djgram.db.utils import get_fields_of_model
 
+from .action_buttons import AbstractObjectActionButton
 from .rendering import AdminFieldRenderer, AutoRenderer
 
 logger = logging.getLogger(__name__)
@@ -41,6 +42,9 @@ class ModelAdmin:
     widgets_override: ClassVar[dict[str, type[AdminFieldRenderer]]] = {}
 
     skip_synonyms_origin: ClassVar[bool] = True  # Не показывать поля, для которых есть синонимы
+
+    # Кнопки действия с объектом в админке
+    object_action_buttons: ClassVar[Sequence[AbstractObjectActionButton]] = []
 
     @classmethod
     def __check_fields_exists(cls, fields: Sequence[str], allowed_fields: set[str], list_name: str) -> None:
@@ -117,6 +121,16 @@ class ModelAdmin:
                 ors.append(field == query)
 
         return or_(*ors)
+
+    @classmethod
+    def get_object_action_button_by_id(cls, button_id: str) -> AbstractObjectActionButton | None:
+        # Тут можно сделать поиск по словарю, если сделать его через метакласс
+        # Но это не имеет смысла, так как всего кнопок не очень большое количество
+        for btn in cls.object_action_buttons:
+            if btn.button_id == button_id:
+                return btn
+
+        return None
 
 
 @dataclass

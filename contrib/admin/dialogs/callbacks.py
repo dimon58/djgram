@@ -16,6 +16,7 @@ from djgram.contrib.dialogs.utils import delete_last_message_from_dialog_manager
 from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_USER_KEY
 
 from ..rendering import QUERY_KEY
+from .getters import get_admin_object_detail_context
 from .states import AdminStates
 
 if TYPE_CHECKING:
@@ -118,3 +119,27 @@ async def reset_page(callback: CallbackQuery, widget: Any, manager: DialogManage
     manager.current_context().widget_data["rows"] = 0
     if QUERY_KEY in manager.dialog_data:
         manager.dialog_data.pop(QUERY_KEY)
+
+
+async def handle_object_action_button(
+    callback_query: CallbackQuery,
+    widget: Any,
+    manager: DialogManager,
+    object_action_button_id: str,
+):
+    """
+    Обрабатывает нажатия на кнопки действия для записей в бд
+    """
+    _, model, model_admin, obj, row_id = await get_admin_object_detail_context(manager)
+
+    if obj is None:
+        logger.error("Not found %s with id = %s", model, row_id)
+        return
+
+    object_action_button = model_admin.get_object_action_button_by_id(object_action_button_id)
+
+    if object_action_button is None:
+        logger.error("Failed to find object action button id=%s in %s", object_action_button_id, model_admin)
+        return
+
+    await object_action_button.click(callback_query, obj)

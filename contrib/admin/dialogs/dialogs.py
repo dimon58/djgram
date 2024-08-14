@@ -25,6 +25,7 @@ from djgram.utils.diagrams import render_transitions_safe
 
 from ..rendering import QUERY_KEY
 from .callbacks import (
+    handle_object_action_button,
     on_admin_dialog_close,
     on_admin_dialog_start,
     on_app_selected,
@@ -158,6 +159,13 @@ admin_dialog = Dialog(
         Format("->->{model_name}"),
         Format("->->->{object_name}"),
         Format("\n{text}"),
+        Select(
+            Format("{item[1]}"),
+            id="object_action_button_id",
+            item_id_getter=operator.itemgetter(0),
+            items="file_buttons",
+            on_click=handle_object_action_button,
+        ),
         Row(
             SwitchTo(
                 Const("\u25c0 Назад"),
