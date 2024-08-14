@@ -132,7 +132,7 @@ class LimitedBot(Bot):
         """
 
         # initial call and max_retries
-        for i in range(self.caller.max_retries + 1):  # noqa: RET503
+        for attempt in range(self.caller.max_retries + 1):  # noqa: RET503
             try:
                 # In case a retry_after was hit, we wait with processing the request
                 await self._retry_after_event.wait()
@@ -146,7 +146,7 @@ class LimitedBot(Bot):
                 return await coro
 
             except TelegramRetryAfter as exc:
-                if i == self.caller.max_retries:
+                if attempt == self.caller.max_retries:
                     logger.exception(
                         "Rate limit hit after maximum of %d retries",
                         self.caller.max_retries,
