@@ -11,6 +11,7 @@ from djgram.contrib.communication import router as communication_router
 from djgram.contrib.limits.limiter import patch_bot_with_limiter
 from djgram.contrib.logs.middlewares import TraceMiddleware
 from djgram.contrib.misc.handlers import cancel_handler
+from djgram.contrib.misc.middlewares import ErrorHandlingMiddleware
 from djgram.contrib.telegram.middlewares import TelegramMiddleware
 from djgram.db.middlewares import DbSessionMiddleware
 
@@ -27,6 +28,7 @@ def setup_router(dp: Dispatcher) -> None:
 
 def setup_middlewares(dp: Dispatcher, analytics: bool) -> None:
     dp.update.outer_middleware(TraceMiddleware())
+    dp.update.outer_middleware(ErrorHandlingMiddleware())
     if analytics:
         dp.update.outer_middleware(SaveUpdateToClickHouseMiddleware())
     dp.update.outer_middleware(DbSessionMiddleware())
