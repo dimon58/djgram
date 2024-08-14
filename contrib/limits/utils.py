@@ -12,8 +12,7 @@ P = ParamSpec("P")
 logger = logging.getLogger(__name__)
 
 
-# noinspection PyProtocol
-class HasRetryAfterError(Protocol, Exception):  # pyright: ignore [reportGeneralTypeIssues]
+class HasRetryAfterError(Protocol):
     retry_after: float | None
 
 
@@ -61,12 +60,12 @@ def limit_retry_call(
                     await _retry_after_event.wait()
                     async with _limiter:
                         return await func(*args, **kwargs)
-                except retry_exception_class as exc:
+                except retry_exception_class as exc:  # pyright: ignore [reportGeneralTypeIssues]
                     if attempt == max_retries:
                         logger.exception(
                             "Rate limit hit after maximum of %d retries",
                             max_retries,
-                            exc_info=exc,
+                            exc_info=exc,  # pyright: ignore [reportArgumentType]
                         )
                         raise
 
