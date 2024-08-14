@@ -8,6 +8,7 @@ Jinja2~=3.1.4
 humanfriendly~=10.0
 orjson~=3.10.6
 sqlalchemy~=2.0.31
+sqlalchemy-file~=0.6.0
 uuid6~=2024.7.10
 limiter~=0.5.0
 cachetools~=5.4.0

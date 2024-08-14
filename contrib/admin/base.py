@@ -17,7 +17,7 @@ from djgram.configs import ADMIN_ROWS_PER_PAGE
 from djgram.db.models import BaseModel
 from djgram.db.utils import get_fields_of_model
 
-from .rendering import AdminFieldRenderer, TextRenderer
+from .rendering import AdminFieldRenderer, AutoRenderer
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,8 @@ class ModelAdmin:
 
     # Список полей для показа, если None, то показываются все поля
     fields: ClassVar[Sequence[str | AdminFieldRenderer] | None] = None
+    # Виджеты для конкретных полей
+    widgets_override: ClassVar[dict[str, type[AdminFieldRenderer]]] = {}
 
     skip_synonyms_origin: ClassVar[bool] = True  # Не показывать поля, для которых есть синонимы
 
@@ -85,7 +87,18 @@ class ModelAdmin:
         else:
             fields = get_fields_of_model(cls.model, cls.skip_synonyms_origin)
 
-        return [TextRenderer(field) if isinstance(field, str) else field for field in fields]
+        widgets: list[AdminFieldRenderer] = []
+
+        for field in fields:
+            if isinstance(field, str):
+                widget = cls.widgets_override.get(field, AutoRenderer)(field)
+            else:
+                new_class = cls.widgets_override.get(field.field)
+                if new_class is not None:
+                    widget = new_class(field.field)
+            widgets.append(widget)
+
+        return widgets
 
     @classmethod
     def generate_search_filter(cls, query: str) -> ColumnElement[bool]:

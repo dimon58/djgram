@@ -3,20 +3,10 @@ from io import BytesIO
 
 from aiogram import Bot
 
-from djgram.utils import measure_time
+from djgram.utils.formating import get_bytes_size_format
+from djgram.utils.misc import measure_time
 
 logger = logging.getLogger(__name__)
-
-
-def get_bytes_size_format(b: float) -> str:
-    """
-    Форматирует число байт в человекочитаемые единицы измерения
-    """
-    for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
-        if b < 1024:
-            return f"{b:.2f} {unit}B"
-        b /= 1024
-    return f"{b:.2f} YB"
 
 
 async def download_file(bot: Bot, file_id: str, file_size: int) -> BytesIO:

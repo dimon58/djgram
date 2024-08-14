@@ -5,10 +5,14 @@
 import html
 import json
 import logging
+from datetime import date, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
+from sqlalchemy_file import File
+
 from djgram.db.models import BaseModel
+from djgram.utils.formating import get_bytes_size_format
 
 if TYPE_CHECKING:
     from sqlalchemy import Column
@@ -133,6 +137,13 @@ class AdminFieldRenderer:
         self._title = title
         self._docs = docs
 
+    def __str__(self):
+        return f"{self.__class__.__name__}({self._field})"
+
+    @property
+    def field(self):
+        return self._field
+
     def get_from_obj(self, obj: BaseModel) -> Any:
         """
         Возвращает значения поля объекта по пути
@@ -171,7 +182,7 @@ class AdminFieldRenderer:
         Рендерит заголовок в виде
 
         <strong>Название</strong>
-        <i>Документация</i>    - Если нужно рендерить документацию
+        <i>Документация</i> - Если нужно рендерить документацию
 
         Args:
             obj: объект для которого рендериться представление
@@ -240,7 +251,7 @@ class OneLineTextRenderer(AdminFieldRenderer):
     """
 
     def render_for_obj(self, obj: BaseModel, render_docs: bool) -> str:
-        head = [f"<strong>●{self.get_title()}:</strong> {html_escape(self.get_from_obj(obj))}"]
+        head = [f"<strong>●{self.get_title()}:</strong> <code>{html_escape(self.get_from_obj(obj))}</code>"]
 
         if render_docs:
             doc = self.render_docs(obj)
@@ -274,3 +285,52 @@ class JsonRenderer(AdminFieldRenderer):
             return "<pre>None</pre>"
         data = json.dumps(data, ensure_ascii=False, indent=2)
         return f'<pre><code class="json">{html_escape(data)}</code></pre>'
+
+
+class FileRenderer(AdminFieldRenderer):
+    """
+    Отображает файл в виде filename (size)
+
+    Например: document.pdf (1.23 MB)
+    """
+
+    def render_for_obj(self, obj: BaseModel, render_docs: bool) -> str:
+        data = self.get_from_obj(obj)
+
+        head = [
+            f"<strong>●{self.get_title()}:</strong> "
+            f"<code>{html_escape(data['filename'])}</code> ({get_bytes_size_format(data['size'])})"
+        ]
+
+        if render_docs:
+            doc = self.render_docs(obj)
+
+            if doc is not None:
+                head.append(doc)
+
+        return "\n".join(head)
+
+
+class AutoRenderer(TextRenderer):
+    """
+    Автоматически выбирает способ отображения для данных
+    """
+
+    def render_for_obj(self, obj: BaseModel, render_docs: bool) -> str:
+
+        data = self.get_from_obj(obj)
+
+        # Тут функция get_from_obj будет вызываться 2 раза
+        if isinstance(data, None | bool | int | float | date | datetime) or (isinstance(data, str) and len(data) == 0):
+            renderer = OneLineTextRenderer(self._field, self._title, self._docs)
+
+        elif isinstance(data, File):
+            renderer = FileRenderer(self._field, self._title, self._docs)
+
+        elif isinstance(data, dict | list):
+            renderer = JsonRenderer(self._field, self._title, self._docs)
+
+        else:
+            renderer = super()
+
+        return renderer.render_for_obj(obj, render_docs)
