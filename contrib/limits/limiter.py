@@ -152,7 +152,7 @@ class LimitedBot(Bot):
                         self.caller.max_retries,
                         exc_info=exc,
                     )
-                    raise exc  # noqa: TRY201
+                    raise
 
                 logger.info(exc)
                 # Make sure we don't allow other requests to be processed

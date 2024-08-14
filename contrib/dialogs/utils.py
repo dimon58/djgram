@@ -57,7 +57,7 @@ async def remove_kbd(bot: Bot, chat_id: int | None, message_id: int | None) -> M
         ):
             pass
         else:
-            raise exc  # noqa: TRY201
+            raise
 
 
 async def delete_message_safe(bot: Bot, chat_id: int, message_id: int) -> None:
@@ -75,7 +75,7 @@ async def delete_message_safe(bot: Bot, chat_id: int, message_id: int) -> None:
         if "message to delete not found" in exc.message or "message can't be deleted" in exc.message:
             await remove_kbd(bot, chat_id, message_id)
         else:
-            raise exc  # noqa: TRY201
+            raise
 
 
 async def delete_last_message_from_dialog_manager(dialog_manager: DialogManager) -> None:
