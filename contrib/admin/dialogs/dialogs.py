@@ -24,6 +24,7 @@ from djgram.contrib.dialogs.database_paginated_scrolling_group import DEFAULT_TO
 from djgram.utils.diagrams import render_transitions_safe
 
 from ..rendering import QUERY_KEY
+from . import getters
 from .callbacks import (
     handle_object_action_button,
     on_admin_dialog_close,
@@ -35,7 +36,6 @@ from .callbacks import (
     reset_page,
     reset_search_query,
 )
-from .getters import get_apps, get_models, get_row_detail, get_rows, get_search_description
 from .states import AdminStates
 
 logger = logging.getLogger(__name__)
@@ -47,18 +47,18 @@ admin_dialog = Dialog(
         ScrollingGroup(
             Select(
                 Format("{item[1]}"),
-                id="app_id",
+                id=getters.APP_ID_KEY,
                 item_id_getter=operator.itemgetter(0),
-                items="apps",
+                items=getters.APPS_KEY,
                 on_click=on_app_selected,
             ),
-            id="apps",
+            id=getters.APPS_KEY,
             width=1,
             height=ADMIN_APPS_PER_PAGE,
             hide_on_single_page=True,
         ),
         Cancel(Const("\u23f9 Завершить")),
-        getter=get_apps,
+        getter=getters.get_apps,
         state=AdminStates.app_list,
         preview_add_transitions=[
             SwitchTo(Const("model_list"), "model_list", state=AdminStates.model_list),
@@ -68,22 +68,22 @@ admin_dialog = Dialog(
     # Выбор модели
     Window(
         Format("Администрирование"),
-        Format("->{app_name}"),
+        Format(f"->{{{getters.APPS_NAME_KEY}}}"),
         ScrollingGroup(
             Select(
                 Format("{item[1]}"),
-                id="model_id",
+                id=getters.MODEL_ID_KEY,
                 item_id_getter=operator.itemgetter(0),
-                items="models",
+                items=getters.MODELS_KEY,
                 on_click=on_model_selected,
             ),
-            id="models",
+            id=getters.MODELS_KEY,
             width=1,
             height=ADMIN_MODELS_PER_PAGE,
             hide_on_single_page=True,
         ),
         Row(Back(Const("\u25c0 Назад")), Cancel(Const("\u23f9 Завершить"))),
-        getter=get_models,
+        getter=getters.get_models,
         state=AdminStates.model_list,
         preview_add_transitions=[
             SwitchTo(Const("row_list"), "row_list", state=AdminStates.row_list),
@@ -93,16 +93,16 @@ admin_dialog = Dialog(
     # Выбор строки
     Window(
         Format("Администрирование"),
-        Format("->{app_name}"),
-        Format("->->{model_name}"),
-        Format("\nВсего {total} {units}\n"),
+        Format(f"->{{{getters.APPS_NAME_KEY}}}"),
+        Format(f"->->{{{getters.MODEL_NAME_KEY}}}"),
+        Format(f"\nВсего {{{DEFAULT_TOTAL_KEY}}} {{{getters.UNITS_KEY}}}\n"),
         Format("{header}"),
         DatabasePaginatedScrollingGroup(
             Select(
                 Format("{item[1]}"),
-                id="row_id",
+                id=getters.ROW_ID_KEY,
                 item_id_getter=operator.itemgetter(0),
-                items="rows",
+                items=getters.ROWS_KEY,
                 on_click=on_row_selected,
             ),
             id="page",
@@ -115,7 +115,7 @@ admin_dialog = Dialog(
             Const("🔍 Поиск"),
             id="search",
             state=AdminStates.search_row,
-            when=F["search_enable"],
+            when=F[getters.SEARCH_ENABLE_KEY],
         ),
         Button(
             Const("↺ Сбросить поисковый запрос"),
@@ -127,7 +127,7 @@ admin_dialog = Dialog(
             Back(Const("\u25c0 Назад"), on_click=reset_page),
             Cancel(Const("\u23f9 Завершить")),
         ),
-        getter=get_rows,
+        getter=getters.get_rows,
         state=AdminStates.row_list,
         preview_add_transitions=[
             SwitchTo(Const("row_detail"), "row_detail", state=AdminStates.row_detail),
@@ -137,15 +137,15 @@ admin_dialog = Dialog(
     # Поиск строки
     Window(
         Format("Администрирование"),
-        Format("->{app_name}"),
-        Format("->->{model_name}"),
-        Format("\nВведите поисковый запрос\n\n{description}"),
+        Format(f"->{{{getters.APPS_NAME_KEY}}}"),
+        Format(f"->->{{{getters.MODEL_NAME_KEY}}}"),
+        Format(f"\nВведите поисковый запрос\n\n{{{getters.DESCRIPTION_KEY}}}"),
         MessageInput(on_search_row_input),
         Row(
             Back(Const("\u25c0 Назад"), on_click=reset_page),
             Cancel(Const("\u23f9 Завершить")),
         ),
-        getter=get_search_description,
+        getter=getters.get_search_description,
         state=AdminStates.search_row,
         preview_add_transitions=[
             SwitchTo(Const("row_detail"), "row_detail", state=AdminStates.row_detail),
@@ -155,15 +155,15 @@ admin_dialog = Dialog(
     # Детальный вид записи
     Window(
         Format("Администрирование"),
-        Format("->{app_name}"),
-        Format("->->{model_name}"),
-        Format("->->->{object_name}"),
+        Format(f"->{{{getters.APPS_NAME_KEY}}}"),
+        Format(f"->->{{{getters.MODEL_NAME_KEY}}}"),
+        Format(f"->->->{{{getters.OBJECT_NAME_KEY}}}"),
         Format("\n{text}"),
         Select(
             Format("{item[1]}"),
             id="object_action_button_id",
             item_id_getter=operator.itemgetter(0),
-            items="file_buttons",
+            items=getters.FILE_BUTTONS_KEY,
             on_click=handle_object_action_button,
         ),
         Row(
@@ -174,7 +174,7 @@ admin_dialog = Dialog(
             ),
             Cancel(Const("\u23f9 Завершить")),
         ),
-        getter=get_row_detail,
+        getter=getters.get_row_detail,
         state=AdminStates.row_detail,
         parse_mode=ParseMode.HTML,
         disable_web_page_preview=True,

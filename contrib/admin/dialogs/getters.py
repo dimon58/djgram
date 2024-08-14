@@ -19,9 +19,27 @@ from ..rendering import QUERY_KEY, get_field_by_path, prepare_rows
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
-
 T = TypeVar("T", bound=BaseModel)
 
+APP_ID_KEY = "app_id"
+MODEL_ID_KEY = "model_id"
+ROW_ID_KEY = "row_id"
+
+APPS_KEY = "apps"
+MODELS_KEY = "models"
+
+APPS_NAME_KEY = "app_name"
+MODEL_NAME_KEY = "model_name"
+OBJECT_NAME_KEY = "object_name"
+
+TEXT_KEY = "text"
+FILE_BUTTONS_KEY = "file_buttons"
+
+ROWS_KEY = "rows"
+HEADER_KEY = "header"
+UNITS_KEY = "units"
+SEARCH_ENABLE_KEY = "search_enable"
+DESCRIPTION_KEY = "description"
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +52,7 @@ async def get_apps(**kwargs) -> dict[str, Any]:
 
     apps = [(app_id, app.verbose_name) for app_id, app in enumerate(apps_admins) if len(app.admin_models) > 0]
     return {
-        "apps": apps,
+        APPS_KEY: apps,
     }
 
 
@@ -45,15 +63,15 @@ async def get_models(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
 
     db_session = dialog_manager.middleware_data[MIDDLEWARE_DB_SESSION_KEY]
 
-    app_id = dialog_manager.dialog_data["app_id"]
+    app_id = dialog_manager.dialog_data[APP_ID_KEY]
 
     app_admin = apps_admins[app_id]
 
     models = [(app_id, await app.display_name(db_session)) for app_id, app in enumerate(app_admin.admin_models)]
 
     return {
-        "models": models,
-        "app_name": app_admin.verbose_name,
+        MODELS_KEY: models,
+        APPS_NAME_KEY: app_admin.verbose_name,
     }
 
 
@@ -65,8 +83,8 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
 
     db_session: AsyncSession = dialog_manager.middleware_data[MIDDLEWARE_DB_SESSION_KEY]
 
-    app = apps_admins[dialog_manager.dialog_data["app_id"]]
-    model_admin = app.admin_models[dialog_manager.dialog_data["model_id"]]
+    app = apps_admins[dialog_manager.dialog_data[APP_ID_KEY]]
+    model_admin = app.admin_models[dialog_manager.dialog_data[MODEL_ID_KEY]]
 
     page = DatabasePaginatedScrollingGroup.get_page_number_from_manager(dialog_manager, "page")
 
@@ -120,24 +138,24 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
         units = "записи"
 
     return {
-        "rows": rows,
-        "app_name": app.verbose_name,
-        "model_name": model_admin.name,
-        "header": "│".join(model_admin.list_display),
+        ROWS_KEY: rows,
+        APPS_NAME_KEY: app.verbose_name,
+        MODEL_NAME_KEY: model_admin.name,
+        HEADER_KEY: "│".join(model_admin.list_display),
         DEFAULT_TOTAL_KEY: total,
-        "units": units,
-        "search_enable": len(model_admin.search_fields) > 0,
+        UNITS_KEY: units,
+        SEARCH_ENABLE_KEY: len(model_admin.search_fields) > 0,
     }
 
 
 async def get_search_description(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
-    app = apps_admins[dialog_manager.dialog_data["app_id"]]
-    model_admin = app.admin_models[dialog_manager.dialog_data["model_id"]]
+    app = apps_admins[dialog_manager.dialog_data[APP_ID_KEY]]
+    model_admin = app.admin_models[dialog_manager.dialog_data[MODEL_ID_KEY]]
 
     return {
-        "app_name": app.verbose_name,
-        "model_name": model_admin.name,
-        "description": "Поиск по полям:\n- " + "\n- ".join(model_admin.search_fields),
+        APPS_NAME_KEY: app.verbose_name,
+        MODEL_NAME_KEY: model_admin.name,
+        DESCRIPTION_KEY: "Поиск по полям:\n- " + "\n- ".join(model_admin.search_fields),
     }
 
 
@@ -146,9 +164,9 @@ async def get_admin_object_detail_context(
 ) -> tuple[AppAdmin, type[T], type[ModelAdmin], T | None, Any]:
     db_session: AsyncSession = dialog_manager.middleware_data[MIDDLEWARE_DB_SESSION_KEY]
 
-    app: AppAdmin = apps_admins[dialog_manager.dialog_data["app_id"]]
-    model_admin: type[ModelAdmin] = app.admin_models[dialog_manager.dialog_data["model_id"]]
-    row_id: Any = dialog_manager.dialog_data["row_id"]
+    app: AppAdmin = apps_admins[dialog_manager.dialog_data[APP_ID_KEY]]
+    model_admin: type[ModelAdmin] = app.admin_models[dialog_manager.dialog_data[MODEL_ID_KEY]]
+    row_id: Any = dialog_manager.dialog_data[ROW_ID_KEY]
 
     model: type[T] = model_admin.model  # pyright: ignore [reportAssignmentType]
 
@@ -172,10 +190,10 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, A
     if obj is None:
         logger.error("Not found %s with id = %s", model, row_id)
         return {
-            "object_name": object_name,
-            "text": "NOT FOUND",
-            "app_name": app.verbose_name,
-            "model_name": model_admin.name,
+            OBJECT_NAME_KEY: object_name,
+            TEXT_KEY: "NOT FOUND",
+            APPS_NAME_KEY: app.verbose_name,
+            MODEL_NAME_KEY: model_admin.name,
         }
 
     text = []
@@ -186,9 +204,9 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, A
 
     text = "\n".join(text)
     return {
-        "object_name": object_name,
-        "text": text,
-        "app_name": app.verbose_name,
-        "model_name": model_admin.name,
-        "file_buttons": [(button.button_id, button.title) for button in model_admin.object_action_buttons],
+        OBJECT_NAME_KEY: object_name,
+        TEXT_KEY: text,
+        APPS_NAME_KEY: app.verbose_name,
+        MODEL_NAME_KEY: model_admin.name,
+        FILE_BUTTONS_KEY: [(button.button_id, button.title) for button in model_admin.object_action_buttons],
     }

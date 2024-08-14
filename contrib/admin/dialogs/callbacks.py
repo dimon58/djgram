@@ -16,7 +16,7 @@ from djgram.contrib.dialogs.utils import delete_last_message_from_dialog_manager
 from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_USER_KEY
 
 from ..rendering import QUERY_KEY
-from .getters import get_admin_object_detail_context
+from . import getters
 from .states import AdminStates
 
 if TYPE_CHECKING:
@@ -73,7 +73,7 @@ async def on_app_selected(callback: CallbackQuery, widget: Any, manager: DialogM
     """
     Обработчик выбора диалога
     """
-    manager.dialog_data["app_id"] = int(app_id)
+    manager.dialog_data[getters.APP_ID_KEY] = int(app_id)
     await manager.switch_to(AdminStates.model_list)
 
 
@@ -82,7 +82,7 @@ async def on_model_selected(callback: CallbackQuery, widget: Any, manager: Dialo
     """
     Обработчик выбора модели
     """
-    manager.dialog_data["model_id"] = int(model_id)
+    manager.dialog_data[getters.MODEL_ID_KEY] = int(model_id)
     await manager.switch_to(AdminStates.row_list)
 
 
@@ -106,7 +106,7 @@ async def on_row_selected(callback: CallbackQuery, widget: Any, manager: DialogM
     """
     Обработчик выбора строки
     """
-    manager.dialog_data["row_id"] = row_id
+    manager.dialog_data[getters.ROW_ID_KEY] = row_id
     await manager.switch_to(AdminStates.row_detail)
 
 
@@ -116,7 +116,7 @@ async def reset_page(callback: CallbackQuery, widget: Any, manager: DialogManage
     Сбрасывает текущую страницу
     """
 
-    manager.current_context().widget_data["rows"] = 0
+    manager.current_context().widget_data[getters.ROWS_KEY] = 0
     if QUERY_KEY in manager.dialog_data:
         manager.dialog_data.pop(QUERY_KEY)
 
@@ -130,7 +130,7 @@ async def handle_object_action_button(
     """
     Обрабатывает нажатия на кнопки действия для записей в бд
     """
-    _, model, model_admin, obj, row_id = await get_admin_object_detail_context(manager)
+    _, model, model_admin, obj, row_id = await getters.get_admin_object_detail_context(manager)
 
     if obj is None:
         logger.error("Not found %s with id = %s", model, row_id)
