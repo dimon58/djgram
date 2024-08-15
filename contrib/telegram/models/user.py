@@ -74,6 +74,10 @@ class TelegramUser(TimeTrackableBaseModel):
 
         return f"{self.first_name} {self.last_name}"
 
+    @property
+    def full_name(self):
+        return self.get_full_name()
+
     def get_telegram_href_a_tag(self) -> str:
         """
         Возвращает ссылку на пользователя в виде поддерживаемого тега для сообщения телеграмм
@@ -81,3 +85,6 @@ class TelegramUser(TimeTrackableBaseModel):
         https://core.telegram.org/bots/api#html-style
         """
         return f'<a href="tg://user?id={self.id}">{self.get_full_name()}</a>'
+
+    def str_for_logging(self):
+        return f"Telegram user [{self.id}] {self.full_name}"
