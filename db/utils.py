@@ -32,6 +32,9 @@ class ReturnState(Enum):
     CREATED = 1
     UPDATED = 2
 
+    def need_commit(self):
+        return self != self.NOT_MODIFIED
+
 
 def get_fields_of_declarative_meta(model_class: type) -> set[str]:
     """

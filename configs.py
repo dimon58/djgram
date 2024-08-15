@@ -1,4 +1,5 @@
 from contextlib import suppress
+from datetime import timedelta
 
 MEDIA_DIR = None
 
@@ -14,6 +15,12 @@ CLICKHOUSE_PORT: int = 9000
 CLICKHOUSE_DB: str = "default"
 CLICKHOUSE_USER: str = "default"
 CLICKHOUSE_PASSWORD: str = ""
+
+#: Нужно ли обновлять полную информацию о чате на каждом взаимодействии пользователя с ботом
+#   Если включено, то каждый раз будет вызываться метод getChat https://core.telegram.org/bots/api#getchat
+TELEGRAM_CHAT_FULL_INFO_UPDATE_ON_EACH_EVENT = False
+#: Период обновления полной информации о чате
+TELEGRAM_CHAT_FULL_INFO_UPDATE_PERIOD = timedelta(hours=1)
 
 #: Таблица в clickhouse, в которую логируются все обновления телеграмм
 #   https://core.telegram.org/bots/api#getting-updates
