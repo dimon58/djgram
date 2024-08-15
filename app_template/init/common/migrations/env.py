@@ -2,11 +2,14 @@
 import asyncio
 from contextlib import suppress
 from logging.config import fileConfig
+from typing import Any
 
 from alembic import context
+from alembic.autogenerate.api import AutogenContext
 from sqlalchemy import pool, text
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
+from sqlalchemy_file import FileField
 
 from djgram.db import db_engine
 from main import BaseModel
@@ -38,6 +41,17 @@ config.set_main_option(
 # ... etc.
 
 
+def render_item(type_: str, obj: Any, autogen_context: AutogenContext):
+    """Apply custom rendering for selected items."""
+
+    if type_ == "type" and isinstance(obj, FileField):
+        autogen_context.imports.add("from sqlalchemy_file import FileField")
+        return "FileField()"
+
+    # default rendering for other objects
+    return False
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -56,6 +70,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        render_item=render_item,
     )
 
     with context.begin_transaction():
@@ -66,6 +81,7 @@ def do_run_migrations(connection: Connection) -> None:
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
+        render_item=render_item,
     )
 
     with context.begin_transaction():
