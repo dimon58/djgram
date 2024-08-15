@@ -1,0 +1,90 @@
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql import expression, sqltypes
+
+from djgram.db.models import TimeTrackableBaseModel
+
+
+# pylint: disable=too-few-public-methods
+class TelegramUser(TimeTrackableBaseModel):
+    """
+    This object represents a Telegram user or bot
+
+    https://core.telegram.org/bots/api#user
+    """
+
+    id: Mapped[int] = mapped_column(
+        sqltypes.BigInteger,
+        nullable=False,
+        unique=True,
+        primary_key=True,
+        autoincrement=True,
+        doc=(
+            "Unique identifier for this user or bot. This number may have more than "
+            "32 significant bits and some programming languages may have "
+            "difficulty/silent defects in interpreting it. But it has at most 52 "
+            "significant bits, so a 64-bit integer or double-precision float type are "
+            "safe for storing this identifier."
+        ),
+    )
+
+    is_bot: Mapped[bool] = mapped_column(sqltypes.Boolean, doc="True, if this user is a bot")
+
+    first_name: Mapped[str] = mapped_column(sqltypes.String, doc="User's or bot's first name")
+    last_name: Mapped[str] = mapped_column(sqltypes.String, nullable=True, doc="Optional. User's or bot's last name")
+    username: Mapped[str] = mapped_column(sqltypes.String, nullable=True, doc="Optional. User's or bot's username")
+
+    language_code: Mapped[str] = mapped_column(
+        sqltypes.String,
+        nullable=True,
+        doc="Optional. IETF language tag of the user's language",
+    )
+    is_premium: Mapped[bool] = mapped_column(
+        sqltypes.Boolean,
+        default=False,
+        nullable=True,
+        server_default=expression.false(),
+        doc="Optional. True, if this user is a Telegram Premium user",
+    )
+    added_to_attachment_menu: Mapped[str] = mapped_column(
+        sqltypes.String,
+        nullable=True,
+        doc="Optional. True, if this user added the bot to the attachment menu",
+    )
+    can_join_groups: Mapped[bool] = mapped_column(
+        sqltypes.Boolean,
+        nullable=True,
+        doc="Optional. True, if the bot can be invited to groups. Returned only in getMe.",
+    )
+    can_read_all_group_messages: Mapped[bool] = mapped_column(
+        sqltypes.Boolean,
+        nullable=True,
+        doc="Optional. True, if privacy mode is disabled for the bot. Returned only in getMe.",
+    )
+    supports_inline_queries: Mapped[bool] = mapped_column(
+        sqltypes.Boolean,
+        nullable=True,
+        doc="Optional. True, if the bot supports inline queries. Returned only in getMe.",
+    )
+
+    def get_full_name(self) -> str:
+        """
+        Возвращает полное имя пользователя.
+
+        Оно получается конкатенацией first_name и last_name
+        """
+
+        if self.first_name is None:
+            return self.last_name
+
+        if self.last_name is None:
+            return self.first_name
+
+        return f"{self.first_name} {self.last_name}"
+
+    def get_telegram_href_a_tag(self) -> str:
+        """
+        Возвращает ссылку на пользователя в виде поддерживаемого тега для сообщения телеграмм
+
+        https://core.telegram.org/bots/api#html-style
+        """
+        return f'<a href="tg://user?id={self.id}">{self.get_full_name()}</a>'
