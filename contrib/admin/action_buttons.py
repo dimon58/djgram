@@ -8,6 +8,8 @@ from aiogram.types import BufferedInputFile, CallbackQuery
 from aiogram.utils.chat_action import ChatActionSender
 
 from djgram.db.models import BaseModel
+from djgram.utils import measure_time
+from djgram.utils.formating import get_bytes_size_format
 
 from .misc import get_admin_representation_for_logging
 
@@ -100,19 +102,25 @@ class DownloadFileActionButton(AbstractObjectActionButton):
             chat_id=callback_query.message.chat.id,  # pyright: ignore [reportOptionalMemberAccess]
             action=ChatAction.UPLOAD_DOCUMENT,
         ):
-            message = await callback_query.bot.send_document(  # pyright: ignore [reportOptionalMemberAccess]
-                chat_id=callback_query.message.chat.id,  # pyright: ignore [reportOptionalMemberAccess]
-                document=BufferedInputFile(
-                    file=file.file.read(),
-                    filename=file["filename"],
-                ),
-            )
+            with measure_time() as td:
+                message = await callback_query.bot.send_document(  # pyright: ignore [reportOptionalMemberAccess]
+                    chat_id=callback_query.message.chat.id,  # pyright: ignore [reportOptionalMemberAccess]
+                    document=BufferedInputFile(
+                        file=file.file.read(),
+                        filename=file["filename"],
+                    ),
+                )
 
+        file_size = file["size"]
         logger.info(
-            "File %s (id=%s) from %s successfully sent to admin %s in message %s (telegram file id = %s)",
+            "File from %s %s (id=%s) with size %s successfully sent in %.2f sec (avg %s/s) "
+            "to admin %s in message %s (telegram file id = %s)",
+            obj,
             file["filename"],
             file["file_id"],
-            obj,
+            get_bytes_size_format(file_size),
+            td.elapsed,
+            get_bytes_size_format(file_size / td.elapsed),
             get_admin_representation_for_logging(
                 telegram_user=middleware_data[MIDDLEWARE_TELEGRAM_USER_KEY],
                 user=middleware_data[MIDDLEWARE_USER_KEY],
