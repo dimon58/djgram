@@ -38,8 +38,6 @@ class TelegramChatAdmin(ModelAdmin):
         "username",
         "first_name",
         "last_name",
-        "bio",
-        "description",
     ]
     model = TelegramChat
     name = "Чаты телеграмм"

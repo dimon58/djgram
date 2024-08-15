@@ -34,21 +34,13 @@ class TelegramMiddleware(BaseMiddleware):
     Требует подключенной ранее DbSessionMiddleware
     """
 
-    CHAT_EXCLUDED_FIELDS = {
-        "has_aggressive_anti_spam_enabled",
-        "photo_id",
-        "location_id",
-        "has_hidden_members",
-        "permissions_id",
-    }
-
-    __base_model_fields = (
+    __base_model_fields: set[str] = (
         get_fields_of_declarative_meta(BaseModel)
         | get_fields_of_declarative_meta(CreatedAtMixin)
         | get_fields_of_declarative_meta(UpdatedAtMixin)
     )
     __telegram_user_fields = set(TelegramUser.__table__.columns.keys()) - __base_model_fields
-    __telegram_chat_fields = set(TelegramChat.__table__.columns.keys()) - __base_model_fields - CHAT_EXCLUDED_FIELDS
+    __telegram_chat_fields = set(TelegramChat.__table__.columns.keys()) - __base_model_fields
 
     async def save_telegram_user_to_db(self, user: User, db_session: AsyncSession) -> tuple[TelegramUser, bool]:
         """
@@ -117,7 +109,7 @@ class TelegramMiddleware(BaseMiddleware):
         +-----------------------------+-----------------------------+----------------------+
         | MessageReactionCountUpdated |                             | chat                 |
         +-----------------------------+-----------------------------+----------------------+
-        | MessageReactionUpdated      | user                        | chat  or *actor_chat |
+        | MessageReactionUpdated      | user                        | chat or *actor_chat  |
         +-----------------------------+-----------------------------+----------------------+
         | Poll                        |                             |                      |
         +-----------------------------+-----------------------------+----------------------+

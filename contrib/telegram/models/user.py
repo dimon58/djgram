@@ -18,52 +18,45 @@ class TelegramUser(TimeTrackableBaseModel):
         unique=True,
         primary_key=True,
         autoincrement=True,
-        doc=(
-            "Unique identifier for this user or bot. This number may have more than "
-            "32 significant bits and some programming languages may have "
-            "difficulty/silent defects in interpreting it. But it has at most 52 "
-            "significant bits, so a 64-bit integer or double-precision float type are "
-            "safe for storing this identifier."
-        ),
+        doc="Unique identifier for this user or bot. This number may have more than "
+        "32 significant bits and some programming languages may have "
+        "difficulty/silent defects in interpreting it. But it has at most 52 "
+        "significant bits, so a 64-bit integer or double-precision float type are "
+        "safe for storing this identifier.",
     )
 
     is_bot: Mapped[bool] = mapped_column(sqltypes.Boolean, doc="True, if this user is a bot")
 
     first_name: Mapped[str] = mapped_column(sqltypes.String, doc="User's or bot's first name")
-    last_name: Mapped[str] = mapped_column(sqltypes.String, nullable=True, doc="Optional. User's or bot's last name")
-    username: Mapped[str] = mapped_column(sqltypes.String, nullable=True, doc="Optional. User's or bot's username")
+    last_name: Mapped[str | None] = mapped_column(
+        sqltypes.String,
+        nullable=True,
+        doc="Optional. User's or bot's last name",
+    )
+    username: Mapped[str | None] = mapped_column(
+        sqltypes.String,
+        nullable=True,
+        doc="Optional. User's or bot's username",
+    )
 
-    language_code: Mapped[str] = mapped_column(
+    language_code: Mapped[str | None] = mapped_column(
         sqltypes.String,
         nullable=True,
         doc="Optional. IETF language tag of the user's language",
     )
     is_premium: Mapped[bool] = mapped_column(
         sqltypes.Boolean,
-        default=False,
         nullable=True,
+        default=False,
         server_default=expression.false(),
         doc="Optional. True, if this user is a Telegram Premium user",
     )
-    added_to_attachment_menu: Mapped[str] = mapped_column(
-        sqltypes.String,
+    added_to_attachment_menu: Mapped[bool] = mapped_column(
+        sqltypes.Boolean,
         nullable=True,
+        default=False,
+        server_default=expression.false(),
         doc="Optional. True, if this user added the bot to the attachment menu",
-    )
-    can_join_groups: Mapped[bool] = mapped_column(
-        sqltypes.Boolean,
-        nullable=True,
-        doc="Optional. True, if the bot can be invited to groups. Returned only in getMe.",
-    )
-    can_read_all_group_messages: Mapped[bool] = mapped_column(
-        sqltypes.Boolean,
-        nullable=True,
-        doc="Optional. True, if privacy mode is disabled for the bot. Returned only in getMe.",
-    )
-    supports_inline_queries: Mapped[bool] = mapped_column(
-        sqltypes.Boolean,
-        nullable=True,
-        doc="Optional. True, if the bot supports inline queries. Returned only in getMe.",
     )
 
     def get_full_name(self) -> str:
