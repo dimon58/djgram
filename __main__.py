@@ -5,6 +5,10 @@ from pathlib import Path
 
 import click
 import jinja2
+from aiogram.types import TelegramObject
+from sqlalchemy import inspect
+
+from djgram.db.models import BaseModel
 
 BASE_DIR = Path(__file__).resolve().parent
 APP_TEMPLATE_DIR = BASE_DIR / "app_template" / "app"
@@ -116,6 +120,118 @@ def init(type: str):
 
     click.echo("\033[32mdjgram initialized\033[0m")
     click.echo("\033[35mRead generated readme.md file for further information\033[0m")
+
+
+def compare_models(
+    db_model: BaseModel,
+    aiogram_model: TelegramObject,
+    db_unnecessary_skip: set[str] | None = None,
+    db_missing_skip: set[str] | None = None,
+) -> bool:
+    """
+    Сравнивает схему данных и схему в aiogram
+
+    Если совпадает, то возвращает True, иначе False и выводит в консоль различия
+
+    :param db_model: модель базы данных для сравнения
+    :param aiogram_model: модель aiogram для сравнения
+    :param db_unnecessary_skip: дополнительные поля, которые есть только в схеме базы данных
+    :param db_missing_skip: поля, которые могут отсутствовать схеме в базе данных
+    :return:
+    """
+    if db_unnecessary_skip is None:
+        db_unnecessary_skip = set()
+    if db_missing_skip is None:
+        db_missing_skip = set()
+
+    aiogram_fields = aiogram_model.model_fields
+    db_fields = inspect(db_model).attrs.items()
+
+    aiogram_field_names = set(aiogram_fields.keys())
+    db_field_names = {field_name for field_name, _ in db_fields}
+
+    if aiogram_field_names == db_field_names:
+        return True
+
+    db_unnecessary = db_field_names - aiogram_field_names - db_unnecessary_skip
+    if len(db_unnecessary) > 0:
+        click.echo(f"\033[33mDB schema for {db_model} has unnecessary columns: {db_unnecessary}\033[0m", err=True)
+
+    db_missing = (aiogram_field_names - db_field_names) - db_missing_skip
+    if len(db_missing) > 0:
+        click.echo(f"\033[31mDB schema for {db_model} has missing columns: {db_missing}\033[0m", err=True)
+
+    return False
+
+
+@cli.command()
+def sync_tg_models():
+    """
+    Сравнивает схему базы данных с моделями в aiogram
+    """
+
+    from aiogram import types
+
+    from djgram.contrib.telegram import models
+
+    compare_models(
+        models.TelegramUser,
+        types.User,
+        db_unnecessary_skip={"created_at", "updated_at"},
+        # Fields returned only in getrMe https://core.telegram.org/bots/api#getme
+        # Described in djgram.db.models.user_additional_info.TelegramUserAdditionalInfo
+        db_missing_skip={
+            "can_join_groups",
+            "can_read_all_group_messages",
+            "supports_inline_queries",
+            "can_connect_to_business",
+            "has_main_web_app",
+        },
+    )
+    compare_models(
+        models.TelegramChat,
+        types.Chat,
+        db_unnecessary_skip={"created_at", "updated_at"},
+        # This fields deprecated:: API:7.3
+        # https://core.telegram.org/bots/api-changelog#may-6-2024"""
+        db_missing_skip={
+            "active_usernames",
+            "available_reactions",
+            "background_custom_emoji_id",
+            "bio",
+            "birthdate",
+            "business_intro",
+            "business_location",
+            "business_opening_hours",
+            "can_set_sticker_set",
+            "custom_emoji_sticker_set_name",
+            "description",
+            "emoji_status_custom_emoji_id",
+            "emoji_status_expiration_date",
+            "has_aggressive_anti_spam_enabled",
+            "has_hidden_members",
+            "has_private_forwards",
+            "has_protected_content",
+            "has_restricted_voice_and_video_messages",
+            "has_visible_history",
+            "invite_link",
+            "join_by_request",
+            "join_to_send_messages",
+            "linked_chat_id",
+            "location",
+            "message_auto_delete_time",
+            "permissions",
+            "personal_chat",
+            "photo",
+            "pinned_message",
+            "profile_accent_color_id",
+            "profile_background_custom_emoji_id",
+            "slow_mode_delay",
+            "sticker_set_name",
+            "unrestrict_boost_count",
+        },
+    )
+    compare_models(models.TelegramChatFullInfo, types.ChatFullInfo, db_unnecessary_skip={"created_at", "updated_at"})
 
 
 if __name__ == "__main__":

@@ -17,12 +17,6 @@ class TelegramChatFullInfo(AbstractTelegramChat):
     https://core.telegram.org/bots/api#chatfullinfo
     """
 
-    accent_color_id: Mapped[int] = mapped_column(
-        sqltypes.Integer,
-        doc="Identifier of the accent color for the chat name and backgrounds of the chat photo, "
-        "reply header, and link preview. See accent colors for more details.",
-    )
-
     max_reaction_count: Mapped[int] = mapped_column(
         sqltypes.Integer,
         doc="The maximum number of reactions that can be set on a message in the chat",
