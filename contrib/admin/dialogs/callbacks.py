@@ -139,4 +139,13 @@ async def handle_object_action_button(
         logger.error("Failed to find object action button id=%s in %s", object_action_button_id, model_admin)
         return
 
+    telegram_user: TelegramUser = manager.middleware_data[MIDDLEWARE_TELEGRAM_USER_KEY]
+    user: User = manager.middleware_data[MIDDLEWARE_USER_KEY]
+
+    logger.info(
+        "Admin %s clicked on object action button id=%s for object %s",
+        get_admin_representation_for_logging(telegram_user, user),
+        object_action_button_id,
+        obj,
+    )
     await object_action_button.click(obj, callback_query, manager.middleware_data)
