@@ -10,9 +10,9 @@ from sqlalchemy import pool, text
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy_file import FileField
-from sqlalchemy_nested_mutable.mutable import PydanticType
 
 from djgram.db import db_engine
+from djgram.db.pydantic_field import ExtendedPydanticType
 from main import BaseModel
 
 # this is the Alembic Config object, which provides
@@ -49,26 +49,8 @@ def render_item(type_: str, obj: Any, autogen_context: AutogenContext):
         autogen_context.imports.add("from sqlalchemy_file import FileField")
         return "FileField()"
 
-    if type_ == "type" and isinstance(obj, PydanticType):
-
-        autogen_context.imports.add("from djgram.db.pydantic_field import PydanticField")
-
-        # .pydantic_type.__bases__[0] guaranteed by PydanticType function
-        base_type: type = obj.pydantic_type.__bases__[0]
-        autogen_context.imports.add(f"import {base_type.__module__}")
-
-        if obj.sqltype is None:
-            json_sql_type = ""
-        else:
-            autogen_context.imports.add(f"import {obj.sqltype.__module__}")
-            if hasattr(obj.sqltype, "__name__"):  # Class # noqa: SIM108
-                sql_type_name = obj.sqltype.__name__
-            else:  # instance
-                sql_type_name = obj.sqltype.__class__.__name__
-
-            json_sql_type = f", {obj.sqltype.__module__}.{sql_type_name}()"
-
-        return f"PydanticField({base_type.__module__}.{base_type.__name__}{json_sql_type})"
+    if type_ == "type" and isinstance(obj, ExtendedPydanticType):
+        return obj.alembic_definition(autogen_context)
 
     # default rendering for other objects
     return False

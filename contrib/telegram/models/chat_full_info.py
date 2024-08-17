@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import sqltypes
 
 from djgram.configs import DB_SUPPORTS_ARRAYS
-from djgram.db.pydantic_field import PydanticField
+from djgram.db.pydantic_field import ImmutablePydanticField, PydanticField
 
 from .chat import AbstractTelegramChat
 
@@ -29,7 +29,7 @@ class TelegramChatFullInfo(AbstractTelegramChat):
     )
 
     photo: Mapped[aiogram.types.ChatPhoto | None] = mapped_column(
-        PydanticField(aiogram.types.ChatPhoto),
+        ImmutablePydanticField(aiogram.types.ChatPhoto),
         nullable=True,
         doc="Optional. Chat photo",
     )
@@ -42,39 +42,39 @@ class TelegramChatFullInfo(AbstractTelegramChat):
         )
 
     birthdate: Mapped[aiogram.types.Birthdate | None] = mapped_column(
-        PydanticField(aiogram.types.Birthdate),
+        ImmutablePydanticField(aiogram.types.Birthdate),
         nullable=True,
         doc="Optional. For private chats, the date of birth of the user",
     )
 
     business_intro: Mapped[aiogram.types.BusinessIntro | None] = mapped_column(
-        PydanticField(aiogram.types.BusinessIntro),
+        ImmutablePydanticField(aiogram.types.BusinessIntro),
         nullable=True,
         doc="Optional. For private chats with business accounts, the intro of the business",
     )
 
     business_location: Mapped[aiogram.types.BusinessLocation | None] = mapped_column(
-        PydanticField(aiogram.types.BusinessLocation),
+        ImmutablePydanticField(aiogram.types.BusinessLocation),
         nullable=True,
         doc="Optional. For private chats with business accounts, the location of the business",
     )
 
     business_opening_hours: Mapped[aiogram.types.BusinessOpeningHours | None] = mapped_column(
-        PydanticField(aiogram.types.BusinessOpeningHours),
+        ImmutablePydanticField(aiogram.types.BusinessOpeningHours),
         nullable=True,
         doc="Optional. For private chats with business accounts, the opening hours of the business",
     )
 
     # TODO: сделать внешний ключ на модель чата
     personal_chat: Mapped[aiogram.types.Chat | None] = mapped_column(
-        PydanticField(aiogram.types.Chat),
+        ImmutablePydanticField(aiogram.types.Chat),
         nullable=True,
         doc="Optional. For private chats, the personal channel of the user",
     )
 
     if DB_SUPPORTS_ARRAYS:
         available_reactions: Mapped[list[aiogram.types.ReactionType] | None] = mapped_column(
-            sqltypes.ARRAY(PydanticField(aiogram.types.ReactionType)),
+            sqltypes.ARRAY(ImmutablePydanticField(aiogram.types.ReactionType)),
             nullable=True,
             doc="Optional. List of available reactions allowed in the chat. "
             "If omitted, then all emoji reactions are allowed.",
@@ -159,7 +159,7 @@ class TelegramChatFullInfo(AbstractTelegramChat):
     )
 
     pinned_message: Mapped[aiogram.types.Message | None] = mapped_column(
-        PydanticField(aiogram.types.Message),
+        ImmutablePydanticField(aiogram.types.Message),
         nullable=True,
         doc="Optional. The most recent pinned message (by sending date)",
     )
@@ -254,7 +254,7 @@ class TelegramChatFullInfo(AbstractTelegramChat):
     )
 
     location: Mapped[aiogram.types.ChatLocation | None] = mapped_column(
-        PydanticField(aiogram.types.ChatLocation),
+        ImmutablePydanticField(aiogram.types.ChatLocation),
         nullable=True,
         doc="Optional. For supergroups, the location to which the supergroup is connected",
     )
