@@ -115,7 +115,7 @@ class TelegramMiddleware(BaseMiddleware):
         self, chat_full_info: ChatFullInfo, db_session: AsyncSession
     ) -> tuple[TelegramChatFullInfo, ReturnState]:
         """
-        Сохраняет польную информацию о чате в базе
+        Сохраняет полную информацию о чате в базе
         """
 
         update_fields = {field: getattr(chat_full_info, field) for field in self.__telegram_chat_full_info_fields}
