@@ -23,7 +23,7 @@ class TelegramUserAdmin(ModelAdmin):
     Админка для пользователей телеграмм
     """
 
-    list_display = ["id", "username", "first_name", "last_name"]
+    list_display = ["id", "username", "full_name"]
     search_fields = ["id", "username", "first_name", "last_name", "language_code"]
     model = TelegramUser
     name = "Пользователи телеграмм"
