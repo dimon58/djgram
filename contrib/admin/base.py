@@ -7,7 +7,7 @@ import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
 from dataclasses import field as dc_field
-from typing import ClassVar
+from typing import ClassVar, TypeVar
 
 from sqlalchemy import ColumnElement, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,6 +19,9 @@ from djgram.db.utils import get_fields_of_model
 
 from .action_buttons import AbstractObjectActionButton
 from .rendering import AdminFieldRenderer, AutoRenderer
+
+T = TypeVar("T", bound="ModelAdmin")
+
 
 logger = logging.getLogger(__name__)
 
@@ -52,12 +55,12 @@ class ModelAdmin:
 
         errors = set()
         for extra_field in extra_fields:
-            if "__" not in extra_field:  # todo добавить валидацию таких полей - полей у внешних ключей
+            # todo добавить валидацию таких полей - полей у внешних ключей
+            if "__" not in extra_field and not hasattr(cls.model, extra_field):
                 errors.add(extra_field)
 
         if len(errors) > 0:
-            logger.critical("У %s есть лишние поля в %s: %s", cls, list_name, sorted(errors))
-            sys.exit()
+            raise ValueError("У %s есть лишние поля в %s: %s", cls, list_name, sorted(errors))
 
     def __init_subclass__(cls, **kwargs):
         if cls.model is None:
@@ -156,8 +159,9 @@ class AppAdmin:
         apps_admins.append(self)
         logger.info(f'Registered "{self.verbose_name}" admin')
 
-    def register(self, admin_model: type[ModelAdmin]) -> None:
+    def register(self, admin_model: type[T]) -> type[T]:
         self.admin_models.append(admin_model)
+        return admin_model
 
 
 apps_admins: list[AppAdmin] = []
