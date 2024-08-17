@@ -44,14 +44,14 @@ class TelegramUser(TimeTrackableBaseModel):
         nullable=True,
         doc="Optional. IETF language tag of the user's language",
     )
-    is_premium: Mapped[bool] = mapped_column(
+    is_premium: Mapped[bool | None] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         default=False,
         server_default=expression.false(),
         doc="Optional. True, if this user is a Telegram Premium user",
     )
-    added_to_attachment_menu: Mapped[bool] = mapped_column(
+    added_to_attachment_menu: Mapped[bool | None] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
         default=False,
