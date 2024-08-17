@@ -3,9 +3,11 @@ from sqlalchemy.sql import expression, sqltypes
 
 from djgram.db.models import TimeTrackableBaseModel
 
+from .misc import HasFullNameComponents
+
 
 # pylint: disable=too-few-public-methods
-class TelegramUser(TimeTrackableBaseModel):
+class TelegramUser(HasFullNameComponents, TimeTrackableBaseModel):
     """
     This object represents a Telegram user or bot
 
@@ -58,25 +60,6 @@ class TelegramUser(TimeTrackableBaseModel):
         server_default=expression.false(),
         doc="Optional. True, if this user added the bot to the attachment menu",
     )
-
-    def get_full_name(self) -> str:
-        """
-        Возвращает полное имя пользователя.
-
-        Оно получается конкатенацией first_name и last_name
-        """
-
-        if self.first_name is None:
-            return self.last_name
-
-        if self.last_name is None:
-            return self.first_name
-
-        return f"{self.first_name} {self.last_name}"
-
-    @property
-    def full_name(self):
-        return self.get_full_name()
 
     def get_telegram_href_a_tag(self) -> str:
         """

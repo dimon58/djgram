@@ -3,8 +3,9 @@
 """
 
 from djgram.contrib.admin import AppAdmin, ModelAdmin
+from djgram.contrib.admin.rendering import OneLineTextRenderer
 
-from .models import TelegramChat, TelegramUser
+from .models import TelegramChat, TelegramChatFullInfo, TelegramUser
 
 app = AppAdmin(verbose_name="Telegram")
 
@@ -21,6 +22,12 @@ class TelegramUserAdmin(ModelAdmin):
     model = TelegramUser
     name = "Пользователи телеграмм"
     show_docs = False
+    widgets_override = {
+        "first_name": OneLineTextRenderer,
+        "last_name": OneLineTextRenderer,
+        "username": OneLineTextRenderer,
+        "language_code": OneLineTextRenderer,
+    }
 
 
 # pylint: disable=too-few-public-methods
@@ -30,7 +37,7 @@ class TelegramChatAdmin(ModelAdmin):
     Админка для чатов телеграмм
     """
 
-    list_display = ["id", "username", "first_name", "last_name"]
+    list_display = ["id", "username", "full_name"]
     search_fields = [
         "id",
         "type",
@@ -42,6 +49,30 @@ class TelegramChatAdmin(ModelAdmin):
     model = TelegramChat
     name = "Чаты телеграмм"
     show_docs = False
+    widgets_override = {
+        "type": OneLineTextRenderer,
+        "title": OneLineTextRenderer,
+        "username": OneLineTextRenderer,
+        "first_name": OneLineTextRenderer,
+        "last_name": OneLineTextRenderer,
+    }
+
+
+# pylint: disable=too-few-public-methods
+@app.register
+class TelegramChatFullInfoAdmin(TelegramChatAdmin):
+    """
+    Админка для полной информации о чатах телеграмм
+    """
+
+    search_fields = [
+        *TelegramChatAdmin.search_fields,
+        "bio",
+        "description",
+    ]
+    model = TelegramChatFullInfo
+    name = "Полная информация о чатах телеграмм"
+    widgets_override = TelegramChatAdmin.widgets_override
 
 
 # # pylint: disable=too-few-public-methods

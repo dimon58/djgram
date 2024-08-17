@@ -5,8 +5,10 @@ from sqlalchemy.sql import sqltypes
 
 from djgram.db.models import TimeTrackableBaseModel
 
+from .misc import HasFullNameComponents
 
-class AbstractTelegramChat(TimeTrackableBaseModel):
+
+class AbstractTelegramChat(HasFullNameComponents, TimeTrackableBaseModel):
     """
     This object represents a common part of Chat and ChatFullInfo
 

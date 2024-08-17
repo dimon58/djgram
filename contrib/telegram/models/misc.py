@@ -1,3 +1,30 @@
+class HasFullNameComponents:
+    """
+    Представляет модель, содержащую поля first_name и last_name
+
+    Например TelegramChat, TelegramChatFullInfo, TelegramUser
+    """
+
+    def get_full_name(self) -> str:
+        """
+        Возвращает полное имя пользователя.
+
+        Оно получается конкатенацией first_name и last_name
+        """
+
+        if self.first_name is None:
+            return self.last_name
+
+        if self.last_name is None:
+            return self.first_name
+
+        return f"{self.first_name} {self.last_name}"
+
+    @property
+    def full_name(self):
+        return self.get_full_name()
+
+
 # pylint: disable=too-few-public-methods
 # class TelegramLocation(TimeTrackableBaseModel):
 #     """
