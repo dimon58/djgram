@@ -105,11 +105,12 @@ LOGGING_CONFIG = {
             "filters": ["update_filter"],
         },
         "file_handler": {
-            "class": "logging.FileHandler",
+            "class": "logging.handlers.TimedRotatingFileHandler",
             "formatter": "default",
             "filters": ["update_filter"],
             "filename": LOG_FILE,
             "encoding": "utf-8",
+            "when": "W0",
         },
     },
     "loggers": {
