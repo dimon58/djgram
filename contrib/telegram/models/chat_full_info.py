@@ -1,6 +1,8 @@
-from datetime import datetime
+import logging
+from datetime import UTC, datetime
 
 import aiogram
+from aiogram import Bot
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import sqltypes
 
@@ -8,6 +10,8 @@ from djgram.configs import DB_SUPPORTS_ARRAYS
 from djgram.db.pydantic_field import ImmutablePydanticField, PydanticField
 
 from .chat import AbstractTelegramChat
+
+logger = logging.getLogger(__name__)
 
 
 class TelegramChatFullInfo(AbstractTelegramChat):
@@ -262,3 +266,29 @@ class TelegramChatFullInfo(AbstractTelegramChat):
 
     def str_for_logging(self):
         return f"Telegram {self.type} chat full info [{self.id}]"
+
+    async def update_from_telegram(self, bot: Bot, request_timeout: int | None = None) -> bool:
+        """
+        Запрашивает информацию о чате через bot api.
+        Если что-то отличается от того, что храниться в базе данных, то устанавливает новые значения.
+        Также устанавливает поле update_at на текущее время.
+
+        Возвращает True, если были какие-то изменения, кроме update_at
+        """
+
+        logger.info("Updating chat full info %s", self.id)
+        updated = await bot.get_chat(self.id, request_timeout)
+
+        changed = False
+        for field_name in updated.model_fields:
+            value = getattr(updated, field_name)
+            if getattr(self, field_name) != value:
+                setattr(self, field_name, value)
+                changed = True
+
+        if changed:
+            logger.info("Updated %s", self.str_for_logging())
+
+        self.updated_at = datetime.now(tz=UTC)
+
+        return changed

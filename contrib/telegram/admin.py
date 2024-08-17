@@ -2,9 +2,15 @@
 Администрирование
 """
 
+from typing import Any
+
+from aiogram.types import CallbackQuery
+
 from djgram.contrib.admin import AppAdmin, ModelAdmin
+from djgram.contrib.admin.action_buttons import AbstractObjectActionButton
 from djgram.contrib.admin.rendering import OneLineTextRenderer
 
+from ...db.middlewares import MIDDLEWARE_DB_SESSION_KEY
 from .models import TelegramChat, TelegramChatFullInfo, TelegramUser
 
 app = AppAdmin(verbose_name="Telegram")
@@ -58,6 +64,22 @@ class TelegramChatAdmin(ModelAdmin):
     }
 
 
+class TelegramChatFullInfoUpdateObjectActionButton(AbstractObjectActionButton):
+    """
+    Кнопка обновления полной информации о чате через bot api
+    """
+
+    async def click(
+        self, obj: TelegramChatFullInfo, callback_query: CallbackQuery, middleware_data: dict[str, Any]
+    ) -> None:
+        changed = await obj.update_from_telegram(callback_query.bot)
+        await middleware_data[MIDDLEWARE_DB_SESSION_KEY].commit()
+
+        msg_text = "обновлена" if changed else "уже актуальна"
+
+        await callback_query.answer(f"Полная информация о чате {obj.id} {msg_text}")
+
+
 # pylint: disable=too-few-public-methods
 @app.register
 class TelegramChatFullInfoAdmin(TelegramChatAdmin):
@@ -73,6 +95,10 @@ class TelegramChatFullInfoAdmin(TelegramChatAdmin):
     model = TelegramChatFullInfo
     name = "Полная информация о чатах телеграмм"
     widgets_override = TelegramChatAdmin.widgets_override
+
+    object_action_buttons = (
+        TelegramChatFullInfoUpdateObjectActionButton("full_chat_info_update", "🔄 Обновить информацию"),
+    )
 
 
 # # pylint: disable=too-few-public-methods
