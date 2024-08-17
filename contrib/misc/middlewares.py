@@ -2,6 +2,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 from aiogram import BaseMiddleware
+from aiogram.dispatcher.event.bases import CancelHandler, SkipHandler
 from aiogram.types import Update
 
 DEFAULT_ERROR_TEXT_FOR_USER = "Internal error, please contact support"
@@ -11,6 +12,8 @@ DEFAULT_ERROR_TEXT_FOR_USER = "Internal error, please contact support"
 class ErrorHandlingMiddleware(BaseMiddleware):
     """
     Ловит возникающие исключения и сообщает пользователю, что что-то пошло не так
+
+    Аналог aiogram.dispatcher.middlewares.error.ErrorsMiddleware
     """
 
     def __init__(self, error_text: str = DEFAULT_ERROR_TEXT_FOR_USER):
@@ -29,6 +32,8 @@ class ErrorHandlingMiddleware(BaseMiddleware):
 
         try:
             return await handler(update, data)
+        except (SkipHandler, CancelHandler):  # pragma: no cover
+            raise
         except Exception:
             if answer_method := getattr(update.event, "answer", None):
                 await answer_method(self.error_text)
