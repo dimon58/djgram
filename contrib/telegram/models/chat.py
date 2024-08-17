@@ -57,12 +57,6 @@ class AbstractTelegramChat(TimeTrackableBaseModel):
         nullable=True,
         doc="Optional. True, if the supergroup chat is a forum (has topics enabled)",
     )
-    accent_color_id: Mapped[int] = mapped_column(
-        sqltypes.Integer,
-        doc="Identifier of the accent color for the chat name and backgrounds "
-        "of the chat photo, reply header, and link preview. "
-        "See accent colors https://core.telegram.org/bots/api#accent-colors for more details.",
-    )
 
 
 # pylint: disable=too-few-public-methods

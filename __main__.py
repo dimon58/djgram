@@ -123,8 +123,8 @@ def init(type: str):
 
 
 def compare_models(
-    db_model: BaseModel,
-    aiogram_model: TelegramObject,
+    db_model: type[BaseModel],
+    aiogram_model: type[TelegramObject],
     db_unnecessary_skip: set[str] | None = None,
     db_missing_skip: set[str] | None = None,
 ) -> bool:
@@ -195,6 +195,7 @@ def sync_tg_models():
         # This fields deprecated:: API:7.3
         # https://core.telegram.org/bots/api-changelog#may-6-2024"""
         db_missing_skip={
+            "accent_color_id",
             "active_usernames",
             "available_reactions",
             "background_custom_emoji_id",
