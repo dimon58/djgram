@@ -8,7 +8,8 @@ from datetime import UTC, datetime
 from typing import Any, TypeVar
 
 from aiogram import BaseMiddleware, Bot
-from aiogram.types import Chat, ChatBoostRemoved, ChatBoostUpdated, ChatFullInfo, Update, User
+from aiogram.dispatcher.middlewares.user_context import EventContext, UserContextMiddleware
+from aiogram.types import Chat, ChatFullInfo, Update, User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,17 +17,17 @@ from djgram.configs import TELEGRAM_CHAT_FULL_INFO_UPDATE_ON_EACH_EVENT, TELEGRA
 from djgram.contrib.telegram.models import TelegramChat, TelegramChatFullInfo, TelegramUser
 from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
 from djgram.db.models import BaseModel, CreatedAtMixin, UpdatedAtMixin
-from djgram.db.utils import (
-    ReturnState,
-    get_fields_of_declarative_meta,
-    insert_or_update,
-)
+from djgram.db.utils import ReturnState, get_fields_of_declarative_meta, insert_or_update
 
 T = TypeVar("T", bound=BaseModel)
+
+MIDDLEWARE_TELEGRAM_EVENT_CONTEXT_KEY = "telegram_event_context"
 
 MIDDLEWARE_TELEGRAM_USER_KEY = "telegram_user"
 MIDDLEWARE_TELEGRAM_CHAT_KEY = "telegram_chat"
 MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY = "telegram_chat_full_info"
+MIDDLEWARE_TELEGRAM_THREAD_ID_KEY = "telegram_thread_id"
+MIDDLEWARE_TELEGRAM_BUSINESS_CONNECTION_ID_KEY = "telegram_business_connection_id"
 
 logger = logging.getLogger(__name__)
 
@@ -133,88 +134,6 @@ class TelegramMiddleware(BaseMiddleware):
 
         return result
 
-    @staticmethod
-    def get_telegram_user_and_chat(update: Update) -> tuple[User | None, Chat | None]:
-        r"""
-        Возвращает пользователя и чат telegram
-
-
-        В таблице указаны расположения пользователя и чата в объекте события
-
-        \* значит, что нет полноценного поля, но есть его части
-
-        +-----------------------------+-----------------------------+----------------------+
-        | Тип события                 | Путь до пользователя        | Путь до чата         |
-        +=============================+=============================+======================+
-        | BusinessConnection          | user                        | *user_chat_id        |
-        +-----------------------------+-----------------------------+----------------------+
-        | BusinessMessagesDeleted     |                             | chat                 |
-        +-----------------------------+-----------------------------+----------------------+
-        | CallbackQuery               | from_user                   | message.chat         |
-        +-----------------------------+-----------------------------+----------------------+
-        | ChatBoostRemoved            | Optional[boost.source.user] |                      |
-        +-----------------------------+-----------------------------+----------------------+
-        | ChatBoostUpdated            | Optional[boost.source.user] | chat                 |
-        +-----------------------------+-----------------------------+----------------------+
-        | ChatJoinRequest             | from_user                   | chat                 |
-        +-----------------------------+-----------------------------+----------------------+
-        | ChatMemberUpdated           | from_user                   | chat                 |
-        +-----------------------------+-----------------------------+----------------------+
-        | ChosenInlineResult          | from_user                   |                      |
-        +-----------------------------+-----------------------------+----------------------+
-        | InlineQuery                 | from_user                   | *chat_type           |
-        +-----------------------------+-----------------------------+----------------------+
-        | Message                     | from_user                   | chat                 |
-        +-----------------------------+-----------------------------+----------------------+
-        | MessageReactionCountUpdated |                             | chat                 |
-        +-----------------------------+-----------------------------+----------------------+
-        | MessageReactionUpdated      | user                        | chat or *actor_chat  |
-        +-----------------------------+-----------------------------+----------------------+
-        | Poll                        |                             |                      |
-        +-----------------------------+-----------------------------+----------------------+
-        | PollAnswer                  | Optional[user]              |                      |
-        +-----------------------------+-----------------------------+----------------------+
-        | PreCheckoutQuery            | from_user                   |                      |
-        +-----------------------------+-----------------------------+----------------------+
-        | ShippingQuery               | from_user                   |                      |
-        +-----------------------------+-----------------------------+----------------------+
-        """
-
-        event = update.event
-
-        # CallbackQuery
-        # ChatJoinRequest
-        # ChatMemberUpdated
-        # ChosenInlineResult
-        # InlineQuery
-        # Message
-        # PreCheckoutQuery
-        # ShippingQuery
-        user = getattr(event, "from_user", None)
-        if user is None:
-            # BusinessConnection
-            # MessageReactionUpdated
-            # PollAnswer
-            user = getattr(event, "user", None)
-        # ChatBoostRemoved
-        # ChatBoostUpdated
-        if user is None and isinstance(event, ChatBoostRemoved | ChatBoostUpdated):
-            user = event.boost.source.user
-
-        # BusinessMessagesDeleted
-        # ChatBoostUpdated
-        # ChatJoinRequest
-        # ChatMemberUpdated
-        # Message
-        # MessageReactionCountUpdated
-        # MessageReactionUpdated
-        chat = getattr(event, "chat", None)
-        if chat is None and (message := getattr(event, "message", None)) is not None:
-            # CallbackQuery
-            chat = message.chat
-
-        return user, chat
-
     async def update_telegram_chat_full_info(self, data: Any, db_session: AsyncSession, telegram_chat: Chat, bot: Bot):
         """
         Сохраняет обновленную полную информацию о чате в базе данных и данных для обработчика
@@ -237,7 +156,14 @@ class TelegramMiddleware(BaseMiddleware):
         if db_session is None:
             raise ValueError(f"You should install DbSessionMiddleware to use {self.__class__.__name__}")
 
-        telegram_user, telegram_chat = self.get_telegram_user_and_chat(update)
+        event_context: EventContext = UserContextMiddleware.resolve_event_context(update)
+        data[MIDDLEWARE_TELEGRAM_EVENT_CONTEXT_KEY] = event_context
+        if event_context.thread_id is not None:
+            data[MIDDLEWARE_TELEGRAM_THREAD_ID_KEY] = event_context.thread_id
+        if event_context.business_connection_id is not None:
+            data[MIDDLEWARE_TELEGRAM_BUSINESS_CONNECTION_ID_KEY] = event_context.business_connection_id
+        telegram_user = event_context.user
+        telegram_chat = event_context.chat
 
         need_commit = False
 
