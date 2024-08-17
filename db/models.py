@@ -24,6 +24,7 @@ class BaseModel(Base):
         nullable=False,
         primary_key=True,
         autoincrement=True,
+        doc="The primary identifier of the object",
     )
 
     def __repr__(self):
@@ -45,6 +46,7 @@ class CreatedAtMixin:
         sqltypes.DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),  # pylint: disable=not-callable
+        doc="Date of creation of the object",
     )
 
 
@@ -58,6 +60,7 @@ class UpdatedAtMixin:
         nullable=False,
         server_default=func.now(),
         onupdate=utcnow,
+        doc="The date of the last update of the object",
     )
 
 
