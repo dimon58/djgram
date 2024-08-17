@@ -10,7 +10,7 @@ from aiogram import F
 from aiogram.enums import ParseMode
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Back, Button, Cancel, Row, ScrollingGroup, Select, SwitchTo
+from aiogram_dialog.widgets.kbd import Back, Button, Cancel, Column, Row, ScrollingGroup, Select, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
 
 from djgram.configs import (
@@ -159,12 +159,14 @@ admin_dialog = Dialog(
         Format(f"->->{{{getters.MODEL_NAME_KEY}}}"),
         Format(f"->->->{{{getters.OBJECT_NAME_KEY}}}"),
         Format("\n{text}"),
-        Select(
-            Format("{item[1]}"),
-            id="object_action_button_id",
-            item_id_getter=operator.itemgetter(0),
-            items=getters.FILE_BUTTONS_KEY,
-            on_click=handle_object_action_button,
+        Column(
+            Select(
+                Format("{item[1]}"),
+                id="object_action_button_id",
+                item_id_getter=operator.itemgetter(0),
+                items=getters.FILE_BUTTONS_KEY,
+                on_click=handle_object_action_button,
+            )
         ),
         Row(
             SwitchTo(
