@@ -3,7 +3,7 @@
 """
 
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from aiogram.enums import ContentType
 from aiogram.types import CallbackQuery, Message
@@ -11,18 +11,13 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button
 
-from djgram.contrib.auth.middlewares import MIDDLEWARE_USER_KEY
 from djgram.contrib.dialogs.utils import delete_last_message_from_dialog_manager
-from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_USER_KEY
 
-from ..misc import get_admin_representation_for_logging
+from ..misc import get_admin_representation_for_logging_from_middleware_data
 from ..rendering import QUERY_KEY
 from . import getters
 from .states import AdminStates
 
-if TYPE_CHECKING:
-    from djgram.contrib.auth.models import User
-    from djgram.contrib.telegram.models import TelegramUser
 logger = logging.getLogger(__name__)
 
 
@@ -37,10 +32,9 @@ def __log_admin_dialog_interaction(middleware_data: dict, action: str) -> None:
         action: действие с диалогом
     """
 
-    telegram_user: TelegramUser = middleware_data[MIDDLEWARE_TELEGRAM_USER_KEY]
-    user: User = middleware_data[MIDDLEWARE_USER_KEY]
-
-    logger.info(f"{action} admin dialog with user {get_admin_representation_for_logging(telegram_user, user)}")
+    logger.info(
+        f"{action} admin dialog with user {get_admin_representation_for_logging_from_middleware_data(middleware_data)}"
+    )
 
 
 # pylint: disable=unused-argument
@@ -139,12 +133,9 @@ async def handle_object_action_button(
         logger.error("Failed to find object action button id=%s in %s", object_action_button_id, model_admin)
         return
 
-    telegram_user: TelegramUser = manager.middleware_data[MIDDLEWARE_TELEGRAM_USER_KEY]
-    user: User = manager.middleware_data[MIDDLEWARE_USER_KEY]
-
     logger.info(
         "Admin %s clicked on object action button id=%s (%s) for object %s",
-        get_admin_representation_for_logging(telegram_user, user),
+        get_admin_representation_for_logging_from_middleware_data(manager.middleware_data),
         object_action_button_id,
         object_action_button.get_title(obj),
         obj,
