@@ -83,7 +83,7 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
 
     def __init__(self):  # noqa: D107
         logger.debug("Ensuring clickhouse tables for updates")
-        with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:
+        with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:  # noqa: PTH123
             clickhouse.run_sql_from_sync(sql_file.read())
 
         # Задачи сохранения аналитики в clickhouse

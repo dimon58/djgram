@@ -128,7 +128,7 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
     # Правильные единицы измерения. "Запись" в нужном числе и родительном падеже.
     _total = total % 100
 
-    if 5 <= _total <= 20 or _total % 10 in (0, 5, 6, 7, 8, 9):
+    if 5 <= _total <= 20 or _total % 10 in (0, 5, 6, 7, 8, 9):  # noqa: PLR2004
         units = "записей"
 
     elif _total % 10 == 1:

@@ -36,7 +36,7 @@ class DatabasePaginatedScrollingGroup(Group):
     def __init__(
         self,
         *buttons: Keyboard,
-        id: str,  # pylint: disable=redefined-builtin
+        id: str,  # pylint: disable=redefined-builtin  # noqa: A002
         width: int | None = None,
         height: int = 0,
         when: WhenCondition = None,

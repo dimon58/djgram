@@ -157,7 +157,7 @@ class AppAdmin:
         Регистрирует админку для приложения
         """
         apps_admins.append(self)
-        logger.info(f'Registered "{self.verbose_name}" admin')
+        logger.info('Registered "%s" admin', self.verbose_name)
 
     def register(self, admin_model: type[T]) -> type[T]:
         self.admin_models.append(admin_model)

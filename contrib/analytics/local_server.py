@@ -125,7 +125,7 @@ def parse_stats_block(text: str) -> StatDictType:
 
     for line in text.split("\n")[1:]:  # skip header: DURATION inf 5sec 1min 1hour
         values = line.split("\t")
-        if len(values) > 2:
+        if len(values) > 2:  # noqa: PLR2004
             result[values[0]] = parse_value(values[ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_AVERAGE_INDEX])
         else:
             result[values[0]] = parse_value(values[1])
@@ -203,7 +203,7 @@ async def collect_and_save() -> None:
 
 async def run_telegram_local_server_stats_collection_in_background() -> None:
     logger.debug("Ensuring clickhouse tables for local server statistics")
-    with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:  # noqa: ASYNC230
+    with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:  # noqa: ASYNC230,PTH123
         await clickhouse.run_sql(sql_file.read())
 
     logger.info(

@@ -39,7 +39,7 @@ def get_default_word_builder(
         ...
         """
         number %= 100
-        if 5 <= number <= 20:
+        if 5 <= number <= 20:  # noqa: PLR2004
             return word_0
 
         number %= 10
@@ -47,7 +47,7 @@ def get_default_word_builder(
         if number == 1:
             return word_1
 
-        if 2 <= number <= 4:
+        if 2 <= number <= 4:  # noqa: PLR2004
             return word_234
 
         return word_0

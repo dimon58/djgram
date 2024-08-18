@@ -23,8 +23,8 @@ class TelegramUserAdmin(ModelAdmin):
     Админка для пользователей телеграмм
     """
 
-    list_display = ["id", "username", "full_name"]
-    search_fields = ["id", "username", "first_name", "last_name", "language_code"]
+    list_display = ("id", "username", "full_name")
+    search_fields = ("id", "username", "first_name", "last_name", "language_code")
     model = TelegramUser
     name = "Пользователи телеграмм"
     show_docs = False
@@ -43,15 +43,15 @@ class TelegramChatAdmin(ModelAdmin):
     Админка для чатов телеграмм
     """
 
-    list_display = ["id", "username", "full_name"]
-    search_fields = [
+    list_display = ("id", "username", "full_name")
+    search_fields = (
         "id",
         "type",
         "title",
         "username",
         "first_name",
         "last_name",
-    ]
+    )
     model = TelegramChat
     name = "Чаты телеграмм"
     show_docs = False
@@ -87,11 +87,11 @@ class TelegramChatFullInfoAdmin(TelegramChatAdmin):
     Админка для полной информации о чатах телеграмм
     """
 
-    search_fields = [
+    search_fields = (
         *TelegramChatAdmin.search_fields,
         "bio",
         "description",
-    ]
+    )
     model = TelegramChatFullInfo
     name = "Полная информация о чатах телеграмм"
     widgets_override = TelegramChatAdmin.widgets_override

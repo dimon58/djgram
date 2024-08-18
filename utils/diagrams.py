@@ -11,7 +11,7 @@ def render_transitions_safe(
     router: Router,
     title: str = "Aiogram Dialog",
     filename: str = "aiogram_dialog",
-    format: str = "png",
+    format: str = "png",  # noqa: A002
 ) -> None:
     """
     Рендерит диаграммы диалогов

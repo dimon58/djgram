@@ -27,7 +27,7 @@ from djgram.contrib.telegram.models import TelegramChat
 logger = logging.getLogger(__name__)
 
 
-async def broadcast(
+async def broadcast(  # noqa: PLR0912
     send_method: Callable[..., Awaitable[Any]],
     chat_ids: Iterable[int],
     count: int,

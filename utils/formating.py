@@ -10,7 +10,7 @@ def get_bytes_size_format(size: float, digits: int = 2) -> str:
     Форматирует число байт в человекочитаемые единицы измерения
     """
     for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
-        if size < 1024:
+        if size < 1024:  # noqa: PLR2004
             return f"{__bytes_format(size, digits)} {unit}B"
         size /= 1024
     return f"{__bytes_format(size, digits)} YB"

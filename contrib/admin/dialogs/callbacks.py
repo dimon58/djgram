@@ -33,7 +33,9 @@ def __log_admin_dialog_interaction(middleware_data: dict, action: str) -> None:
     """
 
     logger.info(
-        f"{action} admin dialog with user {get_admin_representation_for_logging_from_middleware_data(middleware_data)}"
+        "%s admin dialog with user %s",
+        action,
+        get_admin_representation_for_logging_from_middleware_data(middleware_data),
     )
 
 
