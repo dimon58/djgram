@@ -208,5 +208,5 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, A
         TEXT_KEY: text,
         APPS_NAME_KEY: app.verbose_name,
         MODEL_NAME_KEY: model_admin.name,
-        FILE_BUTTONS_KEY: [(button.button_id, button.title) for button in model_admin.object_action_buttons],
+        FILE_BUTTONS_KEY: [(button.button_id, button.get_title(obj)) for button in model_admin.object_action_buttons],
     }

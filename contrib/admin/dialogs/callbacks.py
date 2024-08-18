@@ -143,9 +143,10 @@ async def handle_object_action_button(
     user: User = manager.middleware_data[MIDDLEWARE_USER_KEY]
 
     logger.info(
-        "Admin %s clicked on object action button id=%s for object %s",
+        "Admin %s clicked on object action button id=%s (%s) for object %s",
         get_admin_representation_for_logging(telegram_user, user),
         object_action_button_id,
+        object_action_button.get_title(obj),
         obj,
     )
     await object_action_button.click(obj, callback_query, manager.middleware_data)

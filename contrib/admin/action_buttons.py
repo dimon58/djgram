@@ -16,6 +16,7 @@ from .misc import get_admin_representation_for_logging
 if TYPE_CHECKING:
     from sqlalchemy_file import File
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,6 +34,14 @@ class AbstractObjectActionButton(abc.ABC):
         """
         self.button_id = button_id
         self.title = title
+
+    def get_title(self, obj: BaseModel) -> str:
+        """
+        Возвращает название кнопки с учётом конкретного объекта
+
+        Можно переопределить
+        """
+        return self.title
 
     @abc.abstractmethod
     async def click(self, obj: BaseModel, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
