@@ -134,7 +134,13 @@ class TelegramMiddleware(BaseMiddleware):
 
         return result
 
-    async def update_telegram_chat_full_info(self, data: Any, db_session: AsyncSession, telegram_chat: Chat, bot: Bot):
+    async def update_telegram_chat_full_info(
+        self,
+        data: dict[str, Any],
+        db_session: AsyncSession,
+        telegram_chat: Chat,
+        bot: Bot,
+    ) -> None:
         """
         Сохраняет обновленную полную информацию о чате в базе данных и данных для обработчика
         """

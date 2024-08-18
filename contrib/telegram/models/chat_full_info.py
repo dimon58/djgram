@@ -264,7 +264,7 @@ class TelegramChatFullInfo(AbstractTelegramChat):
         doc="Optional. For supergroups, the location to which the supergroup is connected",
     )
 
-    def str_for_logging(self):
+    def str_for_logging(self) -> str:
         return f"Telegram {self.type} chat full info [{self.id}]"
 
     async def update_from_telegram(self, bot: Bot, request_timeout: int | None = None) -> bool:

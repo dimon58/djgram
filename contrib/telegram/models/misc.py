@@ -21,7 +21,7 @@ class HasFullNameComponents:
         return f"{self.first_name} {self.last_name}"  # pyright: ignore [reportAttributeAccessIssue]
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         return self.get_full_name()
 
 

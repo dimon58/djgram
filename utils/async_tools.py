@@ -30,7 +30,7 @@ class PeriodicTask:
         self._is_started = False
         self._task = None
 
-    async def start(self):
+    async def start(self) -> None:
         if self._is_started:
             return
 
@@ -38,7 +38,7 @@ class PeriodicTask:
         # Start task to call func periodically:
         self._task = asyncio.ensure_future(self._run())
 
-    async def stop(self):
+    async def stop(self) -> None:
         if not self._is_started:
             return
 

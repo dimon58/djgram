@@ -69,5 +69,5 @@ class TelegramUser(HasFullNameComponents, TimeTrackableBaseModel):
         """
         return f'<a href="tg://user?id={self.id}">{self.get_full_name()}</a>'
 
-    def str_for_logging(self):
+    def str_for_logging(self) -> str:
         return f"Telegram user [{self.id}] {self.full_name}"

@@ -22,7 +22,7 @@ class ExtendedPydanticType(PydanticType[_P]):  # pyright: ignore [reportInvalidT
     def get_base_type_for_alembic(self):
         return self.pydantic_type.__bases__[0]
 
-    def alembic_definition(self, autogen_context: AutogenContext):
+    def alembic_definition(self, autogen_context: AutogenContext) -> str:
 
         alembic_import_name = self.get_alembic_import_name()
 
@@ -56,7 +56,7 @@ class ImmutablePydanticField(ExtendedPydanticType[_P]):
     def get_alembic_import_name(cls) -> str:
         return cls.__name__
 
-    def get_base_type_for_alembic(self):
+    def get_base_type_for_alembic(self) -> _P:
         return self.pydantic_type
 
 
@@ -72,7 +72,7 @@ class ExtendedMutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):
 
         return cls.model_validate(value)
 
-    def dict(self, *args, **kwargs):
+    def dict(self, *args, **kwargs) -> dict[str, Any]:
         res = super().model_dump(*args, **kwargs)
         res.pop("_parents", None)
         return res

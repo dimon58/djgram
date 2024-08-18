@@ -32,7 +32,7 @@ class ReturnState(Enum):
     CREATED = 1
     UPDATED = 2
 
-    def need_commit(self):
+    def need_commit(self) -> bool:
         return self != self.NOT_MODIFIED
 
 

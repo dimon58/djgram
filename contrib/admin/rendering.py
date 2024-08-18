@@ -141,7 +141,7 @@ class AdminFieldRenderer:
         return f"{self.__class__.__name__}({self._field})"
 
     @property
-    def field(self):
+    def field(self) -> str:
         return self._field
 
     def get_from_obj(self, obj: BaseModel) -> Any:

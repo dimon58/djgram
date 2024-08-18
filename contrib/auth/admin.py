@@ -22,7 +22,7 @@ app = AppAdmin(verbose_name="Пользователи")
 
 class BanUserButton(AbstractObjectActionButton):
 
-    def get_title(self, obj: User):
+    def get_title(self, obj: User) -> str:
         return "🔒 Забанить" if not obj.banned else "🔑 Разбанить"
 
     async def click(self, obj: User, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
@@ -39,7 +39,7 @@ class BanUserButton(AbstractObjectActionButton):
 
 class ToggleAdminUserButton(AbstractObjectActionButton):
 
-    def get_title(self, obj: User):
+    def get_title(self, obj: User) -> str:
         return "⭐ Сделать администратором" if not obj.is_admin else "👤 Исключить из администраторов"
 
     async def click(self, obj: User, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:

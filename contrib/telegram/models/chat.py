@@ -69,5 +69,5 @@ class TelegramChat(AbstractTelegramChat):
     https://core.telegram.org/bots/api#chat
     """
 
-    def str_for_logging(self):
+    def str_for_logging(self) -> str:
         return f"Telegram {self.type} chat [{self.id}]"

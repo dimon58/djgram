@@ -43,7 +43,7 @@ class AuthMiddleware(BaseMiddleware):
     Для работы требует TelegramMiddleware и DbSessionMiddleware
     """
 
-    async def on_user_created(self, user: AbstractUser, db_session: AsyncSession):
+    async def on_user_created(self, user: AbstractUser, db_session: AsyncSession) -> str:
         pass
 
     async def get_user(
