@@ -12,13 +12,13 @@ class HasFullNameComponents:
         Оно получается конкатенацией first_name и last_name
         """
 
-        if self.first_name is None:
-            return self.last_name
+        if self.first_name is None:  # pyright: ignore [reportAttributeAccessIssue]
+            return self.last_name  # pyright: ignore [reportAttributeAccessIssue]
 
-        if self.last_name is None:
-            return self.first_name
+        if self.last_name is None:  # pyright: ignore [reportAttributeAccessIssue]
+            return self.first_name  # pyright: ignore [reportAttributeAccessIssue]
 
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name}"  # pyright: ignore [reportAttributeAccessIssue]
 
     @property
     def full_name(self):
