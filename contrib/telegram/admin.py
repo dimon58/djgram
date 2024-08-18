@@ -58,7 +58,7 @@ class TelegramChatAdmin(ModelAdmin):
     widgets_override = {
         "type": OneLineTextRenderer,
         "title": OneLineTextRenderer,
-        "username": OneLineTextRenderer,
+        "username": TelegramUsernameLinkRenderer,
         "first_name": OneLineTextRenderer,
         "last_name": OneLineTextRenderer,
     }
@@ -94,7 +94,15 @@ class TelegramChatFullInfoAdmin(TelegramChatAdmin):
     )
     model = TelegramChatFullInfo
     name = "Полная информация о чатах телеграмм"
-    widgets_override = TelegramChatAdmin.widgets_override
+    widgets_override = {
+        **TelegramChatAdmin.widgets_override,
+        "background_custom_emoji_id": OneLineTextRenderer,
+        "profile_background_custom_emoji_id": OneLineTextRenderer,
+        "emoji_status_custom_emoji_id": OneLineTextRenderer,
+        "invite_link": OneLineTextRenderer,
+        "sticker_set_name": OneLineTextRenderer,
+        "custom_emoji_sticker_set_name": OneLineTextRenderer,
+    }
 
     object_action_buttons = (
         TelegramChatFullInfoUpdateObjectActionButton("full_chat_info_update", "🔄 Обновить информацию"),
