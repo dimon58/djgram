@@ -186,7 +186,9 @@ class TelegramMiddleware(BaseMiddleware):
             # Чат изменился, значит обновляем и полную информацию
             # Или включено обновление каждый раз
             if telegram_chat_need_commit or TELEGRAM_CHAT_FULL_INFO_UPDATE_ON_EACH_EVENT:
-                await self.update_telegram_chat_full_info(data, db_session, telegram_chat, update.bot)
+                await self.update_telegram_chat_full_info(
+                    data, db_session, telegram_chat, update.bot  # pyright: ignore [reportArgumentType]
+                )
             else:
                 chat_full_info_stmt = select(TelegramChatFullInfo).where(TelegramChatFullInfo.id == telegram_chat.id)
                 telegram_chat_full_info: TelegramChatFullInfo | None = await db_session.scalar(chat_full_info_stmt)
@@ -198,7 +200,9 @@ class TelegramMiddleware(BaseMiddleware):
                     telegram_chat_full_info is None
                     or datetime.now(tz=UTC) > telegram_chat_full_info.updated_at + TELEGRAM_CHAT_FULL_INFO_UPDATE_PERIOD
                 ):
-                    await self.update_telegram_chat_full_info(data, db_session, telegram_chat, update.bot)
+                    await self.update_telegram_chat_full_info(
+                        data, db_session, telegram_chat, update.bot  # pyright: ignore [reportArgumentType]
+                    )
                 else:
                     data[MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY] = telegram_chat_full_info
 

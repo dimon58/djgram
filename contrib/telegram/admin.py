@@ -69,10 +69,10 @@ class TelegramChatFullInfoUpdateObjectActionButton(AbstractObjectActionButton):
     Кнопка обновления полной информации о чате через bot api
     """
 
-    async def click(
+    async def click(  # pyright: ignore [reportIncompatibleMethodOverride]
         self, obj: TelegramChatFullInfo, callback_query: CallbackQuery, middleware_data: dict[str, Any]
     ) -> None:
-        changed = await obj.update_from_telegram(callback_query.bot)
+        changed = await obj.update_from_telegram(callback_query.bot)  # pyright: ignore [reportArgumentType]
         await middleware_data[MIDDLEWARE_DB_SESSION_KEY].commit()
 
         msg_text = "обновлена" if changed else "уже актуальна"

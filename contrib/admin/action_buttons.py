@@ -135,5 +135,5 @@ class DownloadFileActionButton(AbstractObjectActionButton):
                 user=middleware_data[MIDDLEWARE_USER_KEY],
             ),
             message.message_id,
-            message.document.file_id,
+            message.document.file_id,  # pyright: ignore [reportOptionalMemberAccess]
         )

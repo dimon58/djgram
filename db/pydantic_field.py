@@ -12,7 +12,7 @@ _T = TypeVar("_T", bound=Any)
 _P = TypeVar("_P", bound=pydantic.BaseModel)
 
 
-class ExtendedPydanticType(PydanticType):
+class ExtendedPydanticType(PydanticType[_P]):  # pyright: ignore [reportInvalidTypeArguments]
     cache_ok = True
 
     @classmethod
@@ -36,10 +36,7 @@ class ExtendedPydanticType(PydanticType):
             json_sql_type = ""
         else:
             autogen_context.imports.add(f"import {self.sqltype.__module__}")
-            if hasattr(self.sqltype, "__name__"):  # Class
-                sql_type_name = self.sqltype.__name__
-            else:  # instance
-                sql_type_name = self.sqltype.__class__.__name__
+            sql_type_name = self.sqltype.__name__ if isinstance(self.sqltype, type) else self.sqltype.__class__.__name__
 
             json_sql_type = f", {self.sqltype.__module__}.{sql_type_name}()"
 
@@ -50,7 +47,7 @@ class ImmutablePydanticField(ExtendedPydanticType[_P]):
     cache_ok = True
 
     def __init__(self, pydantic_type: type[_P], sqltype: TypeEngine[_T] | None = None):  # noqa: D107
-        if not pydantic_type.model_config["frozen"]:
+        if not pydantic_type.model_config.get("frozen"):
             raise TypeError(f"pydantic_type {pydantic_type} should be frozen. Use PydanticField instead.")
 
         super().__init__(pydantic_type, sqltype)
@@ -81,13 +78,13 @@ class ExtendedMutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):
         return res
 
     @classmethod
-    def as_mutable(cls, sqltype: TypeEngine[_T] | None = None) -> TypeEngine[Self]:
+    def as_mutable(cls, sqltype: TypeEngine[_T] | None = None) -> TypeEngine[ExtendedPydanticType[Self]]:
         return super().as_mutable(ExtendedPydanticType(cls, sqltype))
 
 
 def PydanticField(  # noqa: N802
     pydantic_type: type[_P], json_sql_type: TypeEngine | None = None
-) -> ExtendedPydanticType[_P]:
+) -> TypeEngine[ExtendedPydanticType[_P]]:
     """
     Возвращает обёртку над json в виде pydantic_type, которая позволяет отслеживать вложенные изменения в данных
 
@@ -105,7 +102,7 @@ def PydanticField(  # noqa: N802
     ):
         raise TypeError(f"json_sql_type should be subclass or instance of JSON, but got {json_sql_type}")
 
-    if pydantic_type.model_config["frozen"]:
+    if pydantic_type.model_config.get("frozen"):
         raise TypeError(f"pydantic_type {pydantic_type} should not be frozen. Use ImmutablePydanticField instead.")
 
     # Гарантируем, что содержательный класс является первым родителем
@@ -114,6 +111,6 @@ def PydanticField(  # noqa: N802
     #   OriginalType = generated.pydantic_type.__bases__[0]
     #   generated is Type == True
     # noinspection PyUnresolvedReferences
-    return type(pydantic_type.__class__.__name__, (pydantic_type, ExtendedMutablePydanticBaseModel), {}).as_mutable(
-        json_sql_type
-    )
+    return type(  # pyright: ignore [reportGeneralTypeIssues, reportReturnType]
+        pydantic_type.__class__.__name__, (pydantic_type, ExtendedMutablePydanticBaseModel), {}
+    ).as_mutable(json_sql_type)

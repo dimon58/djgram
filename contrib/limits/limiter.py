@@ -7,20 +7,21 @@
 
 import asyncio
 import logging
-from collections.abc import Awaitable, Coroutine
-from typing import Any, TypeVar
+from collections.abc import Awaitable
+from typing import Any, TypeAlias
 
 from aiogram import Bot
 from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.base import BaseSession
 from aiogram.exceptions import TelegramRetryAfter
 from aiogram.methods import SendMessage, TelegramMethod
+from aiogram.methods.base import TelegramType
 from cachetools import TTLCache
 from limiter import Limiter
 
 from .constants import MAX_MESSAGES_PER_GROUP_PER_SECOND, MAX_MESSAGES_PER_SECOND, MAX_MESSAGES_PER_USER_PER_SECOND
 
-T = TypeVar("T")
+ChatIdType: TypeAlias = int | str
 
 logger = logging.getLogger("limiter")
 
@@ -57,21 +58,28 @@ class LimitCaller:
         self._overall_max_rate = overall_max_rate
         self._user_max_rate = user_max_rate
         self._group_max_rate = group_max_rate
+
+        if max_retries < 0:
+            raise ValueError("max_retries should be greater or equal 0")
         self.max_retries = max_retries
 
         self.main_limiter = Limiter(self._overall_max_rate)
         # 2**63 = no limit for cache size
-        self.groups_limiter = TTLCache[Limiter](maxsize=2**63, ttl=LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS)
-        self.chats_limiter = TTLCache[Limiter](maxsize=2**63, ttl=LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS)
+        self.groups_limiter = TTLCache[ChatIdType, Limiter](
+            maxsize=2**63, ttl=LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS
+        )
+        self.chats_limiter = TTLCache[ChatIdType, Limiter](
+            maxsize=2**63, ttl=LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS
+        )
 
     async def _call_with_limit(
         self,
-        chat_id: int,
-        coro: Coroutine[T],
-        storage: TTLCache[Limiter],
+        chat_id: ChatIdType,
+        coro: Awaitable[TelegramType],
+        storage: TTLCache[ChatIdType, Limiter],
         rate: float,
         burst: int,
-    ) -> T:
+    ) -> TelegramType:
         """
         Calls the api method
 
@@ -93,8 +101,8 @@ class LimitCaller:
                 async with limiter:
                     return await coro
 
-    async def call(self, chat_id: int, coro: Coroutine[T]) -> T:
-        if chat_id < 0:
+    async def call(self, chat_id: ChatIdType, coro: Awaitable[TelegramType]) -> TelegramType:
+        if isinstance(chat_id, str) or chat_id < 0:
             return await self._call_with_limit(chat_id, coro, self.groups_limiter, self._group_max_rate, 20)
 
         return await self._call_with_limit(chat_id, coro, self.chats_limiter, self._user_max_rate, 3)
@@ -126,7 +134,9 @@ class LimitedBot(Bot):
 
         self.caller = limiter
 
-    async def _call(self, method: TelegramMethod[T], request_timeout: int | None = None) -> Awaitable[T]:
+    async def _call(
+        self, method: TelegramMethod[TelegramType], request_timeout: int | None = None
+    ) -> TelegramType:  # pyright: ignore [reportReturnType]
         """
         Just to not modify __init__ method
         """
@@ -138,12 +148,12 @@ class LimitedBot(Bot):
                 await self._retry_after_event.wait()
 
                 # run request
-                coro = self.session(self, method, timeout=request_timeout)
+                coro = self.session(self, method, timeout=request_timeout)  # pyright: ignore [reportArgumentType]
                 # if hasattr(method, "chat_id") and not isinstance(method, GetChat):
                 if isinstance(method, SendMessage):
-                    return await self.caller.call(method.chat_id, coro)
+                    return await self.caller.call(method.chat_id, coro)  # pyright: ignore [reportReturnType]
 
-                return await coro
+                return await coro  # pyright: ignore [reportReturnType]
 
             except TelegramRetryAfter as exc:
                 if attempt == self.caller.max_retries:
@@ -162,12 +172,12 @@ class LimitedBot(Bot):
                 # Allow other requests to be processed
                 self._retry_after_event.set()
 
-    async def __call__(self, method: TelegramMethod[T], request_timeout: int | None = None) -> Awaitable[T]:
+    async def __call__(self, method: TelegramMethod[TelegramType], request_timeout: int | None = None) -> TelegramType:
         caller = getattr(self, "caller", None)
         if not caller:
             self.caller = LimitCaller()
 
-        self.__call__ = LimitedBot._call
+        self.__call__ = LimitedBot._call  # pyright: ignore [reportAttributeAccessIssue]
 
         if not getattr(self, "_retry_after_event", None):
             # lock on TelegramRetryAfter exception
@@ -184,4 +194,4 @@ def patch_bot_with_limiter():
     If you want to use non-default limiter setting use LimitedBot class instead of Bot
     """
 
-    Bot.__call__ = LimitedBot.__call__
+    Bot.__call__ = LimitedBot.__call__  # pyright: ignore [reportAttributeAccessIssue]

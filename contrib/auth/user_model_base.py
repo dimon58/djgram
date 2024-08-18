@@ -38,7 +38,9 @@ class AbstractUser(UpdatedAtMixin, BaseModel):
         nullable=False,
         doc="id пользователя в telegram. Он же id чата с ним.",
     )
-    telegram_user: Mapped[TelegramUser] = relationship(TelegramUser)
+    telegram_user: Mapped[TelegramUser] = relationship(  # pyright: ignore [reportRedeclaration, reportAssignmentType]
+        TelegramUser
+    )
 
     @declared_attr
     def telegram_user(self) -> Mapped[TelegramUser]:  # noqa: F811
