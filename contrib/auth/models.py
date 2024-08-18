@@ -11,4 +11,6 @@ else:
     if not issubclass(USER_MODEL, AbstractUser):
         raise TypeError(f"{USER_MODEL} should be a subclass of {AbstractUser}")
 
-    User: type[AbstractUser] = USER_MODEL  # pyright: ignore [reportRedeclaration, reportAssignmentType]
+    User: type[USER_MODEL] = USER_MODEL  # pyright: ignore [reportRedeclaration, reportAssignmentType]
+
+User: type[User]  # pyright: ignore [reportInvalidTypeForm]
