@@ -8,7 +8,7 @@ from aiogram.types import CallbackQuery
 
 from djgram.contrib.admin import AppAdmin, ModelAdmin
 from djgram.contrib.admin.action_buttons import AbstractObjectActionButton
-from djgram.contrib.admin.rendering import OneLineTextRenderer
+from djgram.contrib.admin.rendering import OneLineTextRenderer, TelegramUsernameLinkRenderer
 
 from ...db.middlewares import MIDDLEWARE_DB_SESSION_KEY
 from .models import TelegramChat, TelegramChatFullInfo, TelegramUser
@@ -31,7 +31,7 @@ class TelegramUserAdmin(ModelAdmin):
     widgets_override = {
         "first_name": OneLineTextRenderer,
         "last_name": OneLineTextRenderer,
-        "username": OneLineTextRenderer,
+        "username": TelegramUsernameLinkRenderer,
         "language_code": OneLineTextRenderer,
     }
 

@@ -262,6 +262,27 @@ class OneLineTextRenderer(AdminFieldRenderer):
         return "\n".join(head)
 
 
+class TelegramUsernameLinkRenderer(OneLineTextRenderer):
+    """
+    Рендерит кликабельно имя пользователя в тг
+    """
+
+    def render_for_obj(self, obj: BaseModel, render_docs: bool) -> str:
+        username = html_escape(self.get_from_obj(obj))
+
+        username = f"@{username}" if username is not None else "-"
+
+        head = [f"<strong>●{self.get_title()}:</strong> {username}"]
+
+        if render_docs:
+            doc = self.render_docs(obj)
+
+            if doc is not None:
+                head.append(doc)
+
+        return "\n".join(head)
+
+
 class JsonRenderer(AdminFieldRenderer):
     """
     Ренедерит в виде форматированного json. Например:
