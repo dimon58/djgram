@@ -9,6 +9,7 @@ from datetime import date, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
+import pydantic
 from sqlalchemy_file import File
 
 from djgram.db.models import BaseModel
@@ -308,6 +309,21 @@ class JsonRenderer(AdminFieldRenderer):
         return f'<pre><code class="json">{html_escape(data)}</code></pre>'
 
 
+class PydanticRenderer(JsonRenderer):
+    """
+    Отображает модели pydantic в виде json
+
+    Можно использовать, если тип колонки это PydanticField или ImmutablePydanticField
+    """
+
+    def render_body(self, obj: BaseModel) -> str:
+        data = self.get_from_obj(obj)
+        if data is None:
+            return "<pre>None</pre>"
+        data = data.model_dump_json(indent=2)
+        return f'<pre><code class="json">{html_escape(data)}</code></pre>'
+
+
 class FileRenderer(AdminFieldRenderer):
     """
     Отображает файл в виде filename (size)
@@ -350,6 +366,9 @@ class AutoRenderer(TextRenderer):
 
         elif isinstance(data, dict | list):
             renderer = JsonRenderer(self._field, self._title, self._docs)
+
+        elif isinstance(data, pydantic.BaseModel):
+            renderer = PydanticRenderer(self._field, self._title, self._docs)
 
         else:
             renderer = super()
