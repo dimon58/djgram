@@ -56,7 +56,7 @@ class ImmutablePydanticField(ExtendedPydanticType[_P]):
     def get_alembic_import_name(cls) -> str:
         return cls.__name__
 
-    def get_base_type_for_alembic(self) -> _P:
+    def get_base_type_for_alembic(self):
         return self.pydantic_type
 
 
