@@ -5,10 +5,6 @@ from pathlib import Path
 
 import click
 import jinja2
-from aiogram.types import TelegramObject
-from sqlalchemy import inspect
-
-from djgram.db.models import BaseModel
 
 BASE_DIR = Path(__file__).resolve().parent
 APP_TEMPLATE_DIR = BASE_DIR / "app_template" / "app"
@@ -123,10 +119,10 @@ def init(type: str):  # noqa: A002
 
 
 def compare_models(
-    db_model: type[BaseModel],
-    aiogram_model: type[TelegramObject],
-    db_unnecessary_skip: set[str] | None = None,
-    db_missing_skip: set[str] | None = None,
+        db_model: type,
+        aiogram_model: type,
+        db_unnecessary_skip: set[str] | None = None,
+        db_missing_skip: set[str] | None = None,
 ) -> bool:
     """
     Сравнивает схему данных и схему в aiogram
@@ -139,6 +135,7 @@ def compare_models(
     :param db_missing_skip: поля, которые могут отсутствовать схеме в базе данных
     :return:
     """
+    from sqlalchemy import inspect
     if db_unnecessary_skip is None:
         db_unnecessary_skip = set()
     if db_missing_skip is None:
