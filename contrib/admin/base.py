@@ -5,6 +5,7 @@
 import logging
 import sys
 from collections.abc import Sequence
+from contextlib import suppress
 from dataclasses import dataclass
 from dataclasses import field as dc_field
 from typing import ClassVar, TypeVar
@@ -120,6 +121,12 @@ class ModelAdmin:
                 if ilike_query is None:
                     ilike_query = f"%{query}%"
                 ors.append(field.ilike(ilike_query))
+            elif isinstance(field.type, sqltypes.Integer):
+                with suppress(ValueError):
+                    ors.append(field == int(query))
+            elif isinstance(field.type, sqltypes.Float):
+                with suppress(ValueError):
+                    ors.append(field == float(query))
             else:
                 ors.append(field == query)
 
