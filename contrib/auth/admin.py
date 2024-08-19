@@ -11,7 +11,7 @@ from djgram.contrib.admin import AppAdmin, ModelAdmin
 from djgram.contrib.admin.action_buttons import AbstractObjectActionButton
 from djgram.contrib.admin.misc import get_admin_representation_for_logging_from_middleware_data
 from djgram.contrib.admin.rendering import AdminFieldRenderer, TelegramUsernameLinkRenderer
-from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
+from djgram.system_configs import MIDDLEWARE_DB_SESSION_KEY
 
 from .models import User
 

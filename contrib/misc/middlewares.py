@@ -5,7 +5,7 @@ from aiogram import BaseMiddleware
 from aiogram.dispatcher.event.bases import CancelHandler, SkipHandler
 from aiogram.types import Update
 
-DEFAULT_ERROR_TEXT_FOR_USER = "Internal error, please contact support"
+from djgram.system_configs import DEFAULT_ERROR_TEXT_FOR_USER
 
 
 # pylint: disable=too-few-public-methods

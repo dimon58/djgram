@@ -1,5 +1,7 @@
 from typing import Any
 
+from djgram.system_configs import MIDDLEWARE_AUTH_USER_KEY, MIDDLEWARE_TELEGRAM_USER_KEY
+
 
 def get_admin_representation_for_logging(telegram_user, user) -> str:  # noqa: ANN001
     return (
@@ -8,12 +10,7 @@ def get_admin_representation_for_logging(telegram_user, user) -> str:  # noqa: A
 
 
 def get_admin_representation_for_logging_from_middleware_data(middleware_data: dict[str, Any]) -> str:
-
-    # TODO: починить круговой импорт и вынести на верхний уровень
-    from djgram.contrib.auth.middlewares import MIDDLEWARE_USER_KEY
-    from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_USER_KEY
-
     telegram_user = middleware_data[MIDDLEWARE_TELEGRAM_USER_KEY]
-    user = middleware_data[MIDDLEWARE_USER_KEY]
+    user = middleware_data[MIDDLEWARE_AUTH_USER_KEY]
 
     return get_admin_representation_for_logging(telegram_user, user)

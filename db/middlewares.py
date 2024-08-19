@@ -6,8 +6,7 @@ from aiogram import BaseMiddleware
 from aiogram.types import Update
 
 from djgram.db import async_session_maker
-
-MIDDLEWARE_DB_SESSION_KEY = "db_session"
+from djgram.system_configs import MIDDLEWARE_DB_SESSION_KEY
 
 logger = logging.getLogger(__name__)
 

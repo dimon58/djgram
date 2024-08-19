@@ -15,19 +15,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from djgram.configs import TELEGRAM_CHAT_FULL_INFO_UPDATE_ON_EACH_EVENT, TELEGRAM_CHAT_FULL_INFO_UPDATE_PERIOD
 from djgram.contrib.telegram.models import TelegramChat, TelegramChatFullInfo, TelegramUser
-from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
 from djgram.db.models import BaseModel, CreatedAtMixin, UpdatedAtMixin
 from djgram.db.utils import ReturnState, get_fields_of_declarative_meta, insert_or_update
+from djgram.system_configs import (
+    MIDDLEWARE_DB_SESSION_KEY,
+    MIDDLEWARE_TELEGRAM_BUSINESS_CONNECTION_ID_KEY,
+    MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY,
+    MIDDLEWARE_TELEGRAM_CHAT_KEY,
+    MIDDLEWARE_TELEGRAM_EVENT_CONTEXT_KEY,
+    MIDDLEWARE_TELEGRAM_THREAD_ID_KEY,
+    MIDDLEWARE_TELEGRAM_USER_KEY,
+)
 
 T = TypeVar("T", bound=BaseModel)
-
-MIDDLEWARE_TELEGRAM_EVENT_CONTEXT_KEY = "telegram_event_context"
-
-MIDDLEWARE_TELEGRAM_USER_KEY = "telegram_user"
-MIDDLEWARE_TELEGRAM_CHAT_KEY = "telegram_chat"
-MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY = "telegram_chat_full_info"
-MIDDLEWARE_TELEGRAM_THREAD_ID_KEY = "telegram_thread_id"
-MIDDLEWARE_TELEGRAM_BUSINESS_CONNECTION_ID_KEY = "telegram_business_connection_id"
 
 logger = logging.getLogger(__name__)
 

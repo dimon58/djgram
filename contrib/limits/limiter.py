@@ -19,13 +19,18 @@ from aiogram.methods.base import TelegramType
 from cachetools import TTLCache
 from limiter import Limiter
 
+from djgram.system_configs import (
+    LIMIT_CALLER_CHAT_LIMITER_CACHE_MAX_SIZE,
+    LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS,
+    LIMIT_CALLER_GROUP_LIMITER_CACHE_MAX_SIZE,
+    LIMIT_CALLER_GROUP_LIMITER_CACHE_TTL_SECONDS,
+)
+
 from .constants import MAX_MESSAGES_PER_GROUP_PER_SECOND, MAX_MESSAGES_PER_SECOND, MAX_MESSAGES_PER_USER_PER_SECOND
 
 ChatIdType: TypeAlias = int | str
 
 logger = logging.getLogger("limiter")
-
-LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS = 60
 
 
 class LimitCaller:
@@ -66,10 +71,12 @@ class LimitCaller:
         self.main_limiter = Limiter(self._overall_max_rate)
         # 2**63 = no limit for cache size
         self.groups_limiter = TTLCache[ChatIdType, Limiter](
-            maxsize=2**63, ttl=LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS
+            maxsize=LIMIT_CALLER_GROUP_LIMITER_CACHE_MAX_SIZE,
+            ttl=LIMIT_CALLER_GROUP_LIMITER_CACHE_TTL_SECONDS,
         )
         self.chats_limiter = TTLCache[ChatIdType, Limiter](
-            maxsize=2**63, ttl=LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS
+            maxsize=LIMIT_CALLER_CHAT_LIMITER_CACHE_MAX_SIZE,
+            ttl=LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS,
         )
 
     async def _call_with_limit(

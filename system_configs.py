@@ -1,0 +1,22 @@
+# ErrorHandlingMiddleware
+DEFAULT_ERROR_TEXT_FOR_USER = "Internal error, please contact support"
+
+# DbSessionMiddleware
+MIDDLEWARE_DB_SESSION_KEY = "db_session"
+
+# TelegramMiddleware
+MIDDLEWARE_TELEGRAM_EVENT_CONTEXT_KEY = "telegram_event_context"
+MIDDLEWARE_TELEGRAM_USER_KEY = "telegram_user"
+MIDDLEWARE_TELEGRAM_CHAT_KEY = "telegram_chat"
+MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY = "telegram_chat_full_info"
+MIDDLEWARE_TELEGRAM_THREAD_ID_KEY = "telegram_thread_id"
+MIDDLEWARE_TELEGRAM_BUSINESS_CONNECTION_ID_KEY = "telegram_business_connection_id"
+
+# AuthMiddleware
+MIDDLEWARE_AUTH_USER_KEY = "user"
+
+# Limiter
+LIMIT_CALLER_GROUP_LIMITER_CACHE_MAX_SIZE = 2**63
+LIMIT_CALLER_GROUP_LIMITER_CACHE_TTL_SECONDS = 60
+LIMIT_CALLER_CHAT_LIMITER_CACHE_MAX_SIZE = 2**63
+LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS = 60

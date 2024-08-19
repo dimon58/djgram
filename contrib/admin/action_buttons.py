@@ -8,6 +8,7 @@ from aiogram.types import BufferedInputFile, CallbackQuery
 from aiogram.utils.chat_action import ChatActionSender
 
 from djgram.db.models import BaseModel
+from djgram.system_configs import MIDDLEWARE_AUTH_USER_KEY, MIDDLEWARE_TELEGRAM_USER_KEY
 from djgram.utils import measure_time
 from djgram.utils.formating import get_bytes_size_format
 
@@ -92,10 +93,6 @@ class DownloadFileActionButton(AbstractObjectActionButton):
             await callback_query.answer("File is empty")
             return
 
-        # TODO: починить круговой импорт и вынести на верхний уровень
-        from djgram.contrib.auth.middlewares import MIDDLEWARE_USER_KEY
-        from djgram.contrib.telegram.middlewares import MIDDLEWARE_TELEGRAM_USER_KEY
-
         logger.info(
             "Sending file %s (id=%s) from %s to admin %s",
             file["filename"],
@@ -103,7 +100,7 @@ class DownloadFileActionButton(AbstractObjectActionButton):
             obj,
             get_admin_representation_for_logging(
                 telegram_user=middleware_data[MIDDLEWARE_TELEGRAM_USER_KEY],
-                user=middleware_data[MIDDLEWARE_USER_KEY],
+                user=middleware_data[MIDDLEWARE_AUTH_USER_KEY],
             ),
         )
         async with ChatActionSender(
@@ -132,7 +129,7 @@ class DownloadFileActionButton(AbstractObjectActionButton):
             get_bytes_size_format(file_size / td.elapsed),
             get_admin_representation_for_logging(
                 telegram_user=middleware_data[MIDDLEWARE_TELEGRAM_USER_KEY],
-                user=middleware_data[MIDDLEWARE_USER_KEY],
+                user=middleware_data[MIDDLEWARE_AUTH_USER_KEY],
             ),
             message.message_id,
             message.document.file_id,  # pyright: ignore [reportOptionalMemberAccess]

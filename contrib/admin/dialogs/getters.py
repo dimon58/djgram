@@ -10,8 +10,8 @@ from sqlalchemy import func, select
 from sqlalchemy.sql import sqltypes
 
 from djgram.contrib.dialogs.database_paginated_scrolling_group import DEFAULT_TOTAL_KEY, DatabasePaginatedScrollingGroup
-from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
 from djgram.db.models import BaseModel
+from djgram.system_configs import MIDDLEWARE_DB_SESSION_KEY
 
 from ..base import AppAdmin, ModelAdmin, apps_admins
 from ..rendering import QUERY_KEY, get_field_by_path, prepare_rows

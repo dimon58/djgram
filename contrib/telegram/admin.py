@@ -9,7 +9,7 @@ from aiogram.types import CallbackQuery
 from djgram.contrib.admin import AppAdmin, ModelAdmin
 from djgram.contrib.admin.action_buttons import AbstractObjectActionButton
 from djgram.contrib.admin.rendering import OneLineTextRenderer, TelegramUsernameLinkRenderer
-from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
+from djgram.system_configs import MIDDLEWARE_DB_SESSION_KEY
 
 from .models import TelegramChat, TelegramChatFullInfo, TelegramUser
 

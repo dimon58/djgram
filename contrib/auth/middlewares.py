@@ -17,18 +17,17 @@ from djgram.configs import (
     ENABLE_ACCESS_FOR_BANNED_ADMINS,
     ENABLE_BAN_MESSAGE,
 )
-from djgram.contrib.telegram.middlewares import (
+from djgram.contrib.telegram.models import TelegramUser
+from djgram.db.utils import get_or_create
+from djgram.system_configs import (
+    MIDDLEWARE_AUTH_USER_KEY,
+    MIDDLEWARE_DB_SESSION_KEY,
     MIDDLEWARE_TELEGRAM_CHAT_KEY,
     MIDDLEWARE_TELEGRAM_USER_KEY,
 )
-from djgram.contrib.telegram.models import TelegramUser
-from djgram.db.middlewares import MIDDLEWARE_DB_SESSION_KEY
-from djgram.db.utils import get_or_create
 
 from .models import User
 from .user_model_base import AbstractUser
-
-MIDDLEWARE_USER_KEY = "user"
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +76,7 @@ class AuthMiddleware(BaseMiddleware):
             raise ValueError(f"You should install DbSessionMiddleware to use {self.__class__.__name__}")
 
         user = await self.get_user(telegram_user, db_session)
-        data[MIDDLEWARE_USER_KEY] = user
+        data[MIDDLEWARE_AUTH_USER_KEY] = user
         return user
 
     async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
