@@ -65,7 +65,10 @@ LOGGING_FOLDER.mkdir(exist_ok=True)
 LOG_FILE = LOGGING_FOLDER / "logs.log"
 
 #: Формат логов
-LOGGING_FORMAT = "[%(name)s:%(filename)s:%(funcName)s:%(lineno)d:%(asctime)s:%(levelname)s] %(message)s"
+# Красим точку в тот же цвет, что и дату и миллисекунды
+LOGGING_FORMAT = (
+    "[%(name)s:%(filename)s:%(funcName)s:%(lineno)d:%(asctime)s\033[32m.\033[0m%(msecs)03d:%(levelname)s] %(message)s"
+)
 
 #: Формат даты в логах
 LOGGING_DATE_FORMAT = "%d-%m-%Y %H:%M:%S"
