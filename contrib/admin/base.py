@@ -23,7 +23,6 @@ from .rendering import AdminFieldRenderer, AutoRenderer
 
 T = TypeVar("T", bound="ModelAdmin")
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -89,15 +88,20 @@ class ModelAdmin:
         return cls.name
 
     @classmethod
-    def get_fields_of_model(cls) -> list[AdminFieldRenderer]:
+    def get_fields(cls) -> list[str | AdminFieldRenderer]:
         if cls.fields is not None:  # noqa: SIM108
             fields = cls.fields
         else:
             fields = get_fields_of_model(cls.model, cls.skip_synonyms_origin)
 
+        return fields
+
+    @classmethod
+    def get_fields_widgets(cls) -> list[AdminFieldRenderer]:
+
         widgets: list[AdminFieldRenderer] = []
 
-        for field in fields:
+        for field in cls.get_fields():
             if isinstance(field, str):
                 widget = cls.widgets_override.get(field, AutoRenderer)(field)
             else:

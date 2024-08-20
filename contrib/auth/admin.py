@@ -74,8 +74,8 @@ class UserAdmin(ModelAdmin):
     )
 
     @classmethod
-    def get_fields_of_model(cls) -> list[AdminFieldRenderer]:
+    def get_fields_widgets(cls) -> list[AdminFieldRenderer]:
         return [
-            *super().get_fields_of_model(),
+            *super().get_fields_widgets(),
             TelegramUsernameLinkRenderer("telegram_user__username", "username"),
         ]

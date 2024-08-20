@@ -198,7 +198,7 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, A
 
     text = []
 
-    for field in model_admin.get_fields_of_model():
+    for field in model_admin.get_fields_widgets():
         # if not field.startswith("_"):
         text.append(field.render_for_obj(obj, model_admin.show_docs))  # noqa: PERF401
 
