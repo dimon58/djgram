@@ -141,7 +141,11 @@ def apply_active_date_filter(stmt: Select, min_date: datetime) -> Select:
     Фильтрует активных за последнее время пользователей
     """
     # noinspection PyTypeChecker
-    return stmt.join(User, User.telegram_user_id == TelegramChat.id).where(User.last_interaction >= min_date)
+    return (
+        stmt.join(User, User.telegram_user_id == TelegramChat.id)
+        .where(User.last_interaction >= min_date)
+        .where(~User.banned)
+    )
 
 
 async def broadcast_message(message: Message, db_session: AsyncSession, logging_message: Message | None = None) -> int:
