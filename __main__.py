@@ -119,10 +119,10 @@ def init(type: str):  # noqa: A002
 
 
 def compare_models(
-        db_model: type,
-        aiogram_model: type,
-        db_unnecessary_skip: set[str] | None = None,
-        db_missing_skip: set[str] | None = None,
+    db_model: type,
+    aiogram_model: type,
+    db_unnecessary_skip: set[str] | None = None,
+    db_missing_skip: set[str] | None = None,
 ) -> bool:
     """
     Сравнивает схему данных и схему в aiogram
@@ -136,6 +136,7 @@ def compare_models(
     :return:
     """
     from sqlalchemy import inspect
+
     if db_unnecessary_skip is None:
         db_unnecessary_skip = set()
     if db_missing_skip is None:
