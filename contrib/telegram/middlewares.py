@@ -204,7 +204,7 @@ class TelegramMiddleware(BaseMiddleware):
                 # Если по какой-то причине полной информации о чате не было или информация считалась устаревшей
                 if (
                     telegram_chat_full_info is None
-                    or datetime.now(tz=UTC) > telegram_chat_full_info.updated_at + TELEGRAM_CHAT_FULL_INFO_UPDATE_PERIOD
+                    or datetime.now(tz=UTC) > telegram_chat_full_info.updated_at.astimezone(tz=UTC) + TELEGRAM_CHAT_FULL_INFO_UPDATE_PERIOD
                 ):
                     await self.update_telegram_chat_full_info(
                         data, db_session, telegram_chat, update.bot  # pyright: ignore [reportArgumentType]
