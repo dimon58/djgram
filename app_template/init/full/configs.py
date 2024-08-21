@@ -67,7 +67,8 @@ LOG_FILE = LOGGING_FOLDER / "logs.log"
 #: Формат логов
 # Красим точку в тот же цвет, что и дату и миллисекунды
 LOGGING_FORMAT = (
-    "[%(name)s:%(filename)s:%(funcName)s:%(lineno)d:%(asctime)s\033[32m.\033[0m%(msecs)03d:%(levelname)s] %(message)s"
+    "[%(name)s:%(filename)s:%(funcName)s:%(lineno)d:"
+    "%(asctime)s\033[32m.\033[0m%(msecs)03d:%(levelname)s:%(update_id)s] %(message)s"
 )
 
 #: Формат даты в логах
