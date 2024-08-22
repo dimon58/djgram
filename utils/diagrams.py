@@ -37,8 +37,9 @@ def render_transitions_safe(
         )
     except (PermissionError, FileNotFoundError, graphviz.backend.execute.CalledProcessError) as exc:
 
-        logger.error(
+        logger.exception(
             "%s: failed to open file %s",
-            type(exc),
+            type(exc),  # noqa: TRY401
             filename,
+            exc_info=exc,
         )

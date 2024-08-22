@@ -60,7 +60,7 @@ def get_day_word(days: int) -> str:
     if days == 0:
         return "дней"
 
-    if 5 <= days <= 20:
+    if 5 <= days <= 20:  # noqa: PLR2004
         return "дней"
 
     days %= 10
@@ -68,7 +68,7 @@ def get_day_word(days: int) -> str:
     if days == 1:
         return "день"
 
-    if 2 <= days <= 4:
+    if 2 <= days <= 4:  # noqa: PLR2004
         return "дня"
 
     return "дней"
