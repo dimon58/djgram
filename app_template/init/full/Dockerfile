@@ -1,7 +1,8 @@
-FROM python:3.11-slim-bullseye as build-python
+FROM python:3.12-slim-bullseye as build-python
 
-RUN apt-get -y update && apt-get -y upgrade \
-  && apt-get -y install graphviz \
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt update && apt install -y --no-install-recommends graphviz \
   # Cleanup apt cache
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
@@ -18,10 +19,10 @@ ENV PIP_DEFAULT_TIMEOUT=100
 WORKDIR /app
 
 COPY ./djgram/requirements.txt djgram/requirements.txt
-RUN pip install -r /app/djgram/requirements.txt
+RUN pip install --no-cache-dir -r /app/djgram/requirements.txt
 
 COPY ./requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 FROM build-python as bot
 
