@@ -1,4 +1,5 @@
 import asyncio
+import enum
 import logging
 import time
 from collections.abc import Awaitable, Callable, Iterable
@@ -6,7 +7,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any, cast
 
 from aiogram import Bot
-from aiogram.exceptions import TelegramAPIError, TelegramRetryAfter
+from aiogram.exceptions import TelegramAPIError, TelegramForbiddenError, TelegramRetryAfter
 from aiogram.types import Message
 from sqlalchemy import Select, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,6 +26,16 @@ from djgram.contrib.communication.utils import (
 from djgram.contrib.telegram.models import TelegramChat
 
 logger = logging.getLogger(__name__)
+
+
+class SendMessageStatus(enum.Enum):
+    """
+    Статусы отправки сообщения
+    """
+
+    SUCCESS = "success"
+    BLOCKED = "blocked"
+    FAIL = "fail"
 
 
 async def broadcast(  # noqa: PLR0912
@@ -58,16 +69,19 @@ async def broadcast(  # noqa: PLR0912
 
     logger.info("Started broadcast to %s users", count)
     errors = 0
+    blocked = 0
     last_logging_time = start = global_start = time.perf_counter()
     for number, chat_id in enumerate(chat_ids, start=1):
         try:
-            success = await send_method(chat_id=chat_id, **kwargs)
+            status = await send_method(chat_id=chat_id, **kwargs)
         except RecursionError as exc:
             logger.exception("Too many attempts to send message", exc_info=exc)
             errors += 1
         else:
-            if not success:
+            if status == SendMessageStatus.FAIL:
                 errors += 1
+            elif status == SendMessageStatus.BLOCKED:
+                blocked += 1
 
         finish = time.perf_counter()
         if (finish - start) < broadcast_timeout:
@@ -100,6 +114,11 @@ async def broadcast(  # noqa: PLR0912
     else:
         status_message += f". Всего ошибок {errors} ({errors / count * 100:.1f}%)."
 
+    if blocked > 0:
+        if errors == 0:
+            status_message += "."
+        status_message += f" Не удалось отправить из-за блокировки {blocked} ({blocked / count * 100:.1f}%)."
+
     logger.info(status_message)
     if logging_message is not None:
         await logging_message.reply(status_message)
@@ -107,7 +126,7 @@ async def broadcast(  # noqa: PLR0912
     return errors
 
 
-async def send_message_copy(message: Message, chat_id: int, disable_notification: bool = False) -> bool:
+async def send_message_copy(message: Message, chat_id: int, disable_notification: bool = False) -> SendMessageStatus:
     """
     Safe messages sender
 
@@ -126,14 +145,18 @@ async def send_message_copy(message: Message, chat_id: int, disable_notification
         await asyncio.sleep(e.retry_after)
         return await send_message_copy(message, chat_id)  # Recursive call
 
+    except TelegramForbiddenError:
+        logger.warning("[BROADCAST] Target [ID:%s]: bot was blocked", chat_id)
+        return SendMessageStatus.BLOCKED
+
     except TelegramAPIError as exc:
         logger.exception("[BROADCAST] Target [ID:%s]: failed", chat_id, exc_info=exc)
 
     else:
         logger.info("[BROADCAST] Target [ID:%s]: success", chat_id)
-        return True
+        return SendMessageStatus.SUCCESS
 
-    return False
+    return SendMessageStatus.FAIL
 
 
 def apply_active_date_filter(stmt: Select, min_date: datetime) -> Select:
