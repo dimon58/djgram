@@ -5,6 +5,7 @@
 import html
 import json
 import logging
+from abc import abstractmethod
 from datetime import date, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
@@ -17,8 +18,11 @@ from djgram.utils.formating import get_bytes_size_format
 
 if TYPE_CHECKING:
     from sqlalchemy import Column
-logger = logging.getLogger(__name__)
+    from sqlalchemy_utils import PhoneNumber
+
 QUERY_KEY = "query"
+
+logger = logging.getLogger(__name__)
 
 
 def html_escape(obj: Any) -> str:
@@ -263,17 +267,16 @@ class OneLineTextRenderer(AdminFieldRenderer):
         return "\n".join(head)
 
 
-class TelegramUsernameLinkRenderer(OneLineTextRenderer):
-    """
-    Рендерит кликабельно имя пользователя в тг
-    """
+class SpecialStringOneLineTextRenderer(OneLineTextRenderer):
+
+    @abstractmethod
+    def prepare_data(self, obj: BaseModel) -> str | None:
+        raise NotImplementedError
 
     def render_for_obj(self, obj: BaseModel, render_docs: bool) -> str:
-        username = html_escape(self.get_from_obj(obj))
+        data = html_escape(self.prepare_data(obj))
 
-        username = f"@{username}" if username is not None else "-"
-
-        head = [f"<strong>●{self.get_title()}:</strong> {username}"]
+        head = [f"<strong>●{self.get_title()}:</strong> {data}"]
 
         if render_docs:
             doc = self.render_docs(obj)
@@ -282,6 +285,41 @@ class TelegramUsernameLinkRenderer(OneLineTextRenderer):
                 head.append(doc)
 
         return "\n".join(head)
+
+
+class TelegramUsernameLinkRenderer(SpecialStringOneLineTextRenderer):
+    """
+    Рендерит кликабельно имя пользователя в тг
+    """
+
+    def prepare_data(self, obj: BaseModel) -> str | None:
+        username: str | None = self.get_from_obj(obj)
+
+        return f"@{username}" if username is not None else "-"
+
+
+class PhoneNumberRenderer(SpecialStringOneLineTextRenderer):
+    """
+    Рендерит кликабельный номер телефона в тг
+    """
+
+    def prepare_data(self, obj: BaseModel) -> str:
+        phone_number: PhoneNumber | None = self.get_from_obj(obj)
+        if phone_number is not None:
+            return phone_number.e164
+
+        return "-"
+
+
+class EmailRenderer(SpecialStringOneLineTextRenderer):
+    """
+    Рендерит кликабельную электронную почту в тг
+    """
+
+    def prepare_data(self, obj: BaseModel) -> str:
+        email: str | None = self.get_from_obj(obj)
+
+        return email if email is not None else "-"
 
 
 class JsonRenderer(AdminFieldRenderer):

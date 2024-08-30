@@ -52,6 +52,13 @@ def render_item(type_: str, obj: Any, autogen_context: AutogenContext):
     if type_ == "type" and isinstance(obj, ExtendedPydanticType):
         return obj.alembic_definition(autogen_context)
 
+    if type_ == "type" and obj.__class__.__module__.startswith("sqlalchemy_utils."):
+        autogen_context.imports.add(f"import {obj.__class__.__module__}")
+        if hasattr(obj, "choices"):
+            return f"{obj.__class__.__module__}.{obj.__class__.__name__}(choices={obj.choices})"
+
+        return f"{obj.__class__.__module__}.{obj.__class__.__name__}()"
+
     # default rendering for other objects
     return False
 

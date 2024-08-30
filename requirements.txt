@@ -9,8 +9,10 @@ graphviz~=0.20.3
 humanfriendly~=10.0
 limiter~=0.5.0
 orjson~=3.10.7
+phonenumbers==8.13.44
+pydantic~=2.8.2
 sqlalchemy-file~=0.6.0
+sqlalchemy-utils==0.41.2
 sqlalchemy~=2.0.32
 uuid6~=2024.7.10
 git+https://github.com/dimon58/SQLAlchemy-Nested-Mutable.git
-pydantic~=2.8.2
