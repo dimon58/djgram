@@ -41,6 +41,8 @@ class ModelAdmin:
 
     # Список полей для показа, если None, то показываются все поля
     fields: ClassVar[Sequence[str | AdminFieldRenderer] | None] = None
+    # Список полей для исключения. Учитывается, только если не определён fields
+    exclude_fields: ClassVar[Sequence[str] | None] = None
     # Виджеты для конкретных полей
     widgets_override: ClassVar[dict[str, type[AdminFieldRenderer]]] = {}
 
@@ -88,11 +90,14 @@ class ModelAdmin:
         return cls.name
 
     @classmethod
-    def get_fields(cls) -> list[str | AdminFieldRenderer]:
-        if cls.fields is not None:  # noqa: SIM108
-            fields = cls.fields
-        else:
-            fields = get_fields_of_model(cls.model, cls.skip_synonyms_origin)
+    def get_fields(cls) -> Sequence[str | AdminFieldRenderer]:
+        if cls.fields is not None:
+            return cls.fields
+
+        fields = get_fields_of_model(cls.model, cls.skip_synonyms_origin)
+
+        if cls.exclude_fields is not None:
+            fields = list(filter(lambda f: f not in cls.exclude_fields, fields))
 
         return fields
 
