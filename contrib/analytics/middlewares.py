@@ -10,6 +10,7 @@ from time import perf_counter
 from typing import Any
 
 from aiogram import BaseMiddleware, Bot
+from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, EventContext, UserContextMiddleware
 from aiogram.types import Update
 
 from djgram.configs import ANALYTICS_UPDATES_TABLE
@@ -43,7 +44,13 @@ except ImportError:
         return data
 
 
-def get_update_dict_for_clickhouse(update: Update, execution_time: float, bot: Bot) -> dict[str, Any]:
+def get_update_dict_for_clickhouse(
+    update: Update,
+    execution_time: float,
+    user_id: int | None,
+    chat_id: int | None,
+    bot: Bot,
+) -> dict[str, Any]:
     event = update.model_dump(mode="python")
     event = set_defaults(event, bot)
 
@@ -52,17 +59,32 @@ def get_update_dict_for_clickhouse(update: Update, execution_time: float, bot: B
         "execution_time": execution_time,
         "event_type": update.event_type,  # property
         CONTENT_TYPE_KEY: getattr(update.event, CONTENT_TYPE_KEY, None),
+        "user_id": user_id,
+        "chat_id": chat_id,
         "update_id": event.pop("update_id"),
         "event": event,
     }
 
 
 # pylint: disable=too-few-public-methods
-async def save_event_to_clickhouse(update: Update, execution_time: float, bot: Bot) -> int | None:
+async def save_event_to_clickhouse(
+    update: Update,
+    execution_time: float,
+    user_id: int | None,
+    chat_id: int | None,
+    bot: Bot,
+) -> int | None:
     """
     Сохраняет update в clickhouse
     """
-    data = get_update_dict_for_clickhouse(update, execution_time, bot)
+
+    data = get_update_dict_for_clickhouse(
+        update=update,
+        execution_time=execution_time,
+        user_id=user_id,
+        chat_id=chat_id,
+        bot=bot,
+    )
 
     try:
         async with clickhouse.connection() as clickhouse_connection:
@@ -101,7 +123,23 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
         result = await handler(update, data)
         finish = perf_counter()
 
-        task = asyncio.create_task(save_event_to_clickhouse(update, finish - start, data["bot"]))
+        # Если перед этой мидлварью установлена UserContextMiddleware из aiogram, то есть event_context
+        event_context: EventContext = data.get(EVENT_CONTEXT_KEY)
+        if event_context is not None:
+            event_context = UserContextMiddleware.resolve_event_context(update)
+
+        user_id = event_context.user_id
+        chat_id = event_context.chat_id
+
+        task = asyncio.create_task(
+            save_event_to_clickhouse(
+                update=update,
+                execution_time=finish - start,
+                user_id=user_id,
+                chat_id=chat_id,
+                bot=data["bot"],
+            )
+        )
         task.add_done_callback(self.pending_tasks.remove)
         # Храним ссылку на задачу, чтобы она не уничтожилась в процессе выполнения
         self.pending_tasks.add(task)

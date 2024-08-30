@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS update
     `event_type`                String,
     `content_type`              Nullable(String),
 
+    `user_id`                   Nullable(Int64),
+    `chat_id`                   Nullable(Int64),
     `update_id`                 Int64,
     `event`                     JSON,
 )
