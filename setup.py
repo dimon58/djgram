@@ -1,6 +1,7 @@
 import logging
 
 from aiogram import Dispatcher
+from aiogram.dispatcher.middlewares.user_context import UserContextMiddleware
 from aiogram.filters import Command
 from aiogram_dialog import setup_dialogs
 
@@ -29,6 +30,7 @@ def setup_router(dp: Dispatcher) -> None:
 def setup_middlewares(dp: Dispatcher, analytics: bool) -> None:
     dp.update.outer_middleware(TraceMiddleware())
     dp.update.outer_middleware(ErrorHandlingMiddleware())
+    dp.update.outer_middleware(UserContextMiddleware())
     if analytics:
         dp.update.outer_middleware(SaveUpdateToClickHouseMiddleware())
     dp.update.outer_middleware(DbSessionMiddleware())

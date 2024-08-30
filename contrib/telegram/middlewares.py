@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from typing import Any, TypeVar
 
 from aiogram import BaseMiddleware, Bot
-from aiogram.dispatcher.middlewares.user_context import EventContext, UserContextMiddleware
+from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, EventContext, UserContextMiddleware
 from aiogram.types import Chat, ChatFullInfo, Update, User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,11 +19,8 @@ from djgram.db.models import BaseModel, CreatedAtMixin, UpdatedAtMixin
 from djgram.db.utils import ReturnState, get_fields_of_declarative_meta, insert_or_update
 from djgram.system_configs import (
     MIDDLEWARE_DB_SESSION_KEY,
-    MIDDLEWARE_TELEGRAM_BUSINESS_CONNECTION_ID_KEY,
     MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY,
     MIDDLEWARE_TELEGRAM_CHAT_KEY,
-    MIDDLEWARE_TELEGRAM_EVENT_CONTEXT_KEY,
-    MIDDLEWARE_TELEGRAM_THREAD_ID_KEY,
     MIDDLEWARE_TELEGRAM_USER_KEY,
 )
 
@@ -162,26 +159,23 @@ class TelegramMiddleware(BaseMiddleware):
         if db_session is None:
             raise ValueError(f"You should install DbSessionMiddleware to use {self.__class__.__name__}")
 
-        event_context: EventContext = UserContextMiddleware.resolve_event_context(update)
-        data[MIDDLEWARE_TELEGRAM_EVENT_CONTEXT_KEY] = event_context
-        if event_context.thread_id is not None:
-            data[MIDDLEWARE_TELEGRAM_THREAD_ID_KEY] = event_context.thread_id
-        if event_context.business_connection_id is not None:
-            data[MIDDLEWARE_TELEGRAM_BUSINESS_CONNECTION_ID_KEY] = event_context.business_connection_id
-        telegram_user = event_context.user
-        telegram_chat = event_context.chat
+        # Если перед этой мидлварью установлена UserContextMiddleware из aiogram, то есть event_context
+        event_context: EventContext = data[EVENT_CONTEXT_KEY]
+        if event_context is not None:
+            event_context = UserContextMiddleware.resolve_event_context(update)
 
         need_commit = False
 
-        if telegram_user is not None:
+        if event_context.user is not None:
             data[MIDDLEWARE_TELEGRAM_USER_KEY], telegram_user_return_state = await self.save_telegram_user_to_db(
-                telegram_user, db_session
+                event_context.user, db_session
             )
             need_commit = need_commit or telegram_user_return_state.need_commit()
 
-        if telegram_chat is not None:
+        aiogram_chat = event_context.chat
+        if aiogram_chat is not None:
             data[MIDDLEWARE_TELEGRAM_CHAT_KEY], telegram_chat_return_state = await self.save_telegram_chat_to_db(
-                telegram_chat, db_session
+                aiogram_chat, db_session
             )
             telegram_chat_need_commit = telegram_chat_return_state.need_commit()
             need_commit = need_commit or telegram_chat_need_commit
@@ -193,13 +187,13 @@ class TelegramMiddleware(BaseMiddleware):
             # Или включено обновление каждый раз
             if telegram_chat_need_commit or TELEGRAM_CHAT_FULL_INFO_UPDATE_ON_EACH_EVENT:
                 await self.update_telegram_chat_full_info(
-                    data, db_session, telegram_chat, update.bot  # pyright: ignore [reportArgumentType]
+                    data, db_session, aiogram_chat, update.bot  # pyright: ignore [reportArgumentType]
                 )
             else:
-                chat_full_info_stmt = select(TelegramChatFullInfo).where(TelegramChatFullInfo.id == telegram_chat.id)
+                chat_full_info_stmt = select(TelegramChatFullInfo).where(TelegramChatFullInfo.id == aiogram_chat.id)
                 telegram_chat_full_info: TelegramChatFullInfo | None = await db_session.scalar(chat_full_info_stmt)
                 if telegram_chat_full_info is None:
-                    logger.warning("There was no telegram chat full info %s in the database", telegram_chat.id)
+                    logger.warning("There was no telegram chat full info %s in the database", aiogram_chat.id)
 
                 # Если по какой-то причине полной информации о чате не было или информация считалась устаревшей
                 if (
@@ -208,7 +202,7 @@ class TelegramMiddleware(BaseMiddleware):
                     > telegram_chat_full_info.updated_at.astimezone(tz=UTC) + TELEGRAM_CHAT_FULL_INFO_UPDATE_PERIOD
                 ):
                     await self.update_telegram_chat_full_info(
-                        data, db_session, telegram_chat, update.bot  # pyright: ignore [reportArgumentType]
+                        data, db_session, aiogram_chat, update.bot  # pyright: ignore [reportArgumentType]
                     )
                 else:
                     data[MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY] = telegram_chat_full_info
