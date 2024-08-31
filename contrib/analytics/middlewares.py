@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from time import perf_counter
 from typing import Any
 
+import orjson
 from aiogram import BaseMiddleware, Bot
 from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, EventContext, UserContextMiddleware
 from aiogram.types import Update
@@ -47,11 +48,11 @@ except ImportError:
 def get_update_dict_for_clickhouse(
     update: Update,
     execution_time: float,
-    user_id: int | None,
-    chat_id: int | None,
+    event_context: EventContext,
     bot: Bot,
 ) -> dict[str, Any]:
-    event = update.model_dump(mode="python")
+    update.message.from_user.is_premium = None
+    event = update.model_dump(mode="python", exclude_unset=True)
     event = set_defaults(event, bot)
 
     return {
@@ -59,10 +60,12 @@ def get_update_dict_for_clickhouse(
         "execution_time": execution_time,
         "event_type": update.event_type,  # property
         CONTENT_TYPE_KEY: getattr(update.event, CONTENT_TYPE_KEY, None),
-        "user_id": user_id,
-        "chat_id": chat_id,
+        "user_id": event_context.user_id,
+        "chat_id": event_context.chat_id,
+        "thread_id": event_context.thread_id,
+        "business_connection_id": event_context.business_connection_id,
         "update_id": event.pop("update_id"),
-        "event": event,
+        "event": orjson.dumps(event),
     }
 
 
@@ -70,8 +73,7 @@ def get_update_dict_for_clickhouse(
 async def save_event_to_clickhouse(
     update: Update,
     execution_time: float,
-    user_id: int | None,
-    chat_id: int | None,
+    event_context: EventContext,
     bot: Bot,
 ) -> int | None:
     """
@@ -81,8 +83,7 @@ async def save_event_to_clickhouse(
     data = get_update_dict_for_clickhouse(
         update=update,
         execution_time=execution_time,
-        user_id=user_id,
-        chat_id=chat_id,
+        event_context=event_context,
         bot=bot,
     )
 
@@ -128,15 +129,11 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
         if event_context is not None:
             event_context = UserContextMiddleware.resolve_event_context(update)
 
-        user_id = event_context.user_id
-        chat_id = event_context.chat_id
-
         task = asyncio.create_task(
             save_event_to_clickhouse(
                 update=update,
                 execution_time=finish - start,
-                user_id=user_id,
-                chat_id=chat_id,
+                event_context=event_context,
                 bot=data["bot"],
             )
         )
