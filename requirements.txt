@@ -5,6 +5,7 @@ asynch[compression]~=0.2.4
 cachetools~=5.4.0
 clickhouse-cityhash~=1.0.2.4
 click~=8.1.7
+email-validator~=2.2.0
 graphviz~=0.20.3
 humanfriendly~=10.0
 limiter~=0.5.0
