@@ -51,7 +51,6 @@ def get_update_dict_for_clickhouse(
     event_context: EventContext,
     bot: Bot,
 ) -> dict[str, Any]:
-    update.message.from_user.is_premium = None
     event = update.model_dump(mode="python", exclude_unset=True)
     event = set_defaults(event, bot)
 
