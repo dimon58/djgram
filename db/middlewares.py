@@ -18,6 +18,13 @@ class DbSessionMiddleware(BaseMiddleware):
     https://docs.aiogram.dev/en/dev-3.x/dispatcher/middlewares.html#arguments-specification
     """
 
+    def __init__(self, *, commit_on_end: bool = True):
+        """
+        Args:
+            commit_on_end: Нужно ли коммитить при окончании сессии
+        """
+        self.commit_on_end = commit_on_end
+
     async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
         self,
         handler: Callable[[Update, dict[str, Any]], Awaitable[Any]],
@@ -31,6 +38,7 @@ class DbSessionMiddleware(BaseMiddleware):
 
             result = await handler(update, data)
 
-            await db_session.commit()
+            if self.commit_on_end:
+                await db_session.commit()
 
             return result
