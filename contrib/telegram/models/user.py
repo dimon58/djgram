@@ -69,5 +69,13 @@ class TelegramUser(HasFullNameComponents, TimeTrackableBaseModel):
         """
         return f'<a href="tg://user?id={self.id}">{self.get_full_name()}</a>'
 
+    def get_markdown_link(self) -> str:
+        """
+        Возвращает ссылку на пользователя в виде поддерживаемого тега для сообщения телеграмм
+
+        https://core.telegram.org/bots/api#html-style
+        """
+        return f"[{self.get_full_name()}](tg://user?id={self.id})"
+
     def str_for_logging(self) -> str:
         return f"Telegram user [{self.id}] {self.full_name}"
