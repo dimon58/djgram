@@ -8,6 +8,7 @@ import logging
 from abc import abstractmethod
 from datetime import date, datetime
 from enum import Enum
+from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 
 import pydantic
@@ -255,8 +256,11 @@ class OneLineTextRenderer(AdminFieldRenderer):
     Документация
     """
 
+    def get_data(self, obj: BaseModel) -> str | None:
+        return f"<code>{html_escape(self.get_from_obj(obj))}</code>"
+
     def render_for_obj(self, obj: BaseModel, render_docs: bool) -> str:
-        head = [f"<strong>●{self.get_title()}:</strong> <code>{html_escape(self.get_from_obj(obj))}</code>"]
+        head = [f"<strong>●{self.get_title()}:</strong> {self.get_data(obj)}"]
 
         if render_docs:
             doc = self.render_docs(obj)
@@ -273,18 +277,8 @@ class SpecialStringOneLineTextRenderer(OneLineTextRenderer):
     def prepare_data(self, obj: BaseModel) -> str | None:
         raise NotImplementedError
 
-    def render_for_obj(self, obj: BaseModel, render_docs: bool) -> str:
-        data = html_escape(self.prepare_data(obj))
-
-        head = [f"<strong>●{self.get_title()}:</strong> {data}"]
-
-        if render_docs:
-            doc = self.render_docs(obj)
-
-            if doc is not None:
-                head.append(doc)
-
-        return "\n".join(head)
+    def get_data(self, obj: BaseModel) -> str | None:
+        return html_escape(self.prepare_data(obj))
 
 
 class TelegramUsernameLinkRenderer(SpecialStringOneLineTextRenderer):
@@ -309,6 +303,57 @@ class PhoneNumberRenderer(SpecialStringOneLineTextRenderer):
             return phone_number.e164
 
         return "-"
+
+
+class HttpStatusRenderer(SpecialStringOneLineTextRenderer):
+    """
+    Ренедерит статус код http
+    """
+
+    @staticmethod
+    def get_code_phrase(code: int) -> str:
+        # noinspection PyProtectedMember
+        status: HTTPStatus | None = HTTPStatus._value2member_map_.get(code, None)
+        return status.phrase if status is not None else "Unknown"
+
+    def prepare_data(self, obj: BaseModel) -> str:
+        http_status_code: int | None = self.get_from_obj(obj)
+        if http_status_code is None:
+            return "-"
+
+        phrase = self.get_code_phrase(http_status_code)
+        return f"<code>{html_escape(http_status_code)} {html_escape(phrase)}</code>"
+
+    def get_data(self, obj: BaseModel) -> str | None:
+        return self.prepare_data(obj)
+
+
+class WebsocketStatusRenderer(HttpStatusRenderer):
+    """
+    Ренедерит статус код http
+    """
+
+    WEBSOCKET_STATUS_CODES = {
+        1000: "Normal Closure",
+        1001: "Going Away",
+        1002: "Protocol Error",
+        1003: "Unsupported Data",
+        1005: "No Status Received",
+        1006: "Abnormal Closure",
+        1007: "Invalid Frame Payload Data",
+        1008: "Policy Violation",
+        1009: "Message Too Big",
+        1010: "Mandatory Extension",
+        1011: "Internal Server Error",
+        1012: "Service Restart",
+        1013: "Try Again Later",
+        1014: "Bad gateway",
+        1015: "TLS Handshake",
+    }
+
+    @classmethod
+    def get_code_phrase(cls, code: int) -> str:
+        return cls.WEBSOCKET_STATUS_CODES.get(code, "Unknown")
 
 
 class EmailRenderer(SpecialStringOneLineTextRenderer):
