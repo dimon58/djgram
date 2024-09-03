@@ -56,6 +56,10 @@
    REDIS_HOST=redis
    CLICKHOUSE_HOST=clickhouse
    ```
+   
+   Хотя в `.env` можно не менять хосты,
+   так как они в любом случае перезаписаны в `docker-compose.yaml`,
+   но это будет хорошим тоном
 
 3. Собираем бота
    ```shell
@@ -64,9 +68,6 @@
 
 4. Запускаем бота
 
-   При работе на windows нужно поменять переносы строки файла `entrypoint.sh` на `LF`
-
    ```shell
    docker compose up
    ```
-
