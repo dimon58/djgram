@@ -1,20 +1,22 @@
+import os
 from pathlib import Path
 
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 
 #: Корень проекта
 BASE_DIR = Path(__file__).resolve().parent
 
-#: Переменные окружения из файла .env
-env = dotenv_values(BASE_DIR / ".env")
+# Переменные окружения из файла .env
+# Загружаем без перезаписи, чтобы ими можно было управлять из вне
+load_dotenv(BASE_DIR / ".env", override=False)
 
 #: Включить режим отладки
-DEBUG = bool(int(env.get("DEBUG", "1")))  # pyright: ignore [reportArgumentType]
+DEBUG = bool(int(os.environ.get("DEBUG", "1")))  # pyright: ignore [reportArgumentType]
 
 # --------------------------------- api токены --------------------------------- #
 
 #: Токен телеграм бота
-TELEGRAM_BOT_TOKEN: str = env.get("TELEGRAM_BOT_TOKEN", "")  # pyright: ignore [reportAssignmentType]
+TELEGRAM_BOT_TOKEN: str = os.environ.get("TELEGRAM_BOT_TOKEN", "")  # pyright: ignore [reportAssignmentType]
 
 # ---------- База данных ---------- #
 

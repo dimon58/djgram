@@ -52,6 +52,10 @@ services:
       - ./:/app
     env_file:
       - .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - REDIS_HOST=redis
+      - CLICKHOUSE_HOST=clickhouse
     depends_on:
       - redis
       - clickhouse

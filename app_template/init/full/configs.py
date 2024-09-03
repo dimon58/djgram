@@ -1,29 +1,31 @@
+import os
 from pathlib import Path
 
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 
 #: Корень проекта
 BASE_DIR = Path(__file__).resolve().parent
 
-#: Переменные окружения из файла .env
-env = dotenv_values(BASE_DIR / ".env")
+# Переменные окружения из файла .env
+# Загружаем без перезаписи, чтобы ими можно было управлять из вне
+load_dotenv(BASE_DIR / ".env", override=False)
 
 #: Включить режим отладки
-DEBUG = bool(int(env.get("DEBUG", "1")))  # pyright: ignore [reportArgumentType]
+DEBUG = bool(int(os.environ.get("DEBUG", "1")))  # pyright: ignore [reportArgumentType]
 
 # --------------------------------- api токены --------------------------------- #
 
 #: Токен телеграм бота
-TELEGRAM_BOT_TOKEN: str = env.get("TELEGRAM_BOT_TOKEN", "")  # pyright: ignore [reportAssignmentType]
+TELEGRAM_BOT_TOKEN: str = os.environ.get("TELEGRAM_BOT_TOKEN", "")  # pyright: ignore [reportAssignmentType]
 
 # ---------- База данных ---------- #
 
 # Данные для подключения к PostgreSQL
-POSTGRES_HOST: str = env.get("POSTGRES_HOST", "localhost")  # pyright: ignore [reportAssignmentType]
-POSTGRES_PORT: int = int(env.get("POSTGRES_PORT", "5432"))  # pyright: ignore [reportArgumentType]
-POSTGRES_DB: str = env.get("POSTGRES_DB", "local")  # pyright: ignore [reportAssignmentType]
-POSTGRES_USER: str = env.get("POSTGRES_USER", "admin")  # pyright: ignore [reportAssignmentType]
-POSTGRES_PASSWORD: str = env.get("POSTGRES_PASSWORD", "admin")  # pyright: ignore [reportAssignmentType]
+POSTGRES_HOST: str = os.environ.get("POSTGRES_HOST", "localhost")  # pyright: ignore [reportAssignmentType]
+POSTGRES_PORT: int = int(os.environ.get("POSTGRES_PORT", "5432"))  # pyright: ignore [reportArgumentType]
+POSTGRES_DB: str = os.environ.get("POSTGRES_DB", "local")  # pyright: ignore [reportAssignmentType]
+POSTGRES_USER: str = os.environ.get("POSTGRES_USER", "admin")  # pyright: ignore [reportAssignmentType]
+POSTGRES_PASSWORD: str = os.environ.get("POSTGRES_PASSWORD", "admin")  # pyright: ignore [reportAssignmentType]
 
 # https://docs.sqlalchemy.org/en/20/core/engines.html#database-urls
 DB_URL = "postgresql+asyncpg://{user}:{password}@{host}:{port}/{dbname}".format(  # noqa: UP032
@@ -41,19 +43,19 @@ DB_ENGINE_SETTINGS = {
 DB_SUPPORTS_ARRAYS = True
 
 # Данные для подключения к ClickHouse
-CLICKHOUSE_HOST: str = env.get("CLICKHOUSE_HOST", "localhost")  # pyright: ignore [reportAssignmentType]
-CLICKHOUSE_PORT: int = int(env.get("CLICKHOUSE_PORT", 9000))  # pyright: ignore [reportArgumentType]
-CLICKHOUSE_DB: str = env.get("CLICKHOUSE_DB", "default")  # pyright: ignore [reportAssignmentType]
-CLICKHOUSE_USER: str = env.get("CLICKHOUSE_USER", "default")  # pyright: ignore [reportAssignmentType]
-CLICKHOUSE_PASSWORD: str = env.get("CLICKHOUSE_PASSWORD", "")  # pyright: ignore [reportAssignmentType]
+CLICKHOUSE_HOST: str = os.environ.get("CLICKHOUSE_HOST", "localhost")  # pyright: ignore [reportAssignmentType]
+CLICKHOUSE_PORT: int = int(os.environ.get("CLICKHOUSE_PORT", 9000))  # pyright: ignore [reportArgumentType]
+CLICKHOUSE_DB: str = os.environ.get("CLICKHOUSE_DB", "default")  # pyright: ignore [reportAssignmentType]
+CLICKHOUSE_USER: str = os.environ.get("CLICKHOUSE_USER", "default")  # pyright: ignore [reportAssignmentType]
+CLICKHOUSE_PASSWORD: str = os.environ.get("CLICKHOUSE_PASSWORD", "")  # pyright: ignore [reportAssignmentType]
 
 #: Redis host
-REDIS_HOST: str = env.get("REDIS_HOST", "localhost")  # pyright: ignore [reportAssignmentType]
+REDIS_HOST: str = os.environ.get("REDIS_HOST", "localhost")  # pyright: ignore [reportAssignmentType]
 #: Redis port
-REDIS_PORT: int = int(env.get("REDIS_PORT", 6379))  # pyright: ignore [reportArgumentType]
+REDIS_PORT: int = int(os.environ.get("REDIS_PORT", 6379))  # pyright: ignore [reportArgumentType]
 
 #: Номер базы данных для хранилища машины конченых состояний
-REDIS_STORAGE_DB: int = int(env.get("REDIS_STORAGE_DB", 0))  # pyright: ignore [reportArgumentType]
+REDIS_STORAGE_DB: int = int(os.environ.get("REDIS_STORAGE_DB", 0))  # pyright: ignore [reportArgumentType]
 
 # ---------- Логирование ---------- #
 
