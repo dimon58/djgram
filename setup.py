@@ -4,6 +4,7 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.middlewares.user_context import UserContextMiddleware
 from aiogram.filters import Command
 from aiogram_dialog import setup_dialogs
+from aiogram_dialog.api.internal import DialogManagerFactory
 
 from djgram.contrib.admin import router as admin_router
 from djgram.contrib.analytics.middlewares import SaveUpdateToClickHouseMiddleware
@@ -40,7 +41,13 @@ def setup_middlewares(dp: Dispatcher, analytics: bool) -> None:
     logger.info("djgram middlewares setup")
 
 
-def setup_djgram(dp: Dispatcher, *, add_limiter: bool = True, analytics: bool = False) -> None:
+def setup_djgram(
+    dp: Dispatcher,
+    *,
+    add_limiter: bool = True,
+    analytics: bool = False,
+    dialog_manager_factory: DialogManagerFactory | None = None,
+) -> None:
     """
     Установка djgram
 
@@ -49,10 +56,11 @@ def setup_djgram(dp: Dispatcher, *, add_limiter: bool = True, analytics: bool = 
         add_limiter: включить лимитер со стандартными настройками
             https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this
         analytics: включить сохранение аналитики в ClickHouse
+        dialog_manager_factory: фабрика диалоговых менеджеров для aiogram-dialog
     """
     setup_middlewares(dp, analytics=analytics)
     setup_router(dp)
-    setup_dialogs(dp)
+    setup_dialogs(dp, dialog_manager_factory=dialog_manager_factory)
 
     if add_limiter:
         patch_bot_with_limiter()
