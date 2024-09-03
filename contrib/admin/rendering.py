@@ -10,6 +10,7 @@ from datetime import date, datetime
 from enum import Enum
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
+from uuid import UUID
 
 import pydantic
 from sqlalchemy_file import File
@@ -441,7 +442,9 @@ class AutoRenderer(TextRenderer):
         data = self.get_from_obj(obj)
 
         # Тут функция get_from_obj будет вызываться 2 раза
-        if isinstance(data, None | bool | int | float | date | datetime) or (isinstance(data, str) and len(data) == 0):
+        if isinstance(data, None | bool | int | float | date | datetime | UUID) or (
+            isinstance(data, str) and len(data) == 0
+        ):
             renderer = OneLineTextRenderer(self._field, self._title, self._docs)
 
         elif isinstance(data, File):
