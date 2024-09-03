@@ -28,5 +28,3 @@ FROM build-python as bot
 
 WORKDIR /app
 ADD . .
-
-RUN chmod u+x entrypoint.sh
