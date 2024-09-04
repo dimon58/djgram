@@ -25,6 +25,8 @@ TELEGRAM_CHAT_FULL_INFO_UPDATE_PERIOD = timedelta(hours=1)
 #: Таблица в clickhouse, в которую логируются все обновления телеграмм
 #   https://core.telegram.org/bots/api#getting-updates
 ANALYTICS_UPDATES_TABLE = "update"
+#: Таблица в clickhouse, в которую сохраняется статистика работы aiogram-dialog
+ANALYTICS_DIALOG_TABLE = "dialog_analytics"
 #: Таблица в clickhouse, в которую сохраняется общая статистика локального сервера
 ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_GENERAL_TABLE = "general_statistics"
 #: Таблица в clickhouse, в которую сохраняется статистика по каждому боту, подключенному к локальному серверу

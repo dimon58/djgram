@@ -7,6 +7,7 @@ from aiogram_dialog import setup_dialogs
 from aiogram_dialog.api.internal import DialogManagerFactory
 
 from djgram.contrib.admin import router as admin_router
+from djgram.contrib.analytics.dialog_analytics import setup_dialog_analytics
 from djgram.contrib.analytics.middlewares import SaveUpdateToClickHouseMiddleware
 from djgram.contrib.auth.middlewares import AuthMiddleware
 from djgram.contrib.communication import router as communication_router
@@ -64,5 +65,8 @@ def setup_djgram(
 
     if add_limiter:
         patch_bot_with_limiter()
+
+    if analytics:
+        setup_dialog_analytics()
 
     logger.info("djgram setup")
