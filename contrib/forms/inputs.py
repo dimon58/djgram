@@ -114,15 +114,16 @@ class FormInput(MessageInput, ABC):
             await self.on_validation_success(message, self, manager)
         end = time.perf_counter()
 
-        await dialog_analytics.save_input_statistics(
-            processor="form_input_process_message",
-            processed=True,
-            process_time=end - start,
-            input_=self,
-            message=message,
-            dialog=dialog,
-            manager=manager,
-        )
+        if dialog_analytics.DIALOG_ANALYTICS_ENABLED:
+            await dialog_analytics.save_input_statistics(
+                processor="form_input_process_message",
+                processed=True,
+                process_time=end - start,
+                input_=self,
+                message=message,
+                dialog=dialog,
+                manager=manager,
+            )
 
         return True
 
