@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS dialog_analytics
     `update_id`                                 Int64,
     `callback_query`                            String,
     `processor`                                 String,
+    `processed`                                 Boolean,
+    `process_time`                              Float32,
 
     -- User info
     `telegram_user_id`                          Nullable(Int64),

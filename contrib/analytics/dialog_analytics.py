@@ -57,6 +57,7 @@ Todo: улучшить взаимодействие с наследниками 
 
 import asyncio
 import logging
+import time
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Self
 
@@ -92,6 +93,8 @@ class DialogAnalytics(pydantic.BaseModel):
     update_id: int
     callback_query: str
     processor: str
+    processed: bool
+    process_time: float
 
     # User info
     telegram_user_id: int | None
@@ -156,6 +159,8 @@ class DialogAnalytics(pydantic.BaseModel):
     def from_callback(
         cls,
         processor: str,
+        processed: bool,
+        process_time: float,
         keyboard: Keyboard,
         callback: CallbackQuery,
         dialog: DialogProtocol,
@@ -171,6 +176,8 @@ class DialogAnalytics(pydantic.BaseModel):
             update_id=manager.middleware_data["event_update"].update_id,
             callback_query=callback.model_dump_json(exclude_unset=True),
             processor=processor,
+            processed=processed,
+            process_time=process_time,
             # User info
             telegram_user_id=event_context.user_id,
             telegram_chat_id=event_context.chat_id,
@@ -229,12 +236,22 @@ class DialogAnalytics(pydantic.BaseModel):
 
 async def save_statistics(
     processor: str,
+    processed: bool,
+    process_time: float,
     keyboard: Keyboard,
     callback: CallbackQuery,
     dialog: DialogProtocol,
     manager: DialogManager,
 ):
-    dialog_analytics = DialogAnalytics.from_callback(processor, keyboard, callback, dialog, manager)
+    dialog_analytics = DialogAnalytics.from_callback(
+        processor=processor,
+        processed=processed,
+        process_time=process_time,
+        keyboard=keyboard,
+        callback=callback,
+        dialog=dialog,
+        manager=manager,
+    )
     await dialog_analytics.extend_from(keyboard, manager)
 
     await dialog_analytics.save_to_clickhouse()
@@ -255,21 +272,43 @@ async def keyboard_process_callback(
     manager: DialogManager,
 ) -> bool:
     if callback.data == self.widget_id:
-        await save_statistics("process_own_callback", self, callback, dialog, manager)
-        return await self._process_own_callback(
+        start = time.perf_counter()
+        processed = await self._process_own_callback(
             callback,
             dialog,
             manager,
         )
+        end = time.perf_counter()
+        await save_statistics(
+            processor="process_own_callback",
+            processed=processed,
+            process_time=end - start,
+            keyboard=self,
+            callback=callback,
+            dialog=dialog,
+            manager=manager,
+        )
     prefix = self.callback_prefix()
     if prefix and callback.data.startswith(prefix):
-        await save_statistics("process_item_callback", self, callback, dialog, manager)
-        return await self._process_item_callback(
+        start = time.perf_counter()
+        processed = await self._process_item_callback(
             callback,
             callback.data[len(prefix) :],
             dialog,
             manager,
         )
+        end = time.perf_counter()
+        await save_statistics(
+            processor="process_item_callback",
+            processed=processed,
+            process_time=end - start,
+            keyboard=self,
+            callback=callback,
+            dialog=dialog,
+            manager=manager,
+        )
+
+        return processed
     return await self._process_other_callback(callback, dialog, manager)
 
 
