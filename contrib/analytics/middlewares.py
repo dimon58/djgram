@@ -59,6 +59,7 @@ def get_update_dict_for_clickhouse(
         "execution_time": execution_time,
         "event_type": update.event_type,  # property
         CONTENT_TYPE_KEY: getattr(update.event, CONTENT_TYPE_KEY, None),
+        "bot_id": bot.id,
         "user_id": event_context.user_id,
         "chat_id": event_context.chat_id,
         "thread_id": event_context.thread_id,
