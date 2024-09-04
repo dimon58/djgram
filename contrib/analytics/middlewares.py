@@ -96,14 +96,16 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
     """
 
     def __init__(self):  # noqa: D107
-        logger.debug("Ensuring clickhouse tables for updates")
-        with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:  # noqa: PTH123
-            clickhouse.run_sql_from_sync(sql_file.read())
-
         # Задачи сохранения аналитики в clickhouse
         # Временно сохраняем из тут, чтобы сборщик мусора не убил раньше времени
         # https://docs.python.org/3.12/library/asyncio-task.html#asyncio.create_task
         self.pending_tasks = set[asyncio.Task]()
+
+        logger.debug("Ensuring clickhouse tables for updates")
+        with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:  # noqa: PTH123
+            task = clickhouse.run_sql_from_sync(sql_file.read())
+            task.add_done_callback(self.pending_tasks.remove)
+            self.pending_tasks.add(task)
 
     async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
         self,

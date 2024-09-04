@@ -33,6 +33,7 @@ monkey_patch_asynch()
 
 # todo: по хорошему надо сделать пул соединений
 async def get_connection() -> Connection:
+    logger.debug("Creating connection to ClickHouse")
     return await connect(
         host=configs.CLICKHOUSE_HOST,
         port=configs.CLICKHOUSE_PORT,
@@ -78,6 +79,7 @@ async def insert_dict(client: Connection, table_name: str, data: dict[str, Any])
         Число вставленных строк
     """
 
+    logger.debug("Inserting dict in ClickHouse")
     sql = get_insert_sql(table_name, data.keys())
     values = (tuple(data.values()),)
     async with client.cursor() as cursor:
@@ -119,8 +121,8 @@ async def run_sql(sql: str) -> None:
             await cursor.execute(query)
 
 
-def run_sql_from_sync(sql: str) -> None:
+def run_sql_from_sync(sql: str) -> asyncio.Task:
     """
     Выполняет sql в clickhouse, может быть вызвано из синхронной функции
     """
-    asyncio.get_running_loop().create_task(run_sql(sql))
+    return asyncio.create_task(run_sql(sql))
