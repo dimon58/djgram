@@ -3,14 +3,17 @@ import datetime
 import importlib
 import logging
 import time
-from collections.abc import Awaitable, Generator, Iterator
+from collections.abc import Awaitable, Callable, Generator, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Literal, TypeVar
+from functools import wraps
+from typing import Any, Literal, ParamSpec, TypeVar
 
 from pydantic import BaseModel
 
 T = TypeVar("T")
+P = ParamSpec("P")
+
 _FROZEN_KEY = "frozen"
 logger = logging.getLogger(__name__)
 
@@ -123,3 +126,73 @@ async def try_run_async(
     logger.error("%s failed %s times", coro, max_attempts)
 
     return False, None
+
+
+def suppress_decorator(
+    *exceptions: type[BaseException],
+    log_on_exception: bool = True,
+    logging_level: int = logging.WARNING,
+):
+    """
+    Подавляет исключения в вызываемой синхронной функции
+
+    Args:
+        exceptions: список подавляемых исключений
+        log_on_exception: нужно ли логировать исключения
+        logging_level: уровень логирования по умолчанию
+    """
+
+    def wrapper(func: Callable[P, ...]) -> Callable[P, None]:
+        @wraps(func)
+        def inner(*args: P.args, **kwargs: P.kwargs) -> None:
+            try:
+                func(*args, **kwargs)
+            except exceptions as exc:
+                if not log_on_exception:
+                    return
+                logger.log(
+                    logging_level,
+                    "Suppressed exception %s in function %s: %s",
+                    exc.__class__.__name__,
+                    func.__name__,
+                    exc,
+                )
+
+        return inner
+
+    return wrapper
+
+
+def suppress_decorator_async(
+    *exceptions: type[BaseException],
+    log_on_exception: bool = True,
+    logging_level: int = logging.WARNING,
+):
+    """
+    Подавляет исключения в вызываемой асинхронной функции
+
+    Args:
+        exceptions: список подавляемых исключений
+        log_on_exception: нужно ли логировать исключения
+        logging_level: уровень логирования по умолчанию
+    """
+
+    def wrapper(func: Callable[P, ...]) -> Callable[P, Awaitable[None]]:
+        @wraps(func)
+        async def inner(*args: P.args, **kwargs: P.kwargs) -> None:
+            try:
+                await func(*args, **kwargs)
+            except exceptions as exc:
+                if not log_on_exception:
+                    return
+                logger.log(
+                    logging_level,
+                    "Suppressed exception %s in function %s: %s",
+                    exc.__class__.__name__,
+                    func.__name__,
+                    exc,
+                )
+
+        return inner
+
+    return wrapper
