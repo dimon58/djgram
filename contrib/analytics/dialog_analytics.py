@@ -82,12 +82,16 @@ from djgram.utils import suppress_decorator_async
 if TYPE_CHECKING:
     from aiogram_dialog.api.entities import Context, Stack
 
+
 logger = logging.getLogger("dialog_analytics")
 
 # Задачи сохранения аналитики в clickhouse
 # Временно сохраняем из тут, чтобы сборщик мусора не убил раньше времени
 # https://docs.python.org/3.12/library/asyncio-task.html#asyncio.create_task
 _pending_tasks = set[asyncio.Task]()
+
+
+DIALOG_ANALYTICS_ENABLED = False
 
 
 class DialogAnalytics(pydantic.BaseModel):
@@ -489,3 +493,7 @@ def setup_dialog_analytics():
 
     patch_keyboard()
     patch_input()
+
+    # Нужно для работы djgram.contrib.forms
+    global DIALOG_ANALYTICS_ENABLED  # noqa: PLW0603
+    DIALOG_ANALYTICS_ENABLED = True

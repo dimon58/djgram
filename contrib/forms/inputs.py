@@ -1,3 +1,4 @@
+import time
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
 from typing import Any
@@ -7,6 +8,8 @@ from aiogram.enums import ContentType
 from aiogram.types import Message
 from aiogram_dialog import DialogManager, DialogProtocol
 from aiogram_dialog.widgets.input import MessageInput
+
+from djgram.contrib.analytics import dialog_analytics
 
 from .validators import (
     DnsResolver,
@@ -68,6 +71,20 @@ class FormInput(MessageInput, ABC):
                 manager.event,
                 **manager.middleware_data,
             ):
+                # Обязательно нужно обращаться через имя модуля,
+                # чтобы получать актуальное значение DIALOG_ANALYTICS_ENABLED
+                if dialog_analytics.DIALOG_ANALYTICS_ENABLED:
+                    await dialog_analytics.save_input_statistics(
+                        processor="form_input_process_message",
+                        processed=False,
+                        process_time=None,
+                        not_processed_reason="filtered",
+                        input_=self,
+                        message=message,
+                        dialog=dialog,
+                        manager=manager,
+                    )
+
                 return False
 
         data = self.get_input_data(message)
@@ -76,11 +93,37 @@ class FormInput(MessageInput, ABC):
             if not is_valid:
                 if self.on_validation_failure is not None:
                     await self.on_validation_failure(message, self, manager)
+
+                if dialog_analytics.DIALOG_ANALYTICS_ENABLED:
+                    await dialog_analytics.save_input_statistics(
+                        processor="form_input_process_message",
+                        processed=False,
+                        process_time=None,
+                        not_processed_reason="skip_due_validation",
+                        input_=self,
+                        message=message,
+                        dialog=dialog,
+                        manager=manager,
+                    )
+
                 return True
 
+        start = time.perf_counter()
         await self.func.process_event(message, self, manager)
         if self.on_validation_success is not None:
             await self.on_validation_success(message, self, manager)
+        end = time.perf_counter()
+
+        await dialog_analytics.save_input_statistics(
+            processor="form_input_process_message",
+            processed=True,
+            process_time=end - start,
+            input_=self,
+            message=message,
+            dialog=dialog,
+            manager=manager,
+        )
+
         return True
 
     @abstractmethod
