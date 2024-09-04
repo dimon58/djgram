@@ -47,7 +47,26 @@ CREATE TABLE IF NOT EXISTS dialog_analytics
     `aiogd_stack_last_reply_keyboard`           Boolean,
     `aiogd_stack_last_media_id`                 Nullable(String),
     `aiogd_stack_last_media_unique_id`          Nullable(String),
-    `aiogd_stack_last_income_media_group_id`    Nullable(String)
+    `aiogd_stack_last_income_media_group_id`    Nullable(String),
+
+    -- После выполнения кода обработчика
+    -- aiogram_dialog.api.entities.Context
+    -- Нового контекста может не быть, например когда пользователь кликнул кнопку завершить
+    `aiogd_context_intent_id_new`                   Nullable(String),
+    `aiogd_context_stack_id_new`                    Nullable(String),
+    `aiogd_context_state_new`                       Nullable(String),
+    `aiogd_context_start_data_new`                  Nullable(String),
+    `aiogd_context_dialog_data_new`                 Nullable(String),
+    `aiogd_context_widget_data_new`                 Nullable(String),
+
+    -- aiogram_dialog.api.entities.Stack
+    `aiogd_stack_id_new`                            String,
+    `aiogd_stack_intents_new`                       Array(String),
+    `aiogd_stack_last_message_id_new`               Nullable(Int64),
+    `aiogd_stack_last_reply_keyboard_new`           Boolean,
+    `aiogd_stack_last_media_id_new`                 Nullable(String),
+    `aiogd_stack_last_media_unique_id_new`          Nullable(String),
+    `aiogd_stack_last_income_media_group_id_new`    Nullable(String)
 )
     ENGINE = MergeTree()
         ORDER BY (date);

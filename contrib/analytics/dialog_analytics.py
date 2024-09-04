@@ -56,10 +56,11 @@ Todo: улучшить взаимодействие с наследниками 
 """
 
 import asyncio
+import copy
 import logging
 import time
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, Self
+from typing import Any, Self
 
 import orjson
 import pydantic
@@ -67,6 +68,7 @@ from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, Event
 from aiogram.enums import ContentType
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, DialogProtocol
+from aiogram_dialog.api.entities import Context, Stack
 from aiogram_dialog.api.internal import CALLBACK_DATA_KEY, CONTEXT_KEY, STACK_KEY
 from aiogram_dialog.widgets.common import Actionable
 from aiogram_dialog.widgets.input import BaseInput, MessageInput, TextInput
@@ -79,17 +81,12 @@ from djgram.db import clickhouse
 from djgram.system_configs import MIDDLEWARE_AUTH_USER_KEY
 from djgram.utils import suppress_decorator_async
 
-if TYPE_CHECKING:
-    from aiogram_dialog.api.entities import Context, Stack
-
-
 logger = logging.getLogger("dialog_analytics")
 
 # Задачи сохранения аналитики в clickhouse
 # Временно сохраняем из тут, чтобы сборщик мусора не убил раньше времени
 # https://docs.python.org/3.12/library/asyncio-task.html#asyncio.create_task
 _pending_tasks = set[asyncio.Task]()
-
 
 DIALOG_ANALYTICS_ENABLED = False
 
@@ -144,6 +141,25 @@ class DialogAnalytics(pydantic.BaseModel):
     aiogd_stack_last_media_unique_id: str | None = None
     aiogd_stack_last_income_media_group_id: str | None = None
 
+    # После выполнения кода обработчика
+    # aiogram_dialog.api.entities.Context
+    # Нового контекста может не быть, например когда пользователь кликнул кнопку завершить
+    aiogd_context_intent_id_new: str | None = None
+    aiogd_context_stack_id_new: str | None = None
+    aiogd_context_state_new: str | None = None
+    aiogd_context_start_data_new: str | None = None
+    aiogd_context_dialog_data_new: str | None = None
+    aiogd_context_widget_data_new: str | None = None
+
+    # aiogram_dialog.api.entities.Stack
+    aiogd_stack_id_new: str
+    aiogd_stack_intents_new: list[str]
+    aiogd_stack_last_message_id_new: int | None = None
+    aiogd_stack_last_reply_keyboard_new: bool
+    aiogd_stack_last_media_id_new: str | None = None
+    aiogd_stack_last_media_unique_id_new: str | None = None
+    aiogd_stack_last_income_media_group_id_new: str | None = None
+
     @staticmethod
     def get_user_id(manager: DialogManager) -> int | None:
         user = manager.middleware_data[MIDDLEWARE_AUTH_USER_KEY]
@@ -182,11 +198,13 @@ class DialogAnalytics(pydantic.BaseModel):
         message: Message | None,
         dialog: DialogProtocol,
         manager: DialogManager,
+        aiogd_context_before: Context,
+        aiogd_stack_before: Stack,
     ) -> Self:
         event_context: EventContext = manager.middleware_data[EVENT_CONTEXT_KEY]
 
-        aiogd_context: Context = manager.middleware_data[CONTEXT_KEY]
-        aiogd_stack: Stack = manager.middleware_data[STACK_KEY]
+        aiogd_context_new: Context = manager.middleware_data[CONTEXT_KEY]
+        aiogd_stack_new: Stack = manager.middleware_data[STACK_KEY]
 
         return cls(
             date=datetime.now(tz=UTC),
@@ -210,20 +228,37 @@ class DialogAnalytics(pydantic.BaseModel):
             widget_text=cls.get_widget_text(callback, manager),
             aiogd_original_callback_data=manager.middleware_data.get(CALLBACK_DATA_KEY),
             # aiogram_dialog.api.entities.Context
-            aiogd_context_intent_id=aiogd_context.id,
-            aiogd_context_stack_id=aiogd_context.stack_id,
-            aiogd_context_state=aiogd_context.state.state,
-            aiogd_context_start_data=orjson.dumps(aiogd_context.start_data),
-            aiogd_context_dialog_data=orjson.dumps(aiogd_context.dialog_data),
-            aiogd_context_widget_data=orjson.dumps(aiogd_context.widget_data),
+            aiogd_context_intent_id=aiogd_context_before.id,
+            aiogd_context_stack_id=aiogd_context_before.stack_id,
+            aiogd_context_state=aiogd_context_before.state.state,
+            aiogd_context_start_data=orjson.dumps(aiogd_context_before.start_data),
+            aiogd_context_dialog_data=orjson.dumps(aiogd_context_before.dialog_data),
+            aiogd_context_widget_data=orjson.dumps(aiogd_context_before.widget_data),
             # aiogram_dialog.api.entities.Stack
-            aiogd_stack_id=aiogd_stack.id,
-            aiogd_stack_intents=aiogd_stack.intents,
-            aiogd_stack_last_message_id=aiogd_stack.last_message_id,
-            aiogd_stack_last_reply_keyboard=aiogd_stack.last_reply_keyboard,
-            aiogd_stack_last_media_id=aiogd_stack.last_media_id,
-            aiogd_stack_last_media_unique_id=aiogd_stack.last_media_unique_id,
-            aiogd_stack_last_income_media_group_id=aiogd_stack.last_income_media_group_id,
+            aiogd_stack_id=aiogd_stack_before.id,
+            aiogd_stack_intents=aiogd_stack_before.intents,
+            aiogd_stack_last_message_id=aiogd_stack_before.last_message_id,
+            aiogd_stack_last_reply_keyboard=aiogd_stack_before.last_reply_keyboard,
+            aiogd_stack_last_media_id=aiogd_stack_before.last_media_id,
+            aiogd_stack_last_media_unique_id=aiogd_stack_before.last_media_unique_id,
+            aiogd_stack_last_income_media_group_id=aiogd_stack_before.last_income_media_group_id,
+            # После выполнения кода обработчика
+            # aiogram_dialog.api.entities.Context
+            # Нового контекста может не быть, например когда пользователь кликнул кнопку завершить
+            aiogd_context_intent_id_new=getattr(aiogd_context_new, "id", None),
+            aiogd_context_stack_id_new=getattr(aiogd_context_new, "stack_id", None),
+            aiogd_context_state_new=getattr(getattr(aiogd_context_new, "state", None), "state", None),
+            aiogd_context_start_data_new=orjson.dumps(getattr(aiogd_context_new, "start_data", None)),
+            aiogd_context_dialog_data_new=orjson.dumps(getattr(aiogd_context_new, "dialog_data", None)),
+            aiogd_context_widget_data_new=orjson.dumps(getattr(aiogd_context_new, "widget_data", None)),
+            # aiogram_dialog.api.entities.Stack
+            aiogd_stack_id_new=aiogd_stack_new.id,
+            aiogd_stack_intents_new=aiogd_stack_new.intents,
+            aiogd_stack_last_message_id_new=aiogd_stack_new.last_message_id,
+            aiogd_stack_last_reply_keyboard_new=aiogd_stack_new.last_reply_keyboard,
+            aiogd_stack_last_media_id_new=aiogd_stack_new.last_media_id,
+            aiogd_stack_last_media_unique_id_new=aiogd_stack_new.last_media_unique_id,
+            aiogd_stack_last_income_media_group_id_new=aiogd_stack_new.last_income_media_group_id,
         )
 
     async def extend_from_calendar(
@@ -262,6 +297,8 @@ async def save_keyboard_statistics(
     callback: CallbackQuery,
     dialog: DialogProtocol,
     manager: DialogManager,
+    aiogd_context_before: Context,
+    aiogd_stack_before: Stack,
 ):
     dialog_analytics = DialogAnalytics.from_event(
         processor=processor,
@@ -273,6 +310,8 @@ async def save_keyboard_statistics(
         message=None,
         dialog=dialog,
         manager=manager,
+        aiogd_context_before=aiogd_context_before,
+        aiogd_stack_before=aiogd_stack_before,
     )
     await dialog_analytics.extend_from(keyboard, manager)
 
@@ -295,6 +334,9 @@ async def keyboard_process_callback(
     manager: DialogManager,
 ) -> bool:
     if callback.data == self.widget_id:
+        aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
+        aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
+
         start = time.perf_counter()
         processed = await self._process_own_callback(
             callback,
@@ -310,9 +352,16 @@ async def keyboard_process_callback(
             callback=callback,
             dialog=dialog,
             manager=manager,
+            aiogd_context_before=aiogd_context_before,
+            aiogd_stack_before=aiogd_stack_before,
         )
+        return processed
+
     prefix = self.callback_prefix()
     if prefix and callback.data.startswith(prefix):
+        aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
+        aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
+
         start = time.perf_counter()
         processed = await self._process_item_callback(
             callback,
@@ -329,6 +378,8 @@ async def keyboard_process_callback(
             callback=callback,
             dialog=dialog,
             manager=manager,
+            aiogd_context_before=aiogd_context_before,
+            aiogd_stack_before=aiogd_stack_before,
         )
 
         return processed
@@ -349,6 +400,8 @@ async def save_input_statistics(
     message: Message,
     dialog: DialogProtocol,
     manager: DialogManager,
+    aiogd_context_before: Context,
+    aiogd_stack_before: Stack,
 ):
     dialog_analytics = DialogAnalytics.from_event(
         processor=processor,
@@ -360,6 +413,8 @@ async def save_input_statistics(
         message=message,
         dialog=dialog,
         manager=manager,
+        aiogd_context_before=aiogd_context_before,
+        aiogd_stack_before=aiogd_stack_before,
     )
 
     await dialog_analytics.save_to_clickhouse()
@@ -388,6 +443,9 @@ async def message_input_process_message(
         ):
             processed = False
 
+    aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
+    aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
+
     if processed:
         start = time.perf_counter()
         await self.func.process_event(message, self, manager)
@@ -404,6 +462,8 @@ async def message_input_process_message(
         message=message,
         dialog=dialog,
         manager=manager,
+        aiogd_context_before=aiogd_context_before,
+        aiogd_stack_before=aiogd_stack_before,
     )
 
     return True
@@ -415,6 +475,9 @@ async def text_input_process_message(
     dialog: DialogProtocol,
     manager: DialogManager,
 ) -> bool:
+    aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
+    aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
+
     if message.content_type != ContentType.TEXT:
         await save_input_statistics(
             processor="text_input_process_message",
@@ -425,6 +488,8 @@ async def text_input_process_message(
             message=message,
             dialog=dialog,
             manager=manager,
+            aiogd_context_before=aiogd_context_before,
+            aiogd_stack_before=aiogd_stack_before,
         )
 
         return False
@@ -442,6 +507,8 @@ async def text_input_process_message(
             message=message,
             dialog=dialog,
             manager=manager,
+            aiogd_context_before=aiogd_context_before,
+            aiogd_stack_before=aiogd_stack_before,
         )
         return False
     start = time.perf_counter()
@@ -474,6 +541,8 @@ async def text_input_process_message(
         message=message,
         dialog=dialog,
         manager=manager,
+        aiogd_context_before=aiogd_context_before,
+        aiogd_stack_before=aiogd_stack_before,
     )
 
     return True
