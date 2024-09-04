@@ -1,3 +1,4 @@
+import copy
 import time
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
@@ -7,6 +8,8 @@ import phonenumbers
 from aiogram.enums import ContentType
 from aiogram.types import Message
 from aiogram_dialog import DialogManager, DialogProtocol
+from aiogram_dialog.api.entities import Context, Stack
+from aiogram_dialog.api.internal import CONTEXT_KEY, STACK_KEY
 from aiogram_dialog.widgets.input import MessageInput
 
 from djgram.contrib.analytics import dialog_analytics
@@ -81,8 +84,9 @@ class FormInput(MessageInput, ABC):
                         not_processed_reason="filtered",
                         input_=self,
                         message=message,
-                        dialog=dialog,
                         manager=manager,
+                        aiogd_context_before=manager.middleware_data[CONTEXT_KEY],
+                        aiogd_stack_before=manager.middleware_data[STACK_KEY],
                     )
 
                 return False
@@ -102,12 +106,15 @@ class FormInput(MessageInput, ABC):
                         not_processed_reason="skip_due_validation",
                         input_=self,
                         message=message,
-                        dialog=dialog,
                         manager=manager,
+                        aiogd_context_before=manager.middleware_data[CONTEXT_KEY],
+                        aiogd_stack_before=manager.middleware_data[STACK_KEY],
                     )
 
                 return True
 
+        aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
+        aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
         start = time.perf_counter()
         await self.func.process_event(message, self, manager)
         if self.on_validation_success is not None:
@@ -119,10 +126,12 @@ class FormInput(MessageInput, ABC):
                 processor="form_input_process_message",
                 processed=True,
                 process_time=end - start,
+                not_processed_reason=None,
                 input_=self,
                 message=message,
-                dialog=dialog,
                 manager=manager,
+                aiogd_context_before=aiogd_context_before,
+                aiogd_stack_before=aiogd_stack_before,
             )
 
         return True
