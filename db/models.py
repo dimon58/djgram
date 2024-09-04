@@ -1,7 +1,7 @@
 import datetime
 
 from sqlalchemy import MetaData, func
-from sqlalchemy.orm import Mapped, declared_attr, mapped_column, DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 from sqlalchemy.sql import sqltypes
 
 from djgram.configs import DB_METADATA
