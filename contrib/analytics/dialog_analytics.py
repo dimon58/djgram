@@ -60,13 +60,12 @@ import copy
 import logging
 import time
 from datetime import UTC, datetime
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any, Self
 
 import orjson
 import pydantic
 from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, EventContext
 from aiogram.enums import ContentType
-from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, DialogProtocol
 from aiogram_dialog.api.entities import Context, Stack
@@ -81,6 +80,9 @@ from djgram.contrib.analytics.misc import DIALOG_ANALYTICS_DDL_SQL
 from djgram.db import clickhouse
 from djgram.system_configs import MIDDLEWARE_AUTH_USER_KEY
 from djgram.utils import suppress_decorator_async
+
+if TYPE_CHECKING:
+    from aiogram.fsm.state import State
 
 logger = logging.getLogger("dialog_analytics")
 
@@ -209,7 +211,7 @@ class DialogAnalytics(pydantic.BaseModel):
 
         aiogd_context_state_new: State | None = getattr(aiogd_context_new, "state", None)
         if aiogd_context_state_new is not None:
-            aiogd_context_state_group_name_new = aiogd_context_state_new._group.__full_group_name__
+            aiogd_context_state_group_name_new = aiogd_context_state_new._group.__full_group_name__  # noqa: SLF001
         else:
             aiogd_context_state_group_name_new = None
 
@@ -238,7 +240,7 @@ class DialogAnalytics(pydantic.BaseModel):
             aiogd_context_intent_id=aiogd_context_before.id,
             aiogd_context_stack_id=aiogd_context_before.stack_id,
             aiogd_context_state=aiogd_context_before.state.state,
-            aiogd_context_state_group_name=aiogd_context_before.state._group.__full_group_name__,
+            aiogd_context_state_group_name=aiogd_context_before.state._group.__full_group_name__,  # noqa: SLF001
             aiogd_context_start_data=orjson.dumps(aiogd_context_before.start_data),
             aiogd_context_dialog_data=orjson.dumps(aiogd_context_before.dialog_data),
             aiogd_context_widget_data=orjson.dumps(aiogd_context_before.widget_data),

@@ -2,13 +2,12 @@ import copy
 import time
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import phonenumbers
 from aiogram.enums import ContentType
 from aiogram.types import Message
 from aiogram_dialog import DialogManager, DialogProtocol
-from aiogram_dialog.api.entities import Context, Stack
 from aiogram_dialog.api.internal import CONTEXT_KEY, STACK_KEY
 from aiogram_dialog.widgets.input import MessageInput
 
@@ -21,6 +20,9 @@ from .validators import (
     FormInputValidator,
     PhoneNumberValidator,
 )
+
+if TYPE_CHECKING:
+    from aiogram_dialog.api.entities import Context, Stack
 
 
 class FormInput(MessageInput, ABC):
