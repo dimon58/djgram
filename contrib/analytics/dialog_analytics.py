@@ -11,7 +11,7 @@ Todo: улучшить взаимодействие с наследниками 
 - [ ] SwitchInlineQuery
 
 
-- [ ] Calendar
+- [x] Calendar
 
 - [ ] BaseCheckbox
 - [ ] Checkbox
@@ -58,7 +58,7 @@ Todo: улучшить взаимодействие с наследниками 
 import asyncio
 import logging
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Any, Self
 
 import orjson
 import pydantic
@@ -66,7 +66,7 @@ from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, Event
 from aiogram.types import CallbackQuery
 from aiogram_dialog import DialogManager, DialogProtocol
 from aiogram_dialog.api.internal import CALLBACK_DATA_KEY, CONTEXT_KEY, STACK_KEY
-from aiogram_dialog.widgets.kbd import Keyboard
+from aiogram_dialog.widgets.kbd import Calendar, Keyboard
 from pydantic import ConfigDict
 
 from djgram.configs import ANALYTICS_DIALOG_TABLE
@@ -76,7 +76,6 @@ from djgram.system_configs import MIDDLEWARE_AUTH_USER_KEY
 
 if TYPE_CHECKING:
     from aiogram_dialog.api.entities import Context, Stack
-
 
 logger = logging.getLogger("dialog_analytics")
 
@@ -101,11 +100,15 @@ class DialogAnalytics(pydantic.BaseModel):
     telegram_business_connection_id: int | None
     user_id: int
 
-    # User info
+    # Widget info
     states_group_name: str
     widget_id: str
     widget_type: str
     widget_text: str | None
+    # Additional widget info
+    calendar_user_config_firstweekday: int | None = None
+    calendar_user_config_timezone_name: str | None = None
+    calendar_user_config_timezone_offset: int | None = None
 
     aiogd_original_callback_data: str
 
@@ -197,7 +200,28 @@ class DialogAnalytics(pydantic.BaseModel):
             aiogd_stack_last_income_media_group_id=aiogd_stack.last_income_media_group_id,
         )
 
-    async def save_to_clickhouse(self):
+    async def extend_from_calendar(
+        self,
+        calendar: Calendar,
+        widget_data: dict[str, Any],
+        manager: DialogManager,
+    ) -> None:
+        # noinspection PyProtectedMember
+        calendar_user_config = await calendar._get_user_config(widget_data, manager)  # noqa: SLF001
+
+        self.calendar_user_config_firstweekday = calendar_user_config.firstweekday
+        self.calendar_user_config_timezone_name = calendar_user_config.timezone.tzname(None)
+        self.calendar_user_config_timezone_offset = calendar_user_config.timezone.utcoffset(None).seconds
+
+    async def extend_from(self, keyboard: Keyboard, manager: DialogManager) -> None:
+
+        aiogd_context: Context = manager.middleware_data[CONTEXT_KEY]
+
+        if isinstance(keyboard, Calendar):
+            await self.extend_from_calendar(keyboard, aiogd_context.widget_data, manager)
+            return
+
+    async def save_to_clickhouse(self) -> None:
         task = asyncio.create_task(clickhouse.safe_insert_dict(ANALYTICS_DIALOG_TABLE, self.model_dump(mode="python")))
         task.add_done_callback(_pending_tasks.remove)
         _pending_tasks.add(task)
@@ -211,6 +235,8 @@ async def save_statistics(
     manager: DialogManager,
 ):
     dialog_analytics = DialogAnalytics.from_callback(processor, keyboard, callback, dialog, manager)
+    await dialog_analytics.extend_from(keyboard, manager)
+
     await dialog_analytics.save_to_clickhouse()
     logger.debug(
         "User %s in chat %s clicked on %s in dialog %s (state %s)",

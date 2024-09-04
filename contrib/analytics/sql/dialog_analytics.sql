@@ -14,11 +14,15 @@ CREATE TABLE IF NOT EXISTS dialog_analytics
     `telegram_business_connection_id`           Nullable(Int64),
     `user_id`                                   Int64,
 
-    -- User info
+    -- Widget info
     `states_group_name`                         String,
     `widget_id`                                 String,
     `widget_type`                               String,
     `widget_text`                               Nullable(String),
+    -- Additional widget info
+    `calendar_user_config_firstweekday`         Nullable(Int8),
+    `calendar_user_config_timezone_name`        LowCardinality(Nullable(String)),
+    `calendar_user_config_timezone_offset`      Nullable(Int32),
 
     `aiogd_original_callback_data`              String,
 
