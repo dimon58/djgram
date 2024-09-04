@@ -1,19 +1,23 @@
 import datetime
 
 from sqlalchemy import MetaData, func
-from sqlalchemy.orm import Mapped, as_declarative, declared_attr, mapped_column
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column, DeclarativeBase
 from sqlalchemy.sql import sqltypes
 
 from djgram.configs import DB_METADATA
 from djgram.utils import utcnow
 
 
-@as_declarative()
-class BaseModel:
+class Base(DeclarativeBase):
+    metadata = DB_METADATA or MetaData()
+
+
+class BaseModel(Base):
     """
     Абстрактная базовая модель с id
     """
 
+    __abstract__ = True
     metadata = DB_METADATA or MetaData()
 
     id: Mapped[int] = mapped_column(
