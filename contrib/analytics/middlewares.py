@@ -87,16 +87,7 @@ async def save_event_to_clickhouse(
         bot=bot,
     )
 
-    try:
-        async with clickhouse.connection() as clickhouse_connection:
-            return await clickhouse.insert_dict(clickhouse_connection, ANALYTICS_UPDATES_TABLE, data)
-
-    # pylint: disable=broad-exception-caught
-    except Exception as exc:
-        logger.exception(
-            "Inserting in clickhouse error: %s: %s", exc.__class__.__name__, exc, exc_info=exc  # noqa: TRY401
-        )
-        return None
+    return await clickhouse.safe_insert_dict(ANALYTICS_UPDATES_TABLE, data)
 
 
 class SaveUpdateToClickHouseMiddleware(BaseMiddleware):

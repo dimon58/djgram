@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from collections.abc import AsyncGenerator, Iterable
 from contextlib import asynccontextmanager
 from typing import Any
@@ -8,6 +9,8 @@ from asynch import connect
 from asynch.connection import Connection
 
 from djgram import configs
+
+logger = logging.getLogger(__name__)
 
 
 def monkey_patch_asynch() -> None:
@@ -21,6 +24,8 @@ def monkey_patch_asynch() -> None:
         await self.string_column.write_items(items)
 
     JsonColumn.write_items = write_items
+
+    logger.info("asynch JsonColumn patched")
 
 
 monkey_patch_asynch()
@@ -77,6 +82,24 @@ async def insert_dict(client: Connection, table_name: str, data: dict[str, Any])
     values = (tuple(data.values()),)
     async with client.cursor() as cursor:
         return await cursor.execute(sql, values)
+
+
+# pylint: disable=too-few-public-methods
+async def safe_insert_dict(table_name: str, data: dict[str, Any]) -> int | None:
+    """
+    Вставляет словарь в clickhouse без вызова исключения
+    """
+
+    try:
+        async with connection() as clickhouse_connection:
+            return await insert_dict(clickhouse_connection, table_name, data)
+
+    # pylint: disable=broad-exception-caught
+    except Exception as exc:
+        logger.exception(
+            "Inserting in clickhouse error: %s: %s", exc.__class__.__name__, exc, exc_info=exc  # noqa: TRY401
+        )
+        return None
 
 
 async def run_sql(sql: str) -> None:
