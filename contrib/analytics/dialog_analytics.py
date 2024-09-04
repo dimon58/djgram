@@ -66,6 +66,7 @@ import orjson
 import pydantic
 from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, EventContext
 from aiogram.enums import ContentType
+from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, DialogProtocol
 from aiogram_dialog.api.entities import Context, Stack
@@ -111,7 +112,6 @@ class DialogAnalytics(pydantic.BaseModel):
     user_id: int | None = None
 
     # Widget info
-    states_group_name: str
     # Если отправить сообщение, когда в текущем состоянии диалога нет виджета ввода,
     # тогда отправляется в виртуальный MessageInput с widget_id = None
     widget_id: str | None = None
@@ -128,6 +128,7 @@ class DialogAnalytics(pydantic.BaseModel):
     aiogd_context_intent_id: str
     aiogd_context_stack_id: str
     aiogd_context_state: str
+    aiogd_context_state_group_name: str
     aiogd_context_start_data: str
     aiogd_context_dialog_data: str
     aiogd_context_widget_data: str
@@ -147,6 +148,7 @@ class DialogAnalytics(pydantic.BaseModel):
     aiogd_context_intent_id_new: str | None = None
     aiogd_context_stack_id_new: str | None = None
     aiogd_context_state_new: str | None = None
+    aiogd_context_state_group_name_new: str | None = None
     aiogd_context_start_data_new: str | None = None
     aiogd_context_dialog_data_new: str | None = None
     aiogd_context_widget_data_new: str | None = None
@@ -196,7 +198,6 @@ class DialogAnalytics(pydantic.BaseModel):
         widget: Actionable,
         callback: CallbackQuery | None,
         message: Message | None,
-        dialog: DialogProtocol,
         manager: DialogManager,
         aiogd_context_before: Context,
         aiogd_stack_before: Stack,
@@ -206,6 +207,13 @@ class DialogAnalytics(pydantic.BaseModel):
         aiogd_context_new: Context = manager.middleware_data[CONTEXT_KEY]
         aiogd_stack_new: Stack = manager.middleware_data[STACK_KEY]
 
+        aiogd_context_state_new: State | None = getattr(aiogd_context_new, "state", None)
+        if aiogd_context_state_new is not None:
+            aiogd_context_state_group_name_new = aiogd_context_state_new._group.__full_group_name__
+        else:
+            aiogd_context_state_group_name_new = None
+
+        # noinspection PyProtectedMember
         return cls(
             date=datetime.now(tz=UTC),
             update_id=manager.middleware_data["event_update"].update_id,
@@ -222,7 +230,6 @@ class DialogAnalytics(pydantic.BaseModel):
             telegram_business_connection_id=event_context.business_connection_id,
             user_id=cls.get_user_id(manager),
             # Widget info
-            states_group_name=dialog.states_group_name(),
             widget_id=widget.widget_id,
             widget_type=type(widget).__name__,
             widget_text=cls.get_widget_text(callback, manager),
@@ -231,6 +238,7 @@ class DialogAnalytics(pydantic.BaseModel):
             aiogd_context_intent_id=aiogd_context_before.id,
             aiogd_context_stack_id=aiogd_context_before.stack_id,
             aiogd_context_state=aiogd_context_before.state.state,
+            aiogd_context_state_group_name=aiogd_context_before.state._group.__full_group_name__,
             aiogd_context_start_data=orjson.dumps(aiogd_context_before.start_data),
             aiogd_context_dialog_data=orjson.dumps(aiogd_context_before.dialog_data),
             aiogd_context_widget_data=orjson.dumps(aiogd_context_before.widget_data),
@@ -247,7 +255,8 @@ class DialogAnalytics(pydantic.BaseModel):
             # Нового контекста может не быть, например когда пользователь кликнул кнопку завершить
             aiogd_context_intent_id_new=getattr(aiogd_context_new, "id", None),
             aiogd_context_stack_id_new=getattr(aiogd_context_new, "stack_id", None),
-            aiogd_context_state_new=getattr(getattr(aiogd_context_new, "state", None), "state", None),
+            aiogd_context_state_new=getattr(aiogd_context_state_new, "state", None),
+            aiogd_context_state_group_name_new=aiogd_context_state_group_name_new,
             aiogd_context_start_data_new=orjson.dumps(getattr(aiogd_context_new, "start_data", None)),
             aiogd_context_dialog_data_new=orjson.dumps(getattr(aiogd_context_new, "dialog_data", None)),
             aiogd_context_widget_data_new=orjson.dumps(getattr(aiogd_context_new, "widget_data", None)),
@@ -288,14 +297,13 @@ class DialogAnalytics(pydantic.BaseModel):
         _pending_tasks.add(task)
 
 
-@suppress_decorator_async(Exception)
+@suppress_decorator_async(Exception, logging_level=logging.ERROR)
 async def save_keyboard_statistics(
     processor: str,
     processed: bool,
     process_time: float,
     keyboard: Keyboard,
     callback: CallbackQuery,
-    dialog: DialogProtocol,
     manager: DialogManager,
     aiogd_context_before: Context,
     aiogd_stack_before: Stack,
@@ -308,7 +316,6 @@ async def save_keyboard_statistics(
         widget=keyboard,
         callback=callback,
         message=None,
-        dialog=dialog,
         manager=manager,
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,
@@ -350,7 +357,6 @@ async def keyboard_process_callback(
             process_time=end - start,
             keyboard=self,
             callback=callback,
-            dialog=dialog,
             manager=manager,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
@@ -376,7 +382,6 @@ async def keyboard_process_callback(
             process_time=end - start,
             keyboard=self,
             callback=callback,
-            dialog=dialog,
             manager=manager,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
@@ -390,7 +395,7 @@ def patch_keyboard():
     Keyboard.process_callback = keyboard_process_callback
 
 
-@suppress_decorator_async(Exception)
+@suppress_decorator_async(Exception, logging_level=logging.ERROR)
 async def save_input_statistics(
     processor: str,
     processed: bool,
@@ -398,7 +403,6 @@ async def save_input_statistics(
     not_processed_reason: str | None,
     input_: BaseInput,
     message: Message,
-    dialog: DialogProtocol,
     manager: DialogManager,
     aiogd_context_before: Context,
     aiogd_stack_before: Stack,
@@ -411,7 +415,6 @@ async def save_input_statistics(
         widget=input_,
         callback=None,
         message=message,
-        dialog=dialog,
         manager=manager,
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,
@@ -460,7 +463,6 @@ async def message_input_process_message(
         not_processed_reason=None if processed else "filtered",
         input_=self,
         message=message,
-        dialog=dialog,
         manager=manager,
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,
@@ -486,7 +488,6 @@ async def text_input_process_message(
             not_processed_reason="wrong content type",
             input_=self,
             message=message,
-            dialog=dialog,
             manager=manager,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
@@ -505,7 +506,6 @@ async def text_input_process_message(
             not_processed_reason="filtered",
             input_=self,
             message=message,
-            dialog=dialog,
             manager=manager,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
@@ -539,7 +539,6 @@ async def text_input_process_message(
         not_processed_reason=None,
         input_=self,
         message=message,
-        dialog=dialog,
         manager=manager,
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,

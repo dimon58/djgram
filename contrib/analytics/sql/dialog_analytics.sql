@@ -19,7 +19,6 @@ CREATE TABLE IF NOT EXISTS dialog_analytics
     `user_id`                                   Nullable(Int64),
 
     -- Widget info
-    `states_group_name`                         String,
     -- Если отправить сообщение, когда в текущем состоянии диалога нет виджета ввода,
     -- тогда отправляется в виртуальный MessageInput с widget_id = None
     `widget_id`                                 Nullable(String),
@@ -36,6 +35,7 @@ CREATE TABLE IF NOT EXISTS dialog_analytics
     `aiogd_context_intent_id`                   String,
     `aiogd_context_stack_id`                    String,
     `aiogd_context_state`                       String,
+    `aiogd_context_state_group_name`            String,
     `aiogd_context_start_data`                  String,
     `aiogd_context_dialog_data`                 String,
     `aiogd_context_widget_data`                 String,
@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS dialog_analytics
     `aiogd_context_intent_id_new`                   Nullable(String),
     `aiogd_context_stack_id_new`                    Nullable(String),
     `aiogd_context_state_new`                       Nullable(String),
+    `aiogd_context_state_group_name_new`            Nullable(String),
     `aiogd_context_start_data_new`                  Nullable(String),
     `aiogd_context_dialog_data_new`                 Nullable(String),
     `aiogd_context_widget_data_new`                 Nullable(String),
