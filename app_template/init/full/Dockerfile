@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt install -y --no-install-recommends graphviz \
   # Cleanup apt cache
   && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /var/[log,tmp]/* /tmp/* /var/lib/apt/lists/*
 
 ENV PYTHONFAULTHANDLER=1
 ENV PYTHONUNBUFFERED=1
