@@ -97,7 +97,7 @@
     <trace_log remove="1"></trace_log>
 <!--    <query_thread_log remove="1"></query_thread_log>-->
 <!--    <query_views_log remove="1"></query_views_log>-->
-<!--    <part_log remove="1"></part_log>-->
+    <part_log remove="1"></part_log>
 <!--    <text_log remove="1"></text_log>-->
 <!--    <metric_log remove="1"></metric_log>-->
 <!--    <error_log remove="1"></error_log>-->
