@@ -5,7 +5,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 from sqlalchemy.sql import sqltypes
 
 from djgram.configs import DB_METADATA
-from djgram.utils import utcnow
+from djgram.utils.misc import utcnow
 
 
 class Base(DeclarativeBase):
