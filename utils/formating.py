@@ -1,10 +1,14 @@
-from datetime import timedelta
+from collections.abc import Callable
+from datetime import date, datetime, timedelta
 
-from service.utils import MINUTES_IN_HOUR
+MINUTES_IN_HOUR = 60
 
 SECONDS_IN_MINUTE = 60
 SECONDS_IN_HOUR = MINUTES_IN_HOUR * SECONDS_IN_MINUTE
 HOURS_IN_DAY = 24
+SECONDS_IN_DAY = HOURS_IN_DAY * SECONDS_IN_HOUR
+DAYS_IN_WEEK = 7
+SECONDS_IN_WEEK = DAYS_IN_WEEK * SECONDS_IN_DAY
 
 
 def __bytes_format(size: float, digits: int = 0) -> float | int:
@@ -25,88 +29,102 @@ def get_bytes_size_format(size: float, digits: int = 2) -> str:
     return f"{__bytes_format(size, digits)} YB"
 
 
-def get_day_word(days: int) -> str:
+def get_default_word_builder(
+    word_0: str,
+    word_1: str,
+    word_234: str,
+) -> Callable[[int], str]:
     """
-    Возвращает слово "день" согласованное с числом days
+    Создаёт функции для постановки существительного в нужное число
 
-    0 - дней
-    1 - день
-    2 - дня
-    3 - дня
-    4 - дня
-    5 - дней
-    6 - дней
-    7 - дней
-    8 - дней
-    9 - дней
-    10 - дней
-    11 - дней
-    12 - дней
-    13 - дней
-    14 - дней
-    15 - дней
-    16 - дней
-    17 - дней
-    18 - дней
-    19 - дней
-    20 - дней
-    21 - день
-    22 - дня
+    Например:
+    0 чатов
+    1 чат
+    2 чата
+    3 чата
+    4 чата
+    5 чатов
+    6 чатов
+    7 чатов
+    8 чатов
+    9 чатов
+    10 чатов
+    11 чатов
+    12 чатов
+    13 чатов
+    14 чатов
+    15 чатов
+    16 чатов
+    17 чатов
+    18 чатов
+    19 чатов
+    20 чатов
+    21 чат
     ...
     """
 
-    days %= 100
+    def inner(number: int) -> str:
+        """
+        Ставит слово "чат" в нужное число в зависимости от number. Например:
+        """
+        number %= 100
+        if 5 <= number <= 20:  # noqa: PLR2004
+            return word_0
 
-    if days == 0:
-        return "дней"
+        number %= 10
 
-    if 5 <= days <= 20:  # noqa: PLR2004
-        return "дней"
+        if number == 1:
+            return word_1
 
-    days %= 10
+        if 2 <= number <= 4:  # noqa: PLR2004
+            return word_234
 
-    if days == 1:
-        return "день"
+        return word_0
 
-    if 2 <= days <= 4:  # noqa: PLR2004
-        return "дня"
-
-    return "дней"
+    return inner
 
 
-def seconds_to_human_readable(seconds: float) -> str:
+get_day_word = get_default_word_builder("дней", "день", "дня")
+get_week_word = get_default_word_builder("недель", "неделя", "недели")
+
+
+def seconds_to_human_readable(seconds: int) -> str:
     """
-    Превращает число секунд в строку вида "3 дня 1 ч 15 мин"
+    Возвращает человекочитаемое представление числа секунд в строке вида "3 дня 1 ч 15 мин"
+
+    >>> seconds_to_human_readable(0)
+    '0 сек'
+
+    >>> seconds_to_human_readable(123)
+    '2 мин 3 сек'
+
+    >>> seconds_to_human_readable(7320)
+    '2 ч 2 мин'
+
+    >>> seconds_to_human_readable(86400)
+    '1 день'
+
+    >>> seconds_to_human_readable(1209600)
+    '2 недели'
     """
+    weeks, remainder = divmod(seconds, SECONDS_IN_WEEK)
+    days, remainder = divmod(remainder, SECONDS_IN_DAY)
+    hours, remainder = divmod(remainder, SECONDS_IN_HOUR)
+    minutes, seconds = divmod(remainder, SECONDS_IN_MINUTE)
 
-    seconds = int(seconds)
-
-    if seconds < SECONDS_IN_MINUTE:
-        return str(seconds)
-
-    minutes = seconds // SECONDS_IN_MINUTE
-    hours = minutes // MINUTES_IN_HOUR
-    days = hours // HOURS_IN_DAY
-
-    seconds %= SECONDS_IN_MINUTE
-    minutes %= MINUTES_IN_HOUR
-    hours %= HOURS_IN_DAY
-
-    res = []
-
+    result = []
+    if weeks > 0:
+        result.append(f"{weeks} {get_week_word(weeks)}")
     if days > 0:
-        res.append(f"{days} {get_day_word(days)}")
-
+        result.append(f"{days} {get_day_word(days)}")
     if hours > 0:
-        res.append(f"{hours} ч")
-
+        result.append(f"{hours} ч")
     if minutes > 0:
-        res.append(f"{minutes} мин")
+        result.append(f"{minutes} мин")
+    if seconds > 0 or len(result) == 0:
+        result.append(f"{seconds} сек")
 
-    if seconds > 0:
-        res.append(f"{seconds} сек")
-
-    return " ".join(res)
+    return " ".join(result)
 
 
 def timedelta_to_human_readable(delta: timedelta) -> str:
@@ -114,3 +132,27 @@ def timedelta_to_human_readable(delta: timedelta) -> str:
     Аналогично seconds_to_human_readable, но работает с timedelta
     """
     return seconds_to_human_readable(delta.total_seconds())
+
+
+_month_to_name_rus = [
+    "dummy",
+    "января",
+    "февраля",
+    "марта",
+    "апреля",
+    "мая",
+    "июня",
+    "июля",
+    "августа",
+    "сентября",
+    "октября",
+    "ноября",
+    "декабря",
+]
+
+
+def date_to_human_readable(date_: date | datetime):
+    """
+    Превращает дату в строку вида "6 сентября 2024"
+    """
+    return f"{date_.day} {_month_to_name_rus[date_.month]} {date_.year}"
