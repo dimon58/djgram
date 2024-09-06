@@ -21,7 +21,7 @@ class BaseModel(Base):
     metadata = DB_METADATA or MetaData()
 
     id: Mapped[int] = mapped_column(
-        sqltypes.Integer,
+        sqltypes.BigInteger,
         nullable=False,
         primary_key=True,
         autoincrement=True,
