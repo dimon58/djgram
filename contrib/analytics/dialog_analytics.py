@@ -79,7 +79,7 @@ from djgram.configs import ANALYTICS_DIALOG_TABLE
 from djgram.contrib.analytics.misc import DIALOG_ANALYTICS_DDL_SQL
 from djgram.db import clickhouse
 from djgram.system_configs import MIDDLEWARE_AUTH_USER_KEY
-from djgram.utils import suppress_decorator_async
+from djgram.utils.misc import suppress_decorator_async
 
 if TYPE_CHECKING:
     from aiogram.fsm.state import State
