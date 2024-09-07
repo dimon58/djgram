@@ -30,8 +30,9 @@ class BanUserButton(AbstractObjectActionButton):
         await middleware_data[MIDDLEWARE_DB_SESSION_KEY].commit()
 
         logger.info(
-            "Admin %s banned user %s (%s)",
+            "Admin %s %sbanned user %s (%s)",
             get_admin_representation_for_logging_from_middleware_data(middleware_data),
+            "" if obj.banned else "un",
             obj.id,
             obj.telegram_user.str_for_logging(),
         )
