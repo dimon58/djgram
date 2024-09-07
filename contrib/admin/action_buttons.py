@@ -36,6 +36,17 @@ class AbstractObjectActionButton(abc.ABC):
         self.button_id = button_id
         self.title = title
 
+    # noinspection PyMethodMayBeStatic
+    def should_render(self, obj: BaseModel, middleware_data: dict[str, Any]) -> bool:
+        """
+        Нужно ли рендерить кнопку
+
+        Может быть переопределено для кастомного поведения
+
+        #todo интеграция с magic filter (F)
+        """
+        return True
+
     def get_title(self, obj: BaseModel) -> str:
         """
         Возвращает название кнопки с учётом конкретного объекта
