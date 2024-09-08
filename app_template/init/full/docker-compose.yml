@@ -67,7 +67,8 @@ services:
     extends:
       service: bot
     command: [ "alembic", "upgrade", "head" ]
-    restart: no
+    # Ждём, пока бд запустится окончательно
+    restart: on-failure
 
 volumes:
   redis-data:
