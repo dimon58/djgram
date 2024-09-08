@@ -86,7 +86,7 @@ class FormInput(MessageInput, ABC):
                         not_processed_reason="filtered",
                         input_=self,
                         message=message,
-                        manager=manager,
+                        middleware_data=manager.middleware_data,
                         aiogd_context_before=manager.middleware_data[CONTEXT_KEY],
                         aiogd_stack_before=manager.middleware_data[STACK_KEY],
                     )
@@ -108,7 +108,7 @@ class FormInput(MessageInput, ABC):
                         not_processed_reason="skip_due_validation",
                         input_=self,
                         message=message,
-                        manager=manager,
+                        middleware_data=manager.middleware_data,
                         aiogd_context_before=manager.middleware_data[CONTEXT_KEY],
                         aiogd_stack_before=manager.middleware_data[STACK_KEY],
                     )
@@ -131,7 +131,7 @@ class FormInput(MessageInput, ABC):
                 not_processed_reason=None,
                 input_=self,
                 message=message,
-                manager=manager,
+                middleware_data=manager.middleware_data,
                 aiogd_context_before=aiogd_context_before,
                 aiogd_stack_before=aiogd_stack_before,
             )

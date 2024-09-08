@@ -70,6 +70,7 @@ from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, DialogProtocol
 from aiogram_dialog.api.entities import Context, Stack
 from aiogram_dialog.api.internal import CALLBACK_DATA_KEY, CONTEXT_KEY, STACK_KEY
+from aiogram_dialog.manager.manager_middleware import MANAGER_KEY
 from aiogram_dialog.widgets.common import Actionable
 from aiogram_dialog.widgets.input import BaseInput, MessageInput, TextInput
 from aiogram_dialog.widgets.kbd import Calendar, Keyboard
@@ -165,15 +166,15 @@ class DialogAnalytics(pydantic.BaseModel):
     aiogd_stack_last_income_media_group_id_new: str | None = None
 
     @staticmethod
-    def get_user_id(manager: DialogManager) -> int | None:
-        user = manager.middleware_data[MIDDLEWARE_AUTH_USER_KEY]
+    def get_user_id(middleware_data: dict[str, Any]) -> int | None:
+        user = middleware_data[MIDDLEWARE_AUTH_USER_KEY]
         if user is None:
             return None
 
         return user.id
 
     @staticmethod
-    def get_widget_text(callback: CallbackQuery | None, manager: DialogManager) -> str | None:
+    def get_widget_text(callback: CallbackQuery | None, middleware_data: dict[str, Any]) -> str | None:
 
         if callback is None:
             return None
@@ -181,7 +182,7 @@ class DialogAnalytics(pydantic.BaseModel):
         if (reply_markup := callback.message.reply_markup) is None:
             return None
 
-        aiogd_original_callback_data = manager.middleware_data[CALLBACK_DATA_KEY]
+        aiogd_original_callback_data = middleware_data[CALLBACK_DATA_KEY]
 
         for row in reply_markup.inline_keyboard:
             for button in row:
@@ -200,14 +201,14 @@ class DialogAnalytics(pydantic.BaseModel):
         widget: Actionable,
         callback: CallbackQuery | None,
         message: Message | None,
-        manager: DialogManager,
+        middleware_data: dict[str, Any],
         aiogd_context_before: Context,
         aiogd_stack_before: Stack,
     ) -> Self:
-        event_context: EventContext = manager.middleware_data[EVENT_CONTEXT_KEY]
+        event_context: EventContext = middleware_data[EVENT_CONTEXT_KEY]
 
-        aiogd_context_new: Context = manager.middleware_data[CONTEXT_KEY]
-        aiogd_stack_new: Stack = manager.middleware_data[STACK_KEY]
+        aiogd_context_new: Context = middleware_data[CONTEXT_KEY]
+        aiogd_stack_new: Stack = middleware_data[STACK_KEY]
 
         aiogd_context_state_new: State | None = getattr(aiogd_context_new, "state", None)
         if aiogd_context_state_new is not None:
@@ -218,7 +219,7 @@ class DialogAnalytics(pydantic.BaseModel):
         # noinspection PyProtectedMember
         return cls(
             date=datetime.now(tz=UTC),
-            update_id=manager.middleware_data["event_update"].update_id,
+            update_id=middleware_data["event_update"].update_id,
             callback_query=callback.model_dump_json(exclude_unset=True) if callback is not None else None,
             message=message.model_dump_json(exclude_unset=True) if message is not None else None,
             processor=processor,
@@ -230,12 +231,12 @@ class DialogAnalytics(pydantic.BaseModel):
             telegram_chat_id=event_context.chat_id,
             telegram_thread_id=event_context.thread_id,
             telegram_business_connection_id=event_context.business_connection_id,
-            user_id=cls.get_user_id(manager),
+            user_id=cls.get_user_id(middleware_data),
             # Widget info
             widget_id=widget.widget_id,
             widget_type=type(widget).__name__,
-            widget_text=cls.get_widget_text(callback, manager),
-            aiogd_original_callback_data=manager.middleware_data.get(CALLBACK_DATA_KEY),
+            widget_text=cls.get_widget_text(callback, middleware_data),
+            aiogd_original_callback_data=middleware_data.get(CALLBACK_DATA_KEY),
             # aiogram_dialog.api.entities.Context
             aiogd_context_intent_id=aiogd_context_before.id,
             aiogd_context_stack_id=aiogd_context_before.stack_id,
@@ -285,12 +286,13 @@ class DialogAnalytics(pydantic.BaseModel):
         self.calendar_user_config_timezone_name = calendar_user_config.timezone.tzname(None)
         self.calendar_user_config_timezone_offset = calendar_user_config.timezone.utcoffset(None).seconds
 
-    async def extend_from(self, keyboard: Keyboard, manager: DialogManager) -> None:
+    async def extend_from(self, keyboard: Keyboard, middleware_data: dict[str, Any]) -> None:
 
-        aiogd_context: Context = manager.middleware_data[CONTEXT_KEY]
+        aiogd_context: Context = middleware_data[CONTEXT_KEY]
+        dialog_manager: DialogManager = middleware_data[MANAGER_KEY]
 
         if isinstance(keyboard, Calendar):
-            await self.extend_from_calendar(keyboard, aiogd_context.widget_data, manager)
+            await self.extend_from_calendar(keyboard, aiogd_context.widget_data, dialog_manager)
             return
 
     async def save_to_clickhouse(self) -> None:
@@ -306,7 +308,7 @@ async def save_keyboard_statistics(
     process_time: float,
     keyboard: Keyboard,
     callback: CallbackQuery,
-    manager: DialogManager,
+    middleware_data: dict[str, Any],
     aiogd_context_before: Context,
     aiogd_stack_before: Stack,
 ):
@@ -318,11 +320,11 @@ async def save_keyboard_statistics(
         widget=keyboard,
         callback=callback,
         message=None,
-        manager=manager,
+        middleware_data=middleware_data,
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,
     )
-    await dialog_analytics.extend_from(keyboard, manager)
+    await dialog_analytics.extend_from(keyboard, middleware_data)
 
     await dialog_analytics.save_to_clickhouse()
     logger.info(
@@ -359,7 +361,7 @@ async def keyboard_process_callback(
             process_time=end - start,
             keyboard=self,
             callback=callback,
-            manager=manager,
+            middleware_data=manager.middleware_data,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
         )
@@ -384,7 +386,7 @@ async def keyboard_process_callback(
             process_time=end - start,
             keyboard=self,
             callback=callback,
-            manager=manager,
+            middleware_data=manager.middleware_data,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
         )
@@ -405,7 +407,7 @@ async def save_input_statistics(
     not_processed_reason: str | None,
     input_: BaseInput,
     message: Message,
-    manager: DialogManager,
+    middleware_data: dict[str, Any],
     aiogd_context_before: Context,
     aiogd_stack_before: Stack,
 ):
@@ -417,7 +419,7 @@ async def save_input_statistics(
         widget=input_,
         callback=None,
         message=message,
-        manager=manager,
+        middleware_data=middleware_data,
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,
     )
@@ -465,7 +467,7 @@ async def message_input_process_message(
         not_processed_reason=None if processed else "filtered",
         input_=self,
         message=message,
-        manager=manager,
+        middleware_data=manager.middleware_data,
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,
     )
@@ -490,7 +492,7 @@ async def text_input_process_message(
             not_processed_reason="wrong content type",
             input_=self,
             message=message,
-            manager=manager,
+            middleware_data=manager.middleware_data,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
         )
@@ -508,7 +510,7 @@ async def text_input_process_message(
             not_processed_reason="filtered",
             input_=self,
             message=message,
-            manager=manager,
+            middleware_data=manager.middleware_data,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
         )
@@ -541,7 +543,7 @@ async def text_input_process_message(
         not_processed_reason=None,
         input_=self,
         message=message,
-        manager=manager,
+        middleware_data=manager.middleware_data,
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,
     )

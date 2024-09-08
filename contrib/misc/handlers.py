@@ -40,7 +40,7 @@ async def cancel_handler(message: Message, state: FSMContext, dialog_manager: Di
                 not_processed_reason=None,
                 input_=MessageInput(None),
                 message=message,
-                manager=dialog_manager,
+                middleware_data=dialog_manager.middleware_data,
                 aiogd_context_before=aiogd_context_before,
                 aiogd_stack_before=aiogd_stack_before,
             )
