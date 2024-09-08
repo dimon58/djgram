@@ -8,11 +8,12 @@ from collections.abc import Sequence
 from contextlib import suppress
 from dataclasses import dataclass
 from dataclasses import field as dc_field
-from typing import ClassVar, TypeVar
+from typing import Any, ClassVar, TypeVar
 
-from sqlalchemy import ColumnElement, func, or_, select
+from sqlalchemy import ColumnElement, func, or_, select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import sqltypes
+from sqlalchemy.sql._typing import _ColumnExpressionOrStrLabelArgument
 
 from djgram.configs import ADMIN_ROWS_PER_PAGE
 from djgram.db.models import BaseModel
@@ -33,6 +34,9 @@ class ModelAdmin:
     """
 
     model: ClassVar[type[BaseModel]]  # Модель в которой есть id
+    ordering: ClassVar[
+        _ColumnExpressionOrStrLabelArgument[Any] | Sequence[_ColumnExpressionOrStrLabelArgument[Any]] | None
+    ] = desc("id")
     name: ClassVar[str] = ""  # Название
     list_display: ClassVar[Sequence[str]] = []  # Список колонок для показа при предпросмотре
     search_fields: ClassVar[Sequence[str]] = []  # Список полей, по которым производиться поиск

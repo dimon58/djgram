@@ -97,7 +97,7 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
         stmt = stmt.where(query_filter)
         total_stmt = total_stmt.where(query_filter)
 
-    stmt = stmt.order_by(model_admin.model.id.desc()).offset(app.rows_per_page * page).limit(app.rows_per_page)
+    stmt = stmt.order_by(model_admin.ordering).offset(app.rows_per_page * page).limit(app.rows_per_page)
     rows = (await db_session.scalars(stmt)).all()
     total = cast(int, await db_session.scalar(total_stmt))
 
