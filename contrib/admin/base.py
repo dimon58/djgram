@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from dataclasses import field as dc_field
 from typing import Any, ClassVar, TypeVar
 
-from sqlalchemy import ColumnElement, func, or_, select, desc
+from sqlalchemy import ColumnElement, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import sqltypes
 from sqlalchemy.sql._typing import _ColumnExpressionOrStrLabelArgument
