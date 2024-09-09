@@ -1,7 +1,7 @@
 """
 Геттеры для диалогов
 """
-
+import html
 import logging
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
@@ -71,7 +71,7 @@ async def get_models(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
 
     return {
         MODELS_KEY: models,
-        APPS_NAME_KEY: app_admin.verbose_name,
+        APPS_NAME_KEY: html.escape(app_admin.verbose_name),
     }
 
 
@@ -139,8 +139,8 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
 
     return {
         ROWS_KEY: rows,
-        APPS_NAME_KEY: app.verbose_name,
-        MODEL_NAME_KEY: model_admin.name,
+        APPS_NAME_KEY: html.escape(app.verbose_name),
+        MODEL_NAME_KEY: html.escape(model_admin.name),
         HEADER_KEY: "│".join(model_admin.list_display),
         DEFAULT_TOTAL_KEY: total,
         UNITS_KEY: units,
@@ -153,9 +153,9 @@ async def get_search_description(dialog_manager: DialogManager, **kwargs) -> dic
     model_admin = app.admin_models[dialog_manager.dialog_data[MODEL_ID_KEY]]
 
     return {
-        APPS_NAME_KEY: app.verbose_name,
-        MODEL_NAME_KEY: model_admin.name,
-        DESCRIPTION_KEY: "Поиск по полям:\n- " + "\n- ".join(model_admin.search_fields),
+        APPS_NAME_KEY: html.escape(app.verbose_name),
+        MODEL_NAME_KEY: html.escape(model_admin.name),
+        DESCRIPTION_KEY: html.escape("Поиск по полям:\n- " + "\n- ".join(model_admin.search_fields)),
     }
 
 
@@ -189,10 +189,10 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, A
     if obj is None:
         logger.error("Not found %s with id = %s", model, row_id)
         return {
-            OBJECT_NAME_KEY: f"{model.__name__}<{row_id}>",
+            OBJECT_NAME_KEY: html.escape(f"{model.__name__}<{row_id}>"),
             TEXT_KEY: "NOT FOUND",
-            APPS_NAME_KEY: app.verbose_name,
-            MODEL_NAME_KEY: model_admin.name,
+            APPS_NAME_KEY: html.escape(app.verbose_name),
+            MODEL_NAME_KEY: html.escape(model_admin.name),
         }
 
     text = []
@@ -203,10 +203,10 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, A
 
     text = "\n".join(text)
     return {
-        OBJECT_NAME_KEY: str(obj),
+        OBJECT_NAME_KEY: html.escape(str(obj)),
         TEXT_KEY: text,
-        APPS_NAME_KEY: app.verbose_name,
-        MODEL_NAME_KEY: model_admin.name,
+        APPS_NAME_KEY: html.escape(app.verbose_name),
+        MODEL_NAME_KEY: html.escape(model_admin.name),
         FILE_BUTTONS_KEY: [
             (button.button_id, button.get_title(obj))
             for button in model_admin.object_action_buttons
