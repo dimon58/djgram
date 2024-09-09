@@ -18,8 +18,10 @@ from redis.asyncio.client import Redis
 from configs import (
     LOGGING_CONFIG,
     REDIS_HOST,
+    REDIS_PASSWORD,
     REDIS_PORT,
     REDIS_STORAGE_DB,
+    REDIS_USER,
     TELEGRAM_BOT_TOKEN,
 )
 
@@ -75,7 +77,13 @@ async def main() -> None:
     Точка входа в бота
     """
 
-    redis_for_storage = Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_STORAGE_DB)
+    redis_for_storage = Redis(
+        host=REDIS_HOST,
+        port=REDIS_PORT,
+        username=REDIS_USER,
+        password=REDIS_PASSWORD,
+        db=REDIS_STORAGE_DB,
+    )
 
     storage = RedisStorage(redis_for_storage, key_builder=DefaultKeyBuilder(with_destiny=True))
 

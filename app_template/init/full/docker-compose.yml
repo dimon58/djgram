@@ -1,11 +1,12 @@
 services:
   redis:
     image: redis:7.2-alpine
-    command: --port ${REDIS_PORT:-6379}
+    command: /usr/local/etc/redis/run.sh
     hostname: redis
     restart: always
     volumes:
       - redis-data:/data
+      - ./docker/redis:/usr/local/etc/redis
     ports:
       - "${REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
     env_file:

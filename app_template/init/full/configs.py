@@ -49,10 +49,10 @@ CLICKHOUSE_DB: str = os.environ.get("CLICKHOUSE_DB", "default")  # pyright: igno
 CLICKHOUSE_USER: str = os.environ.get("CLICKHOUSE_USER", "default")  # pyright: ignore [reportAssignmentType]
 CLICKHOUSE_PASSWORD: str = os.environ.get("CLICKHOUSE_PASSWORD", "")  # pyright: ignore [reportAssignmentType]
 
-#: Redis host
 REDIS_HOST: str = os.environ.get("REDIS_HOST", "localhost")  # pyright: ignore [reportAssignmentType]
-#: Redis port
 REDIS_PORT: int = int(os.environ.get("REDIS_PORT", 6379))  # pyright: ignore [reportArgumentType]
+REDIS_USER: str | None = os.environ.get("REDIS_USER")
+REDIS_PASSWORD: str | None = os.environ.get("REDIS_PASSWORD")
 
 #: Номер базы данных для хранилища машины конченых состояний
 REDIS_STORAGE_DB: int = int(os.environ.get("REDIS_STORAGE_DB", 0))  # pyright: ignore [reportArgumentType]
