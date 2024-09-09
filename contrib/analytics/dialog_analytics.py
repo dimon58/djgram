@@ -60,12 +60,13 @@ import copy
 import logging
 import time
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, Self
+from typing import Any, Self
 
 import orjson
 import pydantic
 from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, EventContext
 from aiogram.enums import ContentType
+from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, DialogProtocol
 from aiogram_dialog.api.entities import Context, Stack
@@ -81,9 +82,6 @@ from djgram.contrib.analytics.misc import DIALOG_ANALYTICS_DDL_SQL
 from djgram.db import clickhouse
 from djgram.system_configs import MIDDLEWARE_AUTH_USER_KEY
 from djgram.utils.misc import suppress_decorator_async
-
-if TYPE_CHECKING:
-    from aiogram.fsm.state import State
 
 logger = logging.getLogger("dialog_analytics")
 
@@ -128,19 +126,19 @@ class DialogAnalytics(pydantic.BaseModel):
     aiogd_original_callback_data: str | None = None
 
     # aiogram_dialog.api.entities.Context
-    aiogd_context_intent_id: str
-    aiogd_context_stack_id: str
-    aiogd_context_state: str
-    aiogd_context_state_group_name: str
-    aiogd_context_start_data: str
-    aiogd_context_dialog_data: str
-    aiogd_context_widget_data: str
+    aiogd_context_intent_id: str | None = None
+    aiogd_context_stack_id: str | None = None
+    aiogd_context_state: str | None = None
+    aiogd_context_state_group_name: str | None = None
+    aiogd_context_start_data: str | None = None
+    aiogd_context_dialog_data: str | None = None
+    aiogd_context_widget_data: str | None = None
 
     # aiogram_dialog.api.entities.Stack
-    aiogd_stack_id: str
+    aiogd_stack_id: str | None = None
     aiogd_stack_intents: list[str]
     aiogd_stack_last_message_id: int | None = None
-    aiogd_stack_last_reply_keyboard: bool
+    aiogd_stack_last_reply_keyboard: bool | None = None
     aiogd_stack_last_media_id: str | None = None
     aiogd_stack_last_media_unique_id: str | None = None
     aiogd_stack_last_income_media_group_id: str | None = None
@@ -157,10 +155,10 @@ class DialogAnalytics(pydantic.BaseModel):
     aiogd_context_widget_data_new: str | None = None
 
     # aiogram_dialog.api.entities.Stack
-    aiogd_stack_id_new: str
+    aiogd_stack_id_new: str | None = None
     aiogd_stack_intents_new: list[str]
     aiogd_stack_last_message_id_new: int | None = None
-    aiogd_stack_last_reply_keyboard_new: bool
+    aiogd_stack_last_reply_keyboard_new: bool | None = None
     aiogd_stack_last_media_id_new: str | None = None
     aiogd_stack_last_media_unique_id_new: str | None = None
     aiogd_stack_last_income_media_group_id_new: str | None = None
@@ -191,6 +189,13 @@ class DialogAnalytics(pydantic.BaseModel):
 
         return None
 
+    @staticmethod
+    def get_aiogd_context_group_name(aiogd_context_state: State | None) -> str | None:
+        if aiogd_context_state is not None:
+            return aiogd_context_state._group.__full_group_name__  # noqa: SLF001
+
+        return None
+
     @classmethod
     def from_event(
         cls,
@@ -198,23 +203,20 @@ class DialogAnalytics(pydantic.BaseModel):
         processed: bool,
         process_time: float | None,
         not_processed_reason: str | None,
-        widget: Actionable,
+        widget: Actionable | None,
         callback: CallbackQuery | None,
         message: Message | None,
         middleware_data: dict[str, Any],
-        aiogd_context_before: Context,
-        aiogd_stack_before: Stack,
+        aiogd_context_before: Context | None,
+        aiogd_stack_before: Stack | None,
     ) -> Self:
         event_context: EventContext = middleware_data[EVENT_CONTEXT_KEY]
 
         aiogd_context_new: Context = middleware_data[CONTEXT_KEY]
         aiogd_stack_new: Stack = middleware_data[STACK_KEY]
 
+        aiogd_context_state_before: State | None = getattr(aiogd_context_before, "state", None)
         aiogd_context_state_new: State | None = getattr(aiogd_context_new, "state", None)
-        if aiogd_context_state_new is not None:
-            aiogd_context_state_group_name_new = aiogd_context_state_new._group.__full_group_name__  # noqa: SLF001
-        else:
-            aiogd_context_state_group_name_new = None
 
         # noinspection PyProtectedMember
         return cls(
@@ -233,44 +235,45 @@ class DialogAnalytics(pydantic.BaseModel):
             telegram_business_connection_id=event_context.business_connection_id,
             user_id=cls.get_user_id(middleware_data),
             # Widget info
-            widget_id=widget.widget_id,
+            widget_id=getattr(widget, "widget_id", None),
             widget_type=type(widget).__name__,
             widget_text=cls.get_widget_text(callback, middleware_data),
             aiogd_original_callback_data=middleware_data.get(CALLBACK_DATA_KEY),
             # aiogram_dialog.api.entities.Context
-            aiogd_context_intent_id=aiogd_context_before.id,
-            aiogd_context_stack_id=aiogd_context_before.stack_id,
-            aiogd_context_state=aiogd_context_before.state.state,
-            aiogd_context_state_group_name=aiogd_context_before.state._group.__full_group_name__,  # noqa: SLF001
-            aiogd_context_start_data=orjson.dumps(aiogd_context_before.start_data),
-            aiogd_context_dialog_data=orjson.dumps(aiogd_context_before.dialog_data),
-            aiogd_context_widget_data=orjson.dumps(aiogd_context_before.widget_data),
+            # Контекста может не быть, когда взаимодействие происходит вне aiogram-dialog
+            aiogd_context_intent_id=getattr(aiogd_context_before, "id", None),
+            aiogd_context_stack_id=getattr(aiogd_context_before, "stack_id", None),
+            aiogd_context_state=getattr(aiogd_context_state_before, "state", None),
+            aiogd_context_state_group_name=cls.get_aiogd_context_group_name(aiogd_context_state_before),
+            aiogd_context_start_data=orjson.dumps(getattr(aiogd_context_before, "start_data", None)),
+            aiogd_context_dialog_data=orjson.dumps(getattr(aiogd_context_before, "dialog_data", None)),
+            aiogd_context_widget_data=orjson.dumps(getattr(aiogd_context_before, "widget_data", None)),
             # aiogram_dialog.api.entities.Stack
-            aiogd_stack_id=aiogd_stack_before.id,
-            aiogd_stack_intents=aiogd_stack_before.intents,
-            aiogd_stack_last_message_id=aiogd_stack_before.last_message_id,
-            aiogd_stack_last_reply_keyboard=aiogd_stack_before.last_reply_keyboard,
-            aiogd_stack_last_media_id=aiogd_stack_before.last_media_id,
-            aiogd_stack_last_media_unique_id=aiogd_stack_before.last_media_unique_id,
-            aiogd_stack_last_income_media_group_id=aiogd_stack_before.last_income_media_group_id,
+            aiogd_stack_id=getattr(aiogd_stack_before, "id", None),
+            aiogd_stack_intents=getattr(aiogd_stack_before, "intents", []),
+            aiogd_stack_last_message_id=getattr(aiogd_stack_before, "last_message_id", None),
+            aiogd_stack_last_reply_keyboard=getattr(aiogd_stack_before, "last_reply_keyboard", None),
+            aiogd_stack_last_media_id=getattr(aiogd_stack_before, "last_media_id", None),
+            aiogd_stack_last_media_unique_id=getattr(aiogd_stack_before, "last_media_unique_id", None),
+            aiogd_stack_last_income_media_group_id=getattr(aiogd_stack_before, "last_income_media_group_id", None),
             # После выполнения кода обработчика
             # aiogram_dialog.api.entities.Context
             # Нового контекста может не быть, например когда пользователь кликнул кнопку завершить
             aiogd_context_intent_id_new=getattr(aiogd_context_new, "id", None),
             aiogd_context_stack_id_new=getattr(aiogd_context_new, "stack_id", None),
             aiogd_context_state_new=getattr(aiogd_context_state_new, "state", None),
-            aiogd_context_state_group_name_new=aiogd_context_state_group_name_new,
+            aiogd_context_state_group_name_new=cls.get_aiogd_context_group_name(aiogd_context_state_new),
             aiogd_context_start_data_new=orjson.dumps(getattr(aiogd_context_new, "start_data", None)),
             aiogd_context_dialog_data_new=orjson.dumps(getattr(aiogd_context_new, "dialog_data", None)),
             aiogd_context_widget_data_new=orjson.dumps(getattr(aiogd_context_new, "widget_data", None)),
             # aiogram_dialog.api.entities.Stack
-            aiogd_stack_id_new=aiogd_stack_new.id,
-            aiogd_stack_intents_new=aiogd_stack_new.intents,
-            aiogd_stack_last_message_id_new=aiogd_stack_new.last_message_id,
-            aiogd_stack_last_reply_keyboard_new=aiogd_stack_new.last_reply_keyboard,
-            aiogd_stack_last_media_id_new=aiogd_stack_new.last_media_id,
-            aiogd_stack_last_media_unique_id_new=aiogd_stack_new.last_media_unique_id,
-            aiogd_stack_last_income_media_group_id_new=aiogd_stack_new.last_income_media_group_id,
+            aiogd_stack_id_new=getattr(aiogd_stack_new, "id", None),
+            aiogd_stack_intents_new=getattr(aiogd_stack_new, "intents", []),
+            aiogd_stack_last_message_id_new=getattr(aiogd_stack_new, "last_message_id", None),
+            aiogd_stack_last_reply_keyboard_new=getattr(aiogd_stack_new, "last_reply_keyboard", None),
+            aiogd_stack_last_media_id_new=getattr(aiogd_stack_new, "last_media_id", None),
+            aiogd_stack_last_media_unique_id_new=getattr(aiogd_stack_new, "last_media_unique_id", None),
+            aiogd_stack_last_income_media_group_id_new=getattr(aiogd_stack_new, "last_income_media_group_id", None),
         )
 
     async def extend_from_calendar(
@@ -289,7 +292,7 @@ class DialogAnalytics(pydantic.BaseModel):
     async def extend_from(self, keyboard: Keyboard, middleware_data: dict[str, Any]) -> None:
 
         aiogd_context: Context = middleware_data[CONTEXT_KEY]
-        dialog_manager: DialogManager = middleware_data[MANAGER_KEY]
+        dialog_manager = middleware_data.get(MANAGER_KEY)
 
         if isinstance(keyboard, Calendar):
             await self.extend_from_calendar(keyboard, aiogd_context.widget_data, dialog_manager)
@@ -306,11 +309,11 @@ async def save_keyboard_statistics(
     processor: str,
     processed: bool,
     process_time: float,
-    keyboard: Keyboard,
+    keyboard: Keyboard | None,
     callback: CallbackQuery,
     middleware_data: dict[str, Any],
-    aiogd_context_before: Context,
-    aiogd_stack_before: Stack,
+    aiogd_context_before: Context | None,
+    aiogd_stack_before: Stack | None,
 ):
     dialog_analytics = DialogAnalytics.from_event(
         processor=processor,
@@ -324,7 +327,8 @@ async def save_keyboard_statistics(
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,
     )
-    await dialog_analytics.extend_from(keyboard, middleware_data)
+    if keyboard is not None:
+        await dialog_analytics.extend_from(keyboard, middleware_data)
 
     await dialog_analytics.save_to_clickhouse()
     logger.info(
@@ -405,11 +409,11 @@ async def save_input_statistics(
     processed: bool,
     process_time: float | None,
     not_processed_reason: str | None,
-    input_: BaseInput,
+    input_: BaseInput | None,
     message: Message,
     middleware_data: dict[str, Any],
-    aiogd_context_before: Context,
-    aiogd_stack_before: Stack,
+    aiogd_context_before: Context | None,
+    aiogd_stack_before: Stack | None,
 ):
     dialog_analytics = DialogAnalytics.from_event(
         processor=processor,

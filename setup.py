@@ -8,7 +8,11 @@ from aiogram_dialog.api.internal import DialogManagerFactory
 
 from djgram.contrib.admin import router as admin_router
 from djgram.contrib.analytics.dialog_analytics import setup_dialog_analytics
-from djgram.contrib.analytics.middlewares import SaveUpdateToClickHouseMiddleware
+from djgram.contrib.analytics.middlewares import (
+    DialogAnalyticsInnerCallbackQueryMiddleware,
+    DialogAnalyticsInnerMessageMiddleware,
+    SaveUpdateToClickHouseMiddleware,
+)
 from djgram.contrib.auth.middlewares import AuthMiddleware
 from djgram.contrib.communication import router as communication_router
 from djgram.contrib.limits.limiter import patch_bot_with_limiter
@@ -68,5 +72,8 @@ def setup_djgram(
 
     if analytics:
         setup_dialog_analytics()
+
+        dp.message.middleware(DialogAnalyticsInnerMessageMiddleware())
+        dp.callback_query.middleware(DialogAnalyticsInnerCallbackQueryMiddleware())
 
     logger.info("djgram setup")

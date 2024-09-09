@@ -3,21 +3,30 @@
 """
 
 import asyncio
+import copy
 import logging
+import time
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from time import perf_counter
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 import orjson
 from aiogram import BaseMiddleware, Bot
 from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, EventContext, UserContextMiddleware
-from aiogram.types import Update
+from aiogram.types import CallbackQuery, Message, Update
+from aiogram_dialog import DialogProtocol
+from aiogram_dialog.api.entities import Context, Stack
+from aiogram_dialog.api.internal import CONTEXT_KEY, STACK_KEY
 
 from djgram.configs import ANALYTICS_UPDATES_TABLE
-from djgram.contrib.analytics.misc import UPDATE_DDL_SQL
 from djgram.db import clickhouse
 
+from .dialog_analytics import save_input_statistics, save_keyboard_statistics
+from .misc import UPDATE_DDL_SQL
+
+T = TypeVar("T")
+V = TypeVar("V")
 CONTENT_TYPE_KEY = "content_type"
 logger = logging.getLogger(__name__)
 
@@ -135,3 +144,96 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
         self.pending_tasks.add(task)
 
         return result
+
+
+class DialogAnalyticsInnerMiddleware(BaseMiddleware, Generic[T]):
+    """
+    Сохраняет действия пользователя в диалоге
+    """
+
+    @classmethod
+    async def save_statistics(
+        cls,
+        process_time: float,
+        event: T,
+        middleware_data: dict[str, Any],
+        aiogd_stack_before: Stack | None,
+        aiogd_context_before: Context | None,
+    ) -> None:
+        raise NotImplementedError
+
+    async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
+        self,
+        handler: Callable[[T, dict[str, Any]], Awaitable[V]],
+        event: T,
+        data: dict[str, Any],
+    ) -> V:
+        # Находились в диалоге -> событие сохраниться с помощью
+        # contrib.analytics.dialog_analytics.keyboard_process_callback
+        event_handler = data["handler"].callback
+        if hasattr(event_handler, "__self__") and isinstance(event_handler.__self__, DialogProtocol):
+            return await handler(event, data)
+
+        aiogd_stack_before: Stack | None = copy.deepcopy(data.get(STACK_KEY))
+        aiogd_context_before: Context | None = copy.deepcopy(data.get(CONTEXT_KEY))
+
+        start = time.perf_counter()
+        result = await handler(event, data)
+        end = time.perf_counter()
+
+        await self.save_statistics(
+            process_time=end - start,
+            event=event,
+            middleware_data=data,
+            aiogd_stack_before=aiogd_stack_before,
+            aiogd_context_before=aiogd_context_before,
+        )
+
+        return result
+
+
+class DialogAnalyticsInnerMessageMiddleware(DialogAnalyticsInnerMiddleware[Message]):
+
+    @classmethod
+    async def save_statistics(
+        cls,
+        process_time: float,
+        event: Message,
+        middleware_data: dict[str, Any],
+        aiogd_stack_before: Stack | None,
+        aiogd_context_before: Context | None,
+    ) -> None:
+        await save_input_statistics(
+            processor=cls.__name__,
+            processed=True,
+            process_time=process_time,
+            not_processed_reason=None,
+            input_=None,
+            message=event,
+            middleware_data=middleware_data,
+            aiogd_context_before=aiogd_context_before,
+            aiogd_stack_before=aiogd_stack_before,
+        )
+
+
+class DialogAnalyticsInnerCallbackQueryMiddleware(DialogAnalyticsInnerMiddleware[CallbackQuery]):
+
+    @classmethod
+    async def save_statistics(
+        cls,
+        process_time: float,
+        event: CallbackQuery,
+        middleware_data: dict[str, Any],
+        aiogd_stack_before: Stack | None,
+        aiogd_context_before: Context | None,
+    ) -> None:
+        await save_keyboard_statistics(
+            processor=cls.__name__,
+            processed=True,
+            process_time=process_time,
+            keyboard=None,
+            callback=event,
+            middleware_data=middleware_data,
+            aiogd_context_before=aiogd_context_before,
+            aiogd_stack_before=aiogd_stack_before,
+        )

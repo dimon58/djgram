@@ -32,19 +32,20 @@ CREATE TABLE IF NOT EXISTS dialog_analytics
     `aiogd_original_callback_data`              Nullable(String),
 
     -- aiogram_dialog.api.entities.Context
-    `aiogd_context_intent_id`                   String,
-    `aiogd_context_stack_id`                    String,
-    `aiogd_context_state`                       String,
-    `aiogd_context_state_group_name`            String,
-    `aiogd_context_start_data`                  String,
-    `aiogd_context_dialog_data`                 String,
-    `aiogd_context_widget_data`                 String,
+    `aiogd_context_intent_id`                   Nullable(String),
+    `aiogd_context_stack_id`                    Nullable(String),
+    `aiogd_context_state`                       Nullable(String),
+    `aiogd_context_state_group_name`            Nullable(String),
+    `aiogd_context_start_data`                  Nullable(String),
+    `aiogd_context_dialog_data`                 Nullable(String),
+    `aiogd_context_widget_data`                 Nullable(String),
 
     -- aiogram_dialog.api.entities.Stack
-    `aiogd_stack_id`                            String,
+    -- Контекста может не быть, когда взаимодействие происходит вне aiogram-dialog
+    `aiogd_stack_id`                            Nullable(String),
     `aiogd_stack_intents`                       Array(String),
     `aiogd_stack_last_message_id`               Nullable(Int64),
-    `aiogd_stack_last_reply_keyboard`           Boolean,
+    `aiogd_stack_last_reply_keyboard`           Nullable(Boolean),
     `aiogd_stack_last_media_id`                 Nullable(String),
     `aiogd_stack_last_media_unique_id`          Nullable(String),
     `aiogd_stack_last_income_media_group_id`    Nullable(String),
@@ -61,10 +62,10 @@ CREATE TABLE IF NOT EXISTS dialog_analytics
     `aiogd_context_widget_data_new`                 Nullable(String),
 
     -- aiogram_dialog.api.entities.Stack
-    `aiogd_stack_id_new`                            String,
+    `aiogd_stack_id_new`                            Nullable(String),
     `aiogd_stack_intents_new`                       Array(String),
     `aiogd_stack_last_message_id_new`               Nullable(Int64),
-    `aiogd_stack_last_reply_keyboard_new`           Boolean,
+    `aiogd_stack_last_reply_keyboard_new`           Nullable(Boolean),
     `aiogd_stack_last_media_id_new`                 Nullable(String),
     `aiogd_stack_last_media_unique_id_new`          Nullable(String),
     `aiogd_stack_last_income_media_group_id_new`    Nullable(String)
