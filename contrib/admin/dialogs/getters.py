@@ -185,12 +185,11 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, A
     """
 
     app, model, model_admin, obj, row_id = await get_admin_object_detail_context(dialog_manager)
-    object_name = f"[{row_id}] {model.__name__}"
 
     if obj is None:
         logger.error("Not found %s with id = %s", model, row_id)
         return {
-            OBJECT_NAME_KEY: object_name,
+            OBJECT_NAME_KEY: f"{model.__name__}<{row_id}>",
             TEXT_KEY: "NOT FOUND",
             APPS_NAME_KEY: app.verbose_name,
             MODEL_NAME_KEY: model_admin.name,
@@ -204,7 +203,7 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, A
 
     text = "\n".join(text)
     return {
-        OBJECT_NAME_KEY: object_name,
+        OBJECT_NAME_KEY: str(obj),
         TEXT_KEY: text,
         APPS_NAME_KEY: app.verbose_name,
         MODEL_NAME_KEY: model_admin.name,

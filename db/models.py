@@ -29,7 +29,10 @@ class BaseModel(Base):
     )
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}(id={self.id!r})>"
+        """
+        Отображается в админке
+        """
+        return f"{self.__class__.__name__}<{self.id!r}>"
 
     # pylint: disable=no-self-argument
     # noinspection PyMethodParameters,SpellCheckingInspection
