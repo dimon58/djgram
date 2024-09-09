@@ -1,6 +1,7 @@
 """
 Геттеры для диалогов
 """
+
 import html
 import logging
 from typing import TYPE_CHECKING, Any, TypeVar, cast
@@ -33,7 +34,7 @@ MODEL_NAME_KEY = "model_name"
 OBJECT_NAME_KEY = "object_name"
 
 TEXT_KEY = "text"
-FILE_BUTTONS_KEY = "file_buttons"
+OBJECT_ACTION_BUTTONS_KEY = "object_action_buttons"
 
 ROWS_KEY = "rows"
 HEADER_KEY = "header"
@@ -207,7 +208,7 @@ async def get_row_detail(dialog_manager: DialogManager, **kwargs) -> dict[str, A
         TEXT_KEY: text,
         APPS_NAME_KEY: html.escape(app.verbose_name),
         MODEL_NAME_KEY: html.escape(model_admin.name),
-        FILE_BUTTONS_KEY: [
+        OBJECT_ACTION_BUTTONS_KEY: [
             (button.button_id, button.get_title(obj))
             for button in model_admin.object_action_buttons
             if button.should_render(obj, dialog_manager.middleware_data)

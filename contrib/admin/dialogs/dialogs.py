@@ -164,7 +164,7 @@ admin_dialog = Dialog(
                 Format("{item[1]}"),
                 id="object_action_button_id",
                 item_id_getter=operator.itemgetter(0),
-                items=getters.FILE_BUTTONS_KEY,
+                items=getters.OBJECT_ACTION_BUTTONS_KEY,
                 on_click=handle_object_action_button,
             )
         ),
