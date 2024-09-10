@@ -256,8 +256,8 @@ class DialogAnalytics(pydantic.BaseModel):
             widget_type=type(widget).__name__,
             widget_text=cls.get_widget_text(callback, middleware_data),
             # FSM state
-            state=state_before,
-            state_new=state_new,
+            state=state_before or getattr(aiogd_context_state_before, "state", None),
+            state_new=state_new or getattr(aiogd_context_state_new, "state", None),
             aiogd_original_callback_data=middleware_data.get(CALLBACK_DATA_KEY),
             # aiogram_dialog.api.entities.Context
             # Контекста может не быть, когда взаимодействие происходит вне aiogram-dialog
