@@ -24,34 +24,12 @@ from djgram.db import clickhouse
 
 from .dialog_analytics import save_input_statistics, save_keyboard_statistics
 from .misc import UPDATE_DDL_SQL
+from .utils import set_defaults
 
 T = TypeVar("T")
 V = TypeVar("V")
 CONTENT_TYPE_KEY = "content_type"
 logger = logging.getLogger(__name__)
-
-try:
-    # noinspection PyUnresolvedReferences
-    from aiogram.client.default import Default
-
-    def set_defaults(data: dict, bot: Bot) -> dict:
-        """
-        Устанавливает все значения defaults в данных
-        """
-
-        for key, value in data.items():
-            if isinstance(value, Default):
-                data[key] = bot.default[value.name]
-
-            elif isinstance(value, dict):
-                data[key] = set_defaults(value, bot)
-
-        return data
-
-except ImportError:
-
-    def set_defaults(data: dict, bot: Bot) -> dict:
-        return data
 
 
 def get_update_dict_for_clickhouse(
