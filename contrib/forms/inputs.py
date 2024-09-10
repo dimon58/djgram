@@ -87,6 +87,7 @@ class FormInput(MessageInput, ABC):
                         input_=self,
                         message=message,
                         middleware_data=manager.middleware_data,
+                        state_before=await manager.middleware_data["state"].get_state(),
                         aiogd_context_before=manager.middleware_data[CONTEXT_KEY],
                         aiogd_stack_before=manager.middleware_data[STACK_KEY],
                     )
@@ -109,6 +110,7 @@ class FormInput(MessageInput, ABC):
                         input_=self,
                         message=message,
                         middleware_data=manager.middleware_data,
+                        state_before=await manager.middleware_data["state"].get_state(),
                         aiogd_context_before=manager.middleware_data[CONTEXT_KEY],
                         aiogd_stack_before=manager.middleware_data[STACK_KEY],
                     )
@@ -117,6 +119,7 @@ class FormInput(MessageInput, ABC):
 
         aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
         aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
+        state_before: str | None = await manager.middleware_data["state"].get_state()
         start = time.perf_counter()
         await self.func.process_event(message, self, manager)
         if self.on_validation_success is not None:
@@ -132,6 +135,7 @@ class FormInput(MessageInput, ABC):
                 input_=self,
                 message=message,
                 middleware_data=manager.middleware_data,
+                state_before=state_before,
                 aiogd_context_before=aiogd_context_before,
                 aiogd_stack_before=aiogd_stack_before,
             )

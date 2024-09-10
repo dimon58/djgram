@@ -10,6 +10,10 @@ CREATE TABLE IF NOT EXISTS dialog_analytics
     `processed`                                 Boolean,
     `process_time`                              Nullable(Float32),
     `not_processed_reason`                      Nullable(String),
+    `command_prefix`                            Nullable(String),
+    `command_command`                           Nullable(String),
+    `command_mention`                           Nullable(String),
+    `command_args`                              Nullable(String),
 
     -- User info
     `telegram_user_id`                          Nullable(Int64),
@@ -28,6 +32,10 @@ CREATE TABLE IF NOT EXISTS dialog_analytics
     `calendar_user_config_firstweekday`         Nullable(Int8),
     `calendar_user_config_timezone_name`        LowCardinality(Nullable(String)),
     `calendar_user_config_timezone_offset`      Nullable(Int32),
+
+    -- FSM state
+    `state`                                     Nullable(String),
+    `state_new`                                 Nullable(String),
 
     `aiogd_original_callback_data`              Nullable(String),
 

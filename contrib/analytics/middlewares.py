@@ -135,6 +135,7 @@ class DialogAnalyticsInnerMiddleware(BaseMiddleware, Generic[T]):
         process_time: float,
         event: T,
         middleware_data: dict[str, Any],
+        state_before: str | None,
         aiogd_stack_before: Stack | None,
         aiogd_context_before: Context | None,
     ) -> None:
@@ -154,6 +155,7 @@ class DialogAnalyticsInnerMiddleware(BaseMiddleware, Generic[T]):
 
         aiogd_stack_before: Stack | None = copy.deepcopy(data.get(STACK_KEY))
         aiogd_context_before: Context | None = copy.deepcopy(data.get(CONTEXT_KEY))
+        state_before: str | None = await data["state"].get_state()
 
         start = time.perf_counter()
         result = await handler(event, data)
@@ -163,6 +165,7 @@ class DialogAnalyticsInnerMiddleware(BaseMiddleware, Generic[T]):
             process_time=end - start,
             event=event,
             middleware_data=data,
+            state_before=state_before,
             aiogd_stack_before=aiogd_stack_before,
             aiogd_context_before=aiogd_context_before,
         )
@@ -178,6 +181,7 @@ class DialogAnalyticsInnerMessageMiddleware(DialogAnalyticsInnerMiddleware[Messa
         process_time: float,
         event: Message,
         middleware_data: dict[str, Any],
+        state_before: str | None,
         aiogd_stack_before: Stack | None,
         aiogd_context_before: Context | None,
     ) -> None:
@@ -189,6 +193,7 @@ class DialogAnalyticsInnerMessageMiddleware(DialogAnalyticsInnerMiddleware[Messa
             input_=None,
             message=event,
             middleware_data=middleware_data,
+            state_before=state_before,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
         )
@@ -202,6 +207,7 @@ class DialogAnalyticsInnerCallbackQueryMiddleware(DialogAnalyticsInnerMiddleware
         process_time: float,
         event: CallbackQuery,
         middleware_data: dict[str, Any],
+        state_before: str | None,
         aiogd_stack_before: Stack | None,
         aiogd_context_before: Context | None,
     ) -> None:
@@ -212,6 +218,7 @@ class DialogAnalyticsInnerCallbackQueryMiddleware(DialogAnalyticsInnerMiddleware
             keyboard=None,
             callback=event,
             middleware_data=middleware_data,
+            state_before=state_before,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
         )

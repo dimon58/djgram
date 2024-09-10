@@ -66,6 +66,7 @@ import orjson
 import pydantic
 from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, EventContext
 from aiogram.enums import ContentType
+from aiogram.filters import CommandObject
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, DialogProtocol
@@ -104,6 +105,10 @@ class DialogAnalytics(pydantic.BaseModel):
     processed: bool
     process_time: float | None = None
     not_processed_reason: str | None = None
+    command_prefix: str | None = None
+    command_command: str | None = None
+    command_mention: str | None = None
+    command_args: str | None = None
 
     # User info
     telegram_user_id: int | None = None
@@ -122,6 +127,10 @@ class DialogAnalytics(pydantic.BaseModel):
     calendar_user_config_firstweekday: int | None = None
     calendar_user_config_timezone_name: str | None = None
     calendar_user_config_timezone_offset: int | None = None
+
+    # FSM state
+    state: str | None = None
+    state_new: str | None = None
 
     aiogd_original_callback_data: str | None = None
 
@@ -207,6 +216,8 @@ class DialogAnalytics(pydantic.BaseModel):
         callback: CallbackQuery | None,
         message: Message | None,
         middleware_data: dict[str, Any],
+        state_before: str | None,
+        state_new: str | None,
         aiogd_context_before: Context | None,
         aiogd_stack_before: Stack | None,
     ) -> Self:
@@ -218,6 +229,8 @@ class DialogAnalytics(pydantic.BaseModel):
         aiogd_context_state_before: State | None = getattr(aiogd_context_before, "state", None)
         aiogd_context_state_new: State | None = getattr(aiogd_context_new, "state", None)
 
+        command: CommandObject | None = middleware_data.get("command")
+
         # noinspection PyProtectedMember
         return cls(
             date=datetime.now(tz=UTC),
@@ -228,6 +241,10 @@ class DialogAnalytics(pydantic.BaseModel):
             processed=processed,
             process_time=process_time,
             not_processed_reason=not_processed_reason,
+            command_prefix=command.prefix if command is not None else None,
+            command_command=command.command if command is not None else None,
+            command_mention=command.mention if command is not None else None,
+            command_args=command.args if command is not None else None,
             # User info
             telegram_user_id=event_context.user_id,
             telegram_chat_id=event_context.chat_id,
@@ -238,6 +255,9 @@ class DialogAnalytics(pydantic.BaseModel):
             widget_id=getattr(widget, "widget_id", None),
             widget_type=type(widget).__name__,
             widget_text=cls.get_widget_text(callback, middleware_data),
+            # FSM state
+            state=state_before,
+            state_new=state_new,
             aiogd_original_callback_data=middleware_data.get(CALLBACK_DATA_KEY),
             # aiogram_dialog.api.entities.Context
             # Контекста может не быть, когда взаимодействие происходит вне aiogram-dialog
@@ -312,6 +332,7 @@ async def save_keyboard_statistics(
     keyboard: Keyboard | None,
     callback: CallbackQuery,
     middleware_data: dict[str, Any],
+    state_before: str | None,
     aiogd_context_before: Context | None,
     aiogd_stack_before: Stack | None,
 ):
@@ -324,6 +345,8 @@ async def save_keyboard_statistics(
         callback=callback,
         message=None,
         middleware_data=middleware_data,
+        state_before=state_before,
+        state_new=await middleware_data["state"].get_state(),
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,
     )
@@ -351,6 +374,7 @@ async def keyboard_process_callback(
     if callback.data == self.widget_id:
         aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
         aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
+        state_before: str | None = await manager.middleware_data["state"].get_state()
 
         start = time.perf_counter()
         processed = await self._process_own_callback(
@@ -366,6 +390,7 @@ async def keyboard_process_callback(
             keyboard=self,
             callback=callback,
             middleware_data=manager.middleware_data,
+            state_before=state_before,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
         )
@@ -375,6 +400,7 @@ async def keyboard_process_callback(
     if prefix and callback.data.startswith(prefix):
         aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
         aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
+        state_before: str | None = await manager.middleware_data["state"].get_state()
 
         start = time.perf_counter()
         processed = await self._process_item_callback(
@@ -391,6 +417,7 @@ async def keyboard_process_callback(
             keyboard=self,
             callback=callback,
             middleware_data=manager.middleware_data,
+            state_before=state_before,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
         )
@@ -412,6 +439,7 @@ async def save_input_statistics(
     input_: BaseInput | None,
     message: Message,
     middleware_data: dict[str, Any],
+    state_before: str | None,
     aiogd_context_before: Context | None,
     aiogd_stack_before: Stack | None,
 ):
@@ -424,6 +452,8 @@ async def save_input_statistics(
         callback=None,
         message=message,
         middleware_data=middleware_data,
+        state_before=state_before,
+        state_new=await middleware_data["state"].get_state(),
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,
     )
@@ -456,6 +486,7 @@ async def message_input_process_message(
 
     aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
     aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
+    state_before: str | None = await manager.middleware_data["state"].get_state()
 
     if processed:
         start = time.perf_counter()
@@ -472,6 +503,7 @@ async def message_input_process_message(
         input_=self,
         message=message,
         middleware_data=manager.middleware_data,
+        state_before=state_before,
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,
     )
@@ -487,6 +519,7 @@ async def text_input_process_message(
 ) -> bool:
     aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
     aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
+    state_before: str | None = await manager.middleware_data["state"].get_state()
 
     if message.content_type != ContentType.TEXT:
         await save_input_statistics(
@@ -497,6 +530,7 @@ async def text_input_process_message(
             input_=self,
             message=message,
             middleware_data=manager.middleware_data,
+            state_before=state_before,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
         )
@@ -515,6 +549,7 @@ async def text_input_process_message(
             input_=self,
             message=message,
             middleware_data=manager.middleware_data,
+            state_before=state_before,
             aiogd_context_before=aiogd_context_before,
             aiogd_stack_before=aiogd_stack_before,
         )
@@ -548,6 +583,7 @@ async def text_input_process_message(
         input_=self,
         message=message,
         middleware_data=manager.middleware_data,
+        state_before=state_before,
         aiogd_context_before=aiogd_context_before,
         aiogd_stack_before=aiogd_stack_before,
     )
