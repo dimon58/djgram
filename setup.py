@@ -7,6 +7,7 @@ from aiogram_dialog import setup_dialogs
 from aiogram_dialog.api.internal import DialogManagerFactory
 
 from djgram.contrib.admin import router as admin_router
+from djgram.contrib.analytics.bot_answer_analytics import setup_bot_answer_analytics
 from djgram.contrib.analytics.dialog_analytics import setup_dialog_analytics
 from djgram.contrib.analytics.middlewares import (
     DialogAnalyticsInnerCallbackQueryMiddleware,
@@ -72,6 +73,7 @@ def setup_djgram(
 
     if analytics:
         setup_dialog_analytics()
+        setup_bot_answer_analytics()
 
         dp.message.middleware(DialogAnalyticsInnerMessageMiddleware())
         dp.callback_query.middleware(DialogAnalyticsInnerCallbackQueryMiddleware())

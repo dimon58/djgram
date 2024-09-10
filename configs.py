@@ -27,6 +27,8 @@ TELEGRAM_CHAT_FULL_INFO_UPDATE_PERIOD = timedelta(hours=1)
 ANALYTICS_UPDATES_TABLE = "update"
 #: Таблица в clickhouse, в которую сохраняется статистика работы aiogram-dialog
 ANALYTICS_DIALOG_TABLE = "dialog_analytics"
+#: Таблица в clickhouse, в которую сохраняется статистика отправки ботом сообщений
+ANALYTICS_BOT_SEND_TABLE = "bot_send_analytics"
 #: Таблица в clickhouse, в которую сохраняется общая статистика локального сервера
 ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_GENERAL_TABLE = "general_statistics"
 #: Таблица в clickhouse, в которую сохраняется статистика по каждому боту, подключенному к локальному серверу
