@@ -140,6 +140,7 @@ class LimitedBot(Bot):
         super().__init__(token=token, session=session, default=default, **kwargs)
 
         self.caller = limiter
+        self.__original__call__ = Bot.__call__
 
     async def _call(
         self, method: TelegramMethod[TelegramType], request_timeout: int | None = None
@@ -155,7 +156,9 @@ class LimitedBot(Bot):
                 await self._retry_after_event.wait()
 
                 # run request
-                coro = self.session(self, method, timeout=request_timeout)  # pyright: ignore [reportArgumentType]
+                coro = self.__original__call__(  # pyright: ignore [reportArgumentType]
+                    method, request_timeout=request_timeout
+                )
                 # if hasattr(method, "chat_id") and not isinstance(method, GetChat):
                 if isinstance(method, SendMessage):
                     return await self.caller.call(method.chat_id, coro)  # pyright: ignore [reportReturnType]
@@ -200,5 +203,5 @@ def patch_bot_with_limiter():
 
     If you want to use non-default limiter setting use LimitedBot class instead of Bot
     """
-
+    Bot.__original__call__ = Bot.__call__
     Bot.__call__ = LimitedBot.__call__  # pyright: ignore [reportAttributeAccessIssue]
