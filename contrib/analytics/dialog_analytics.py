@@ -60,7 +60,7 @@ import copy
 import logging
 import time
 from datetime import UTC, datetime
-from typing import Any, Self
+from typing import TYPE_CHECKING, Any, Self
 
 import orjson
 import pydantic
@@ -76,7 +76,7 @@ from aiogram_dialog.widgets.common import Actionable
 from aiogram_dialog.widgets.input import BaseInput, MessageInput, TextInput
 from aiogram_dialog.widgets.kbd import Calendar, Keyboard
 from pydantic import ConfigDict
-from typing import TYPE_CHECKING
+
 from djgram.configs import ANALYTICS_DIALOG_TABLE
 from djgram.contrib.analytics.misc import DIALOG_ANALYTICS_DDL_SQL
 from djgram.db import clickhouse
