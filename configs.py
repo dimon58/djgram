@@ -43,7 +43,7 @@ ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_AVERAGE_INDEX = 3
 DIALOG_DIAGRAMS_DIR = "dialog_diagrams"
 
 #: Включить генерацию диаграмм диалогов aiogram-dialogs
-ENABLE_DIALOG_DIAGRAMS_GENERATION = True
+ENABLE_DIALOG_DIAGRAMS_GENERATION = False
 
 #: Какое время пользователь считает активным для получения рассылки
 ACTIVE_USER_TIMEOUT = 60 * 60 * 24 * 14

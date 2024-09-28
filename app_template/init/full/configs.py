@@ -23,7 +23,7 @@ TELEGRAM_BOT_TOKEN: str = os.environ.get("TELEGRAM_BOT_TOKEN", "")  # pyright: i
 # Данные для подключения к PostgreSQL
 POSTGRES_HOST: str = os.environ.get("POSTGRES_HOST", "localhost")  # pyright: ignore [reportAssignmentType]
 POSTGRES_PORT: int = int(os.environ.get("POSTGRES_PORT", "5432"))  # pyright: ignore [reportArgumentType]
-POSTGRES_DB: str = os.environ.get("POSTGRES_DB", "local")  # pyright: ignore [reportAssignmentType]
+POSTGRES_DB: str = os.environ.get("POSTGRES_DB", "postgres")  # pyright: ignore [reportAssignmentType]
 POSTGRES_USER: str = os.environ.get("POSTGRES_USER", "admin")  # pyright: ignore [reportAssignmentType]
 POSTGRES_PASSWORD: str = os.environ.get("POSTGRES_PASSWORD", "admin")  # pyright: ignore [reportAssignmentType]
 
