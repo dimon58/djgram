@@ -17,7 +17,7 @@ from .trackable import TrackedList
 from .trackable import TrackedObject
 from .trackable import TrackedPydanticBaseModel
 
-_P = TypeVar("_P", bound='MutablePydanticBaseModel')
+_P = TypeVar("_P", bound="MutablePydanticBaseModel")
 
 
 class MutableList(TrackedList, Mutable, List[_T]):
@@ -91,7 +91,7 @@ class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):
 
     def dict(self, *args, **kwargs):
         res = super().model_dump(*args, **kwargs)
-        res.pop('_parents', None)
+        res.pop("_parents", None)
         return res
 
     @classmethod

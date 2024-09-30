@@ -53,7 +53,7 @@ class TrackedObject:
         elif isinstance(val, list):
             new_val = TrackedList(cls.make_nested_trackable(o, parent) for o in val)
         elif isinstance(val, pydantic.BaseModel) and not isinstance(val, TrackedPydanticBaseModel):
-            model_cls = type('Tracked' + val.__class__.__name__, (TrackedPydanticBaseModel, val.__class__), {})
+            model_cls = type("Tracked" + val.__class__.__name__, (TrackedPydanticBaseModel, val.__class__), {})
             model_cls.__doc__ = (
                 f"This class is composed of `{val.__class__.__name__}` and `TrackedPydanticBaseModel` "
                 "to make it trackable in nested context."

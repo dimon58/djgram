@@ -78,9 +78,7 @@ def user1_2():
 
 @pytest.fixture(scope="function")
 def user1_3():
-    return User(
-        name="foo", schedule=[["meeting", "launch"], ["training", "presentation"], ["breakfast", "consulting"]]
-    )
+    return User(name="foo", schedule=[["meeting", "launch"], ["training", "presentation"], ["breakfast", "consulting"]])
 
 
 @pytest.fixture(scope="function")

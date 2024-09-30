@@ -64,8 +64,8 @@ def test_mutable_dict(session: Session, user1: User):
     # Assert
     assert isinstance(u.addresses, MutableDict)
     assert u.addresses["home"] == {"street": "123 Main Street", "city": "New York"}
-    assert isinstance(u.addresses['home'], TrackedDict)
-    assert isinstance(u.addresses['work'], str)
+    assert isinstance(u.addresses["home"], TrackedDict)
+    assert isinstance(u.addresses["work"], str)
 
 
 def test_mutable_dict_shallow_change(session: Session, user1: User):
