@@ -1,8 +1,8 @@
 Jinja2~=3.1.4
 aiogram-dialog[tools]>=2.0.0,<3.0.0
-aiogram==3.12.0
+aiogram==3.13.1
 asynch[compression]~=0.2.4
-cachetools~=5.4.0
+cachetools~=5.5.0
 clickhouse-cityhash~=1.0.2.4
 click~=8.1.7
 email-validator~=2.2.0
@@ -10,9 +10,9 @@ graphviz~=0.20.3
 humanfriendly~=10.0
 limiter~=0.5.0
 orjson~=3.10.7
-phonenumbers==8.13.44
-pydantic~=2.8.2
+phonenumbers==8.13.46
+pydantic>=2.0.0,<3.0.0
 sqlalchemy-file~=0.6.0
-sqlalchemy-utils==0.41.2
-sqlalchemy~=2.0.32
+sqlalchemy-utils~=0.41.2
+sqlalchemy~=2.0.35
 git+https://github.com/dimon58/SQLAlchemy-Nested-Mutable.git
