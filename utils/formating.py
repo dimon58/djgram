@@ -88,9 +88,12 @@ get_day_word = get_default_word_builder("дней", "день", "дня")
 get_week_word = get_default_word_builder("недель", "неделя", "недели")
 
 
-def seconds_to_human_readable(seconds: int) -> str:
+def seconds_to_human_readable(seconds: float) -> str:
     """
     Возвращает человекочитаемое представление числа секунд в строке вида "3 дня 1 ч 15 мин"
+
+    >>> seconds_to_human_readable(1.5)
+    '0 сек'
 
     >>> seconds_to_human_readable(0)
     '0 сек'
@@ -107,6 +110,11 @@ def seconds_to_human_readable(seconds: int) -> str:
     >>> seconds_to_human_readable(1209600)
     '2 недели'
     """
+
+    ms = round(seconds * 1000)
+    seconds = ms // 1000
+    ms %= 1000
+
     weeks, remainder = divmod(seconds, SECONDS_IN_WEEK)
     days, remainder = divmod(remainder, SECONDS_IN_DAY)
     hours, remainder = divmod(remainder, SECONDS_IN_HOUR)
@@ -121,8 +129,10 @@ def seconds_to_human_readable(seconds: int) -> str:
         result.append(f"{hours} ч")
     if minutes > 0:
         result.append(f"{minutes} мин")
-    if seconds > 0 or len(result) == 0:
+    if ms == 0 and (seconds > 0 or len(result) == 0):
         result.append(f"{seconds} сек")
+    if ms > 0:
+        result.append(f"{ms} мс")
 
     return " ".join(result)
 
