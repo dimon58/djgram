@@ -1,8 +1,13 @@
 import asyncio
+import functools
 import time
 from collections.abc import Awaitable, Callable
+from concurrent.futures import Executor
 from contextlib import suppress
-from typing import Any
+from typing import Any, ParamSpec, TypeVar
+
+T = TypeVar("T")
+P = ParamSpec("P")
 
 
 class PeriodicTask:
@@ -57,3 +62,10 @@ class PeriodicTask:
             await self.func()
             iters += 1
             await asyncio.sleep(first_call + iters * self.period - time.perf_counter())
+
+
+def run_async_wrapper(func: Callable[P, T], executor: Executor) -> Callable[P, Awaitable[T]]:
+    async def inner(*args: P.args, **kwargs: P.kwargs) -> T:
+        return await asyncio.get_running_loop().run_in_executor(executor, functools.partial(func, *args, **kwargs))
+
+    return inner
