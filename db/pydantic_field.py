@@ -5,8 +5,9 @@ from alembic.autogenerate.api import AutogenContext
 from sqlalchemy import JSON
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.sql.type_api import TypeEngine
-from sqlalchemyv2_nested_mutable import TrackedPydanticBaseModel
-from sqlalchemyv2_nested_mutable.mutable import PydanticType
+
+from djgram.db.sqlalchemyv2_nested_mutable import TrackedPydanticBaseModel
+from djgram.db.sqlalchemyv2_nested_mutable.mutable import PydanticType
 
 _T = TypeVar("_T", bound=Any)
 _P = TypeVar("_P", bound=pydantic.BaseModel)

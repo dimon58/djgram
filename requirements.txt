@@ -15,4 +15,3 @@ pydantic>=2.0.0,<3.0.0
 sqlalchemy-file~=0.6.0
 sqlalchemy-utils~=0.41.2
 sqlalchemy~=2.0.35
-git+https://github.com/dimon58/SQLAlchemy-Nested-Mutable.git
