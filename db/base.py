@@ -1,6 +1,6 @@
 from asyncio import current_task
 from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, AbstractAsyncContextManager
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -40,3 +40,21 @@ async def get_async_scoped_session() -> AsyncGenerator[AsyncSession, None]:
             yield db_session
     finally:
         await scoped_factory.remove()
+
+
+@asynccontextmanager
+async def get_autocommit_session(
+    *, begin: bool = True, commit_on_end: bool = True
+) -> AbstractAsyncContextManager[AsyncSession]:
+    async with async_session_maker() as db_session:
+        try:
+            if begin:
+                await db_session.begin()
+
+            yield db_session
+
+            if commit_on_end:
+                await db_session.commit()
+        except Exception:
+            await db_session.rollback()
+            raise

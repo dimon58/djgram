@@ -5,7 +5,7 @@ from typing import Any
 from aiogram import BaseMiddleware
 from aiogram.types import Update
 
-from djgram.db import async_session_maker
+from djgram.db.base import get_autocommit_session
 from djgram.system_configs import MIDDLEWARE_DB_SESSION_KEY
 
 logger = logging.getLogger(__name__)
@@ -31,14 +31,7 @@ class DbSessionMiddleware(BaseMiddleware):
         update: Update,
         data: dict[str, Any],
     ) -> Any:
-        async with async_session_maker() as db_session:
-            await db_session.begin()
-
+        async with get_autocommit_session(commit_on_end=self.commit_on_end) as db_session:
             data[MIDDLEWARE_DB_SESSION_KEY] = db_session
 
-            result = await handler(update, data)
-
-            if self.commit_on_end:
-                await db_session.commit()
-
-            return result
+            return await handler(update, data)
