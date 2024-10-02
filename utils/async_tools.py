@@ -1,7 +1,7 @@
 import asyncio
 import functools
 import time
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Coroutine
 from concurrent.futures import Executor
 from contextlib import suppress
 from typing import Any, ParamSpec, TypeVar
@@ -69,3 +69,15 @@ def run_async_wrapper(func: Callable[P, T], executor: Executor) -> Callable[P, A
         return await asyncio.get_running_loop().run_in_executor(executor, functools.partial(func, *args, **kwargs))
 
     return inner
+
+
+def run_async_in_sync(coro: Coroutine) -> None:
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        try:
+            asyncio.get_running_loop().create_task(coro)
+        except RuntimeError:
+            asyncio.run(coro)
+    else:
+        loop.run_until_complete(coro)
