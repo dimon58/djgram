@@ -61,6 +61,12 @@ class TelegramUser(HasFullNameComponents, TimeTrackableBaseModel):
         doc="Optional. True, if this user added the bot to the attachment menu",
     )
 
+    def get_tg_link(self) -> str:
+        if self.username is not None:
+            return f"https://t.me/{self.username}"
+
+        return f"tg://openmessage?user_id={self.id}"
+
     def get_telegram_href_a_tag(self) -> str:
         """
         Возвращает ссылку на пользователя в виде поддерживаемого тега для сообщения телеграмм
