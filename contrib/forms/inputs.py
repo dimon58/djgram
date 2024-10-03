@@ -189,7 +189,6 @@ class EmailFormInput(TextFormInput):
         on_validation_failure: FormInputValidationCallback | None = None,
         validators: Sequence[FormInputValidator] | None = None,
         filter: Callable[..., Any] | None = None,  # noqa: A002
-        /,  # prior arguments are positional-only
         *,  # subsequent arguments are keyword-only
         allow_smtputf8: bool | None = None,
         allow_empty_local: bool = False,
