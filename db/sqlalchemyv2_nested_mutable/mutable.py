@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import Self, TypeVar
+from typing import TYPE_CHECKING, Self, TypeVar
 
 import sqlalchemy as sa
 from pydantic import BaseModel
@@ -11,6 +10,9 @@ from sqlalchemy.sql.type_api import TypeEngine
 
 from ._typing import _T
 from .trackable import TrackedDict, TrackedList, TrackedObject, TrackedPydanticBaseModel
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 _P = TypeVar("_P", bound="MutablePydanticBaseModel")
 

@@ -17,7 +17,7 @@ class User(Base):
     addresses: Mapped[MutableDict] = mapped_column(MutableDict.as_mutable(JSONB()), default=MutableDict)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def user1():
     return User(
         name="foo",
@@ -28,7 +28,7 @@ def user1():
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def user2():
     return User(
         name="bar",

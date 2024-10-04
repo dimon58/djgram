@@ -57,27 +57,27 @@ def mapper():
     return Base
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def user1_1():
     return User(name="foo", aliases=["bar", "baz"])
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def user1_2():
     return User(name="foo", schedule=[["meeting", "launch"], ["training", "presentation"]])
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def user1_3():
     return User(name="foo", schedule=[["meeting", "launch"], ["training", "presentation"], ["breakfast", "consulting"]])
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def user2_1():
     return UserV2(name="foo", aliases=["bar", "baz"])
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def user2_2():
     return UserV2(name="foo", schedule=[["meeting", "launch"], ["training", "presentation"]])
 

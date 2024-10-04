@@ -6,9 +6,11 @@ from weakref import WeakValueDictionary
 
 import pydantic
 from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.util.typing import SupportsIndex, TypeGuard
 
 from ._typing import _KT, _T, _VT
+
+if TYPE_CHECKING:
+    from sqlalchemy.util.typing import SupportsIndex, TypeGuard
 
 parents_track: WeakValueDictionary[int, Mutable] = WeakValueDictionary()
 
@@ -190,7 +192,7 @@ class TrackedPydanticBaseModel(TrackedObject, Mutable, pydantic.BaseModel):
 
     def __init__(self, **data):
         super().__init__(**data)
-        for field in self.model_fields.keys():
+        for field in self.model_fields:
             setattr(self, field, TrackedObject.make_nested_trackable(getattr(self, field), self))
 
     def __setattr__(self, name, value):

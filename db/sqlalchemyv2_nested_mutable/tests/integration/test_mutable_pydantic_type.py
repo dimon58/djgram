@@ -30,7 +30,7 @@ def mapper():
     return Base
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def user1():
     return User(name="foo", addresses={"preferred": {"street": "bar", "city": "baz", "area": None}})
 

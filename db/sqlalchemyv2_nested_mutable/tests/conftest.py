@@ -32,7 +32,7 @@ def pg_dbinfo(container):
         "echo": settings.POSTGRES_ECHO,
     }
     wait_pg_ready(dbinfo)
-    print(f"Prepared PostgreSQL: {dbinfo}")
+    print(f"Prepared PostgreSQL: {dbinfo}")  # noqa: T201
     return dbinfo
 
 
@@ -44,10 +44,9 @@ def engine(pg_dbinfo):
     """
     Engine factory (used by tests)
     """
-    engine = sa.create_engine(
+    return sa.create_engine(
         "postgresql://{user}:{password}@{host}:{port}/{database}".format(**pg_dbinfo), echo=pg_dbinfo["echo"]
     )
-    return engine
 
 
 @pytest.fixture(scope="session")
@@ -71,7 +70,7 @@ def setup_db(connection: Connection, mapper):
     mapper.metadata.drop_all(connection)
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(autouse=True)
 def session(connection: Connection):
     """
     Session factory that wraps the session with a top-level transaction
@@ -85,7 +84,7 @@ def session(connection: Connection):
             nested = connection.begin_nested()
 
             @event.listens_for(session, "after_transaction_end")
-            def restart_savepoint(session, transaction):
+            def restart_savepoint(session, transaction) -> None:
                 nonlocal nested
 
                 if not nested._transaction_is_active():
