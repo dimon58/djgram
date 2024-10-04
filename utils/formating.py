@@ -172,9 +172,9 @@ def datetime_to_human_readable(datetime_: datetime, with_seconds: bool = True) -
     """
     Превращает дату в строку вида "4 октября 2024 17:14" или 4 октября 2024 17:14:28"
     """
-    text = f"{date_to_human_readable(datetime_)} {datetime_.hour}:{datetime_.minute}"
+    text = f"{date_to_human_readable(datetime_)} {datetime_.hour}:{datetime_.minute:02}"
 
     if with_seconds:
-        return f"{text}:{datetime_.second}"
+        return f"{text}:{datetime_.second:02}"
 
     return text
