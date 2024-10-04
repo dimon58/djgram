@@ -1,3 +1,4 @@
+# ruff: noqa
 import time
 
 import psycopg2

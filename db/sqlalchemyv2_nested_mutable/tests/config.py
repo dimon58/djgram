@@ -1,3 +1,4 @@
+# ruff: noqa
 import os
 import random
 from functools import lru_cache

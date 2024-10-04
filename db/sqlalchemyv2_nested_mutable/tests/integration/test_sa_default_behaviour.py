@@ -1,3 +1,4 @@
+# ruff: noqa
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB

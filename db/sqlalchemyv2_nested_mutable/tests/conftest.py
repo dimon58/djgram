@@ -1,10 +1,12 @@
+# ruff: noqa
 import pytest
 import sqlalchemy as sa
 from pytest_docker_service import docker_container
 from sqlalchemy.orm import Session
 
-from tests.config import settings
-from tests.utils import wait_pg_ready
+
+from djgram.db.sqlalchemyv2_nested_mutable.tests.config import settings
+from djgram.db.sqlalchemyv2_nested_mutable.tests.utils import wait_pg_ready
 
 container = docker_container(
     scope="session",

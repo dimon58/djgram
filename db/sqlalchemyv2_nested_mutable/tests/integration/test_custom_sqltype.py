@@ -1,9 +1,10 @@
+# ruff: noqa
+import pydantic
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSON, JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 from sqlalchemyv2_nested_mutable import MutablePydanticBaseModel
-from sqlalchemyv2_nested_mutable._compat import pydantic
 
 
 class Base(DeclarativeBase):
