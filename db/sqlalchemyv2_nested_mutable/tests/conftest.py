@@ -1,12 +1,10 @@
 import pytest
 import sqlalchemy as sa
 from pytest_docker_service import docker_container
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Session
-from sqlalchemy.orm import sessionmaker
+
 from tests.config import settings
 from tests.utils import wait_pg_ready
-
 
 container = docker_container(
     scope="session",
@@ -35,7 +33,7 @@ def pg_dbinfo(container):
     }
     wait_pg_ready(dbinfo)
     print(f"Prepared PostgreSQL: {dbinfo}")
-    yield dbinfo
+    return dbinfo
 
 
 from sqlalchemy import Connection, Engine, event

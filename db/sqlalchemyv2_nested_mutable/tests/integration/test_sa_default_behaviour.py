@@ -1,13 +1,7 @@
-from typing import List
-
 import pytest
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import Session
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -19,7 +13,7 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(sa.String(30))
-    aliases: Mapped[List[str]] = mapped_column(ARRAY(sa.String(128)))
+    aliases: Mapped[list[str]] = mapped_column(ARRAY(sa.String(128)))
     addresses: Mapped[dict] = mapped_column(JSONB(), default=dict)
 
 

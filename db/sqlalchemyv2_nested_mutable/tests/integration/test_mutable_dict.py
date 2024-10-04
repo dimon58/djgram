@@ -1,13 +1,8 @@
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import Session
-from sqlalchemyv2_nested_mutable import MutableDict
-from sqlalchemyv2_nested_mutable import TrackedDict
-from sqlalchemyv2_nested_mutable import TrackedList
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
+from sqlalchemyv2_nested_mutable import MutableDict, TrackedDict, TrackedList
 
 
 class Base(DeclarativeBase):

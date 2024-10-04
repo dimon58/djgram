@@ -1,26 +1,21 @@
 from __future__ import annotations
 
-from typing import Iterable
-from typing import List
-from typing import TypeVar
+from collections.abc import Iterable
+from typing import Self, TypeVar
 
 import sqlalchemy as sa
 from pydantic import BaseModel
 from sqlalchemy import Dialect
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.sql.type_api import TypeEngine
-from typing_extensions import Self
 
 from ._typing import _T
-from .trackable import TrackedDict
-from .trackable import TrackedList
-from .trackable import TrackedObject
-from .trackable import TrackedPydanticBaseModel
+from .trackable import TrackedDict, TrackedList, TrackedObject, TrackedPydanticBaseModel
 
 _P = TypeVar("_P", bound="MutablePydanticBaseModel")
 
 
-class MutableList(TrackedList, Mutable, List[_T]):
+class MutableList(TrackedList, Mutable, list[_T]):
     """
     A mutable list that tracks changes to itself and its children.
 

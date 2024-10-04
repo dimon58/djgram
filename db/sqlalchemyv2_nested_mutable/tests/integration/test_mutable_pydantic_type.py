@@ -1,16 +1,8 @@
-from typing import List
-from typing import Optional
-
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import Session
-from sqlalchemyv2_nested_mutable import MutablePydanticBaseModel
-from sqlalchemyv2_nested_mutable import TrackedList
-from sqlalchemyv2_nested_mutable import TrackedPydanticBaseModel
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
+from sqlalchemyv2_nested_mutable import MutablePydanticBaseModel, TrackedList, TrackedPydanticBaseModel
 from sqlalchemyv2_nested_mutable._compat import pydantic
 
 
@@ -22,12 +14,12 @@ class Addresses(MutablePydanticBaseModel):
     class AddressItem(pydantic.BaseModel):
         street: str
         city: str
-        area: Optional[str] = None
+        area: str | None = None
 
-    preferred: Optional[AddressItem] = None
-    work: List[AddressItem] = []
-    home: List[AddressItem] = []
-    updated_time: Optional[str] = None
+    preferred: AddressItem | None = None
+    work: list[AddressItem] = []
+    home: list[AddressItem] = []
+    updated_time: str | None = None
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -48,7 +40,7 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(sa.String(30))
-    addresses: Mapped[Optional[Addresses]] = mapped_column(Addresses.as_mutable(JSON()), nullable=True)
+    addresses: Mapped[Addresses | None] = mapped_column(Addresses.as_mutable(JSON()), nullable=True)
 
 
 def test_mutable_pydantic_type(session: Session, user1: User):

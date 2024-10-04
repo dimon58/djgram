@@ -1,26 +1,14 @@
 from __future__ import annotations
 
-from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import List
-from typing import Optional
-from typing import TYPE_CHECKING
-from typing import Tuple
-from typing import Union
-from typing import cast
-from typing import overload
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Self, cast, overload
 from weakref import WeakValueDictionary
 
 import pydantic
 from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.util.typing import SupportsIndex
-from sqlalchemy.util.typing import TypeGuard
-from typing_extensions import Self
+from sqlalchemy.util.typing import SupportsIndex, TypeGuard
 
-from ._typing import _KT
-from ._typing import _T
-from ._typing import _VT
+from ._typing import _KT, _T, _VT
 
 parents_track: WeakValueDictionary[int, Mutable] = WeakValueDictionary()
 
@@ -66,8 +54,8 @@ class TrackedObject:
         return new_val
 
 
-class TrackedList(List[_T], TrackedObject):
-    def __reduce_ex__(self, proto: SupportsIndex) -> Tuple[type, Tuple[List[int]]]:
+class TrackedList(list[_T], TrackedObject):
+    def __reduce_ex__(self, proto: SupportsIndex) -> tuple[type, tuple[list[int]]]:
         return (self.__class__, (list(self),))
 
     # needed for backwards compatibility with
@@ -130,7 +118,7 @@ class TrackedList(List[_T], TrackedObject):
         self.changed()
 
 
-class TrackedDict(TrackedObject, Dict[_KT, _VT]):
+class TrackedDict(TrackedObject, dict[_KT, _VT]):
     def __setitem__(self, key: _KT, value: _VT) -> None:
         """Detect dictionary set events and emit change events."""
         super().__setitem__(key, value)
@@ -140,7 +128,7 @@ class TrackedDict(TrackedObject, Dict[_KT, _VT]):
         # from https://github.com/python/mypy/issues/14858
 
         @overload
-        def setdefault(self: TrackedDict[_KT, Optional[_T]], key: _KT, value: None = None) -> Optional[_T]: ...
+        def setdefault(self: TrackedDict[_KT, _T | None], key: _KT, value: None = None) -> _T | None: ...
 
         @overload
         def setdefault(self, key: _KT, value: _VT) -> _VT: ...
@@ -149,7 +137,7 @@ class TrackedDict(TrackedObject, Dict[_KT, _VT]):
 
     else:
 
-        def setdefault(self, key, value=None):  # noqa: F811
+        def setdefault(self, key, value=None):
             result = super().setdefault(key, value=TrackedObject.make_nested_trackable(value, self))
             self.changed()
             return result
@@ -177,12 +165,12 @@ class TrackedDict(TrackedObject, Dict[_KT, _VT]):
 
     else:
 
-        def pop(self, *arg):  # noqa: F811
+        def pop(self, *arg):
             result = super().pop(*arg)
             self.changed()
             return result
 
-    def popitem(self) -> Tuple[_KT, _VT]:
+    def popitem(self) -> tuple[_KT, _VT]:
         result = super().popitem()
         self.changed()
         return result
@@ -191,7 +179,7 @@ class TrackedDict(TrackedObject, Dict[_KT, _VT]):
         super().clear()
         self.changed()
 
-    def __setstate__(self, state: Union[Dict[str, int], Dict[str, str]]) -> None:
+    def __setstate__(self, state: dict[str, int] | dict[str, str]) -> None:
         self.update(state)
 
 

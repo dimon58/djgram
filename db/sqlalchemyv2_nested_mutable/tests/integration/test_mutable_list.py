@@ -1,17 +1,8 @@
-from typing import List
-from typing import Optional
-
 import pytest
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import Session
-from sqlalchemyv2_nested_mutable import MutableList
-from sqlalchemyv2_nested_mutable import TrackedDict
-from sqlalchemyv2_nested_mutable import TrackedList
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
+from sqlalchemyv2_nested_mutable import MutableList, TrackedDict, TrackedList
 
 
 class Base(DeclarativeBase):
@@ -27,10 +18,10 @@ class User(Base):
     name: Mapped[str] = mapped_column(sa.String(30))
     aliases: Mapped[MutableList[str]] = mapped_column(
         MutableList[str].as_mutable(ARRAY(sa.String(128))), default=MutableList[str]
-    )  #
+    )
 
-    schedule: Mapped[MutableList[List[str]]] = mapped_column(
-        MutableList[List[str]].as_mutable(ARRAY(sa.String(128), dimensions=2)), default=MutableList[str]
+    schedule: Mapped[MutableList[list[str]]] = mapped_column(
+        MutableList[list[str]].as_mutable(ARRAY(sa.String(128), dimensions=2)), default=MutableList[str]
     )
     # a user's weekly schedule, e.g. [ ['meeting', 'launch'], ['training', 'presentation'] ]
 
@@ -43,8 +34,8 @@ class UserV2(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(sa.String(30))
     aliases: Mapped[MutableList[str]] = mapped_column(MutableList[str].as_mutable(JSONB()), default=MutableList[str])
-    schedule: Mapped[MutableList[List[str]]] = mapped_column(
-        MutableList[List[str]].as_mutable(JSONB()), default=MutableList[List[str]]
+    schedule: Mapped[MutableList[list[str]]] = mapped_column(
+        MutableList[list[str]].as_mutable(JSONB()), default=MutableList[list[str]]
     )
 
 
@@ -55,9 +46,9 @@ class UserV3(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(sa.String(30))
-    aliases: Mapped[Optional[MutableList[str]]] = mapped_column(MutableList[str].as_mutable(JSONB()), nullable=True)
-    schedule: Mapped[Optional[MutableList[List[str]]]] = mapped_column(
-        MutableList[List[str]].as_mutable(JSONB()), nullable=True
+    aliases: Mapped[MutableList[str] | None] = mapped_column(MutableList[str].as_mutable(JSONB()), nullable=True)
+    schedule: Mapped[MutableList[list[str]] | None] = mapped_column(
+        MutableList[list[str]].as_mutable(JSONB()), nullable=True
     )
 
 

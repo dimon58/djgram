@@ -1,14 +1,7 @@
-from typing import List
-from typing import Optional
-
 import pytest
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import Session
+from sqlalchemy.dialects.postgresql import JSON, JSONB
+from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 from sqlalchemyv2_nested_mutable import MutablePydanticBaseModel
 from sqlalchemyv2_nested_mutable._compat import pydantic
 
@@ -21,10 +14,10 @@ class Addresses(MutablePydanticBaseModel):
     class AddressItem(pydantic.BaseModel):
         street: str
         city: str
-        area: Optional[str]
+        area: str | None
 
-    work: List[AddressItem] = []
-    home: List[AddressItem] = []
+    work: list[AddressItem] = []
+    home: list[AddressItem] = []
 
 
 class User(Base):
@@ -32,9 +25,9 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(sa.String(30))
-    addresses_default: Mapped[Optional[Addresses]] = mapped_column(Addresses.as_mutable())
-    addresses_json: Mapped[Optional[Addresses]] = mapped_column(Addresses.as_mutable(JSON()))
-    addresses_jsonb: Mapped[Optional[Addresses]] = mapped_column(Addresses.as_mutable(JSONB()))
+    addresses_default: Mapped[Addresses | None] = mapped_column(Addresses.as_mutable())
+    addresses_json: Mapped[Addresses | None] = mapped_column(Addresses.as_mutable(JSON()))
+    addresses_jsonb: Mapped[Addresses | None] = mapped_column(Addresses.as_mutable(JSONB()))
 
 
 @pytest.fixture(scope="module", autouse=True)

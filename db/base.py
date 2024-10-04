@@ -1,6 +1,6 @@
 from asyncio import current_task
 from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager, AbstractAsyncContextManager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
