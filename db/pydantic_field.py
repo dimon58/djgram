@@ -64,7 +64,7 @@ class ImmutablePydanticField(ExtendedPydanticType[_P]):
 class ExtendedMutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):
 
     @classmethod
-    def coerce(cls, key: str, value: Any) -> Self:  # noqa: ARG003
+    def coerce(cls, key: str, value: Any) -> Self:
         if isinstance(value, cls):
             return value
 
