@@ -1,7 +1,7 @@
 import copy
 import time
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Hashable, Sequence
 from typing import TYPE_CHECKING, Any
 
 import phonenumbers
@@ -12,6 +12,8 @@ from aiogram_dialog.api.internal import CONTEXT_KEY, STACK_KEY
 from aiogram_dialog.widgets.input import MessageInput
 
 from djgram.contrib.analytics import dialog_analytics
+
+from .utils import set_value_using_composite_key
 from .validators import (
     DnsResolver,
     EmailValidator,
@@ -35,7 +37,7 @@ class FormInput(MessageInput, ABC):
 
     def __init__(  # noqa: D107
         self,
-        key: str | Sequence[str],
+        key: Hashable | Sequence[Hashable],
         on_validation_success: FormInputValidationCallback | None = None,
         on_validation_failure: FormInputValidationCallback | None = None,
         validators: Sequence[FormInputValidator] | None = None,
@@ -64,10 +66,11 @@ class FormInput(MessageInput, ABC):
 
     @staticmethod
     async def form_input_func(message: Message, form_input: "FormInput", manager: DialogManager) -> None:
-        data = manager.dialog_data
-        for key_part in form_input.key[:-1]:
-            data = data.setdefault(key_part, {})
-        data[form_input.key[-1]] = form_input.get_input_data(message)
+        set_value_using_composite_key(
+            data=manager.dialog_data,
+            key=form_input.key,
+            value=form_input.get_input_data(message),
+        )
 
     async def process_message(
         self,
