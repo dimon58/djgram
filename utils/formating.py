@@ -166,3 +166,15 @@ def date_to_human_readable(date_: date | datetime):
     Превращает дату в строку вида "6 сентября 2024"
     """
     return f"{date_.day} {_month_to_name_rus[date_.month]} {date_.year}"
+
+
+def datetime_to_human_readable(datetime_: datetime, with_seconds: bool = True) -> str:
+    """
+    Превращает дату в строку вида "4 октября 2024 17:14" или 4 октября 2024 17:14:28"
+    """
+    text = f"{date_to_human_readable(datetime_)} {datetime_.hour}:{datetime_.minute}"
+
+    if with_seconds:
+        return f"{text}:{datetime_.second}"
+
+    return text
