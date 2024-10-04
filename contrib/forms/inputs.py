@@ -12,7 +12,6 @@ from aiogram_dialog.api.internal import CONTEXT_KEY, STACK_KEY
 from aiogram_dialog.widgets.input import MessageInput
 
 from djgram.contrib.analytics import dialog_analytics
-
 from .validators import (
     DnsResolver,
     EmailValidator,
@@ -36,7 +35,7 @@ class FormInput(MessageInput, ABC):
 
     def __init__(  # noqa: D107
         self,
-        key: str,
+        key: str | Sequence[str],
         on_validation_success: FormInputValidationCallback | None = None,
         on_validation_failure: FormInputValidationCallback | None = None,
         validators: Sequence[FormInputValidator] | None = None,
@@ -48,6 +47,8 @@ class FormInput(MessageInput, ABC):
             content_types=content_types,
             filter=filter,
         )
+        if isinstance(key, str):
+            key = [key]
         self.key = key
         self.on_validation_success = on_validation_success
         self.on_validation_failure = on_validation_failure
@@ -63,7 +64,10 @@ class FormInput(MessageInput, ABC):
 
     @staticmethod
     async def form_input_func(message: Message, form_input: "FormInput", manager: DialogManager) -> None:
-        manager.dialog_data[form_input.key] = form_input.get_input_data(message)
+        data = manager.dialog_data
+        for key_part in form_input.key[:-1]:
+            data = data.setdefault(key_part, {})
+        data[form_input.key[-1]] = form_input.get_input_data(message)
 
     async def process_message(
         self,
