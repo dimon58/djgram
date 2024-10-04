@@ -12,6 +12,7 @@ from aiogram_dialog.api.internal import CONTEXT_KEY, STACK_KEY
 from aiogram_dialog.widgets.input import MessageInput
 
 from djgram.contrib.analytics import dialog_analytics
+from djgram.utils.misc import unfreeze_model
 
 from .utils import set_value_using_composite_key
 from .validators import (
@@ -64,12 +65,12 @@ class FormInput(MessageInput, ABC):
 
         self.validators = validators
 
-    @staticmethod
-    async def form_input_func(message: Message, form_input: "FormInput", manager: DialogManager) -> None:
+    @classmethod
+    async def form_input_func(cls, message: Message, form_input: "FormInput", manager: DialogManager) -> None:
         set_value_using_composite_key(
             data=manager.dialog_data,
             key=form_input.key,
-            value=form_input.get_input_data(message),
+            value=cls.get_validated_data(message),
         )
 
     async def process_message(
@@ -124,6 +125,8 @@ class FormInput(MessageInput, ABC):
 
                 return True
 
+        self.set_validated_data(data, message)
+
         aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
         aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
         state_before: str | None = await manager.middleware_data["state"].get_state()
@@ -148,6 +151,17 @@ class FormInput(MessageInput, ABC):
             )
 
         return True
+
+    @staticmethod
+    def get_validated_data(message: Message) -> Any:
+        # noinspection PyProtectedMember
+        return message._validated_form_data  # noqa: SLF001
+
+    @staticmethod
+    def set_validated_data(value: Any, message: Message) -> None:
+        with unfreeze_model(message):
+            # noinspection Pydantic
+            message._validated_form_data = value  # noqa: SLF001
 
     @abstractmethod
     def get_input_data(self, message: Message) -> Any:
