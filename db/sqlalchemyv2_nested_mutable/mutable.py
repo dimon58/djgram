@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, TypeVar
+from typing import TYPE_CHECKING, Any, Self, TypeVar
 
 import sqlalchemy as sa
 from pydantic import BaseModel
@@ -8,16 +8,16 @@ from sqlalchemy import Dialect
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.sql.type_api import TypeEngine
 
-from ._typing import _T
+from ._typing import T
 from .trackable import TrackedDict, TrackedList, TrackedObject, TrackedPydanticBaseModel
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Mapping
 
 _P = TypeVar("_P", bound="MutablePydanticBaseModel")
 
 
-class MutableList(TrackedList, Mutable, list[_T]):
+class MutableList(TrackedList, Mutable, list[T]):
     """
     A mutable list that tracks changes to itself and its children.
 
@@ -28,19 +28,19 @@ class MutableList(TrackedList, Mutable, list[_T]):
     """
 
     @classmethod
-    def coerce(cls, key, value):
+    def coerce(cls, key: str, value: Any) -> MutableList:
         return value if isinstance(value, cls) else cls(value)
 
-    def __init__(self, __iterable: Iterable[_T] = []):
+    def __init__(self, __iterable: Iterable[T] = []):  # noqa: D107
         super().__init__(TrackedObject.make_nested_trackable(__iterable, self))
 
 
 class MutableDict(TrackedDict, Mutable):
     @classmethod
-    def coerce(cls, key, value):
+    def coerce(cls, key: str, value: Any) -> MutableDict:
         return value if isinstance(value, cls) else cls(value)
 
-    def __init__(self, source=(), **kwds):
+    def __init__(self, source: Mapping | Iterable = (), **kwds):  # noqa: D107
         super().__init__(TrackedObject.make_nested_trackable(dict(source, **kwds), self))
 
 
@@ -52,15 +52,15 @@ class PydanticType(sa.types.TypeDecorator, TypeEngine[_P]):
     cache_ok = True
     impl = sa.types.JSON
 
-    def __init__(self, pydantic_type: type[_P], sqltype: TypeEngine[_T] | None = None):
+    def __init__(self, pydantic_type: type[_P], sqltype: TypeEngine[T] | None = None):  # noqa: D107
         super().__init__()
         if not issubclass(pydantic_type, BaseModel):
-            raise ValueError(f"pydantic_type should be subclass of BaseModel not {type(pydantic_type)}")
+            raise TypeError(f"pydantic_type should be subclass of BaseModel not {type(pydantic_type)}")
 
         self.pydantic_type = pydantic_type
         self.sqltype = sqltype
 
-    def load_dialect_impl(self, dialect):
+    def load_dialect_impl(self, dialect: Dialect) -> TypeEngine[sa.JSON]:
         from sqlalchemy.dialects.postgresql import JSONB
 
         if self.sqltype is not None:
@@ -77,13 +77,13 @@ class PydanticType(sa.types.TypeDecorator, TypeEngine[_P]):
     def process_bind_param(self, value: _P | None, dialect: Dialect):
         return value.model_dump(mode="json") if value else None
 
-    def process_result_value(self, value, dialect: Dialect) -> _P | None:
+    def process_result_value(self, value: Any, dialect: Dialect) -> _P | None:
         return self.pydantic_type.model_validate(value) if value else None
 
 
 class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):
     @classmethod
-    def coerce(cls, key, value) -> Self:
+    def coerce(cls, key: str, value: Any) -> Self:
         return value if isinstance(value, cls) else cls.model_validate(value)
 
     def dict(self, *args, **kwargs):
@@ -92,5 +92,5 @@ class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):
         return res
 
     @classmethod
-    def as_mutable(cls, sqltype: TypeEngine[_T] | None = None) -> TypeEngine[Self]:
+    def as_mutable(cls, sqltype: TypeEngine[T] | None = None) -> TypeEngine[Self]:
         return super().as_mutable(PydanticType(cls, sqltype))

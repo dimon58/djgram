@@ -7,7 +7,7 @@ from weakref import WeakValueDictionary
 import pydantic
 from sqlalchemy.ext.mutable import Mutable
 
-from ._typing import _KT, _T, _VT
+from ._typing import KT, VT, T
 
 if TYPE_CHECKING:
     from sqlalchemy.util.typing import SupportsIndex, TypeGuard
@@ -35,7 +35,7 @@ class TrackedObject:
             s.changed()
 
     @classmethod
-    def make_nested_trackable(cls, val: _T, parent: Mutable):
+    def make_nested_trackable(cls, val: T, parent: Mutable) -> TrackedObject | Any:
         new_val: Any = val
 
         if isinstance(val, dict):
@@ -43,12 +43,15 @@ class TrackedObject:
         elif isinstance(val, list):
             new_val = TrackedList(cls.make_nested_trackable(o, parent) for o in val)
         elif isinstance(val, pydantic.BaseModel) and not isinstance(val, TrackedPydanticBaseModel):
-            model_cls = type("Tracked" + val.__class__.__name__, (TrackedPydanticBaseModel, val.__class__), {})
+            # noinspection PyTypeChecker
+            model_cls: type[TrackedPydanticBaseModel] = type(
+                "Tracked" + val.__class__.__name__, (TrackedPydanticBaseModel, val.__class__), {}
+            )
             model_cls.__doc__ = (
                 f"This class is composed of `{val.__class__.__name__}` and `TrackedPydanticBaseModel` "
                 "to make it trackable in nested context."
             )
-            new_val = model_cls.model_validate(val.model_dump())  # type: ignore
+            new_val = model_cls.model_validate(val.model_dump())
 
         if isinstance(new_val, cls):
             parents_track[id(new_val)] = parent
@@ -56,22 +59,22 @@ class TrackedObject:
         return new_val
 
 
-class TrackedList(list[_T], TrackedObject):
+class TrackedList(list[T], TrackedObject):
     def __reduce_ex__(self, proto: SupportsIndex) -> tuple[type, tuple[list[int]]]:
         return (self.__class__, (list(self),))
 
     # needed for backwards compatibility with
     # older pickles
-    def __setstate__(self, state: Iterable[_T]) -> None:
+    def __setstate__(self, state: Iterable[T]) -> None:
         self[:] = state
 
-    def is_scalar(self, value: _T | Iterable[_T]) -> TypeGuard[_T]:
+    def is_scalar(self, value: T | Iterable[T]) -> TypeGuard[T]:
         return not isinstance(value, Iterable)
 
-    def is_iterable(self, value: _T | Iterable[_T]) -> TypeGuard[Iterable[_T]]:
+    def is_iterable(self, value: T | Iterable[T]) -> TypeGuard[Iterable[T]]:
         return isinstance(value, Iterable)
 
-    def __setitem__(self, index: SupportsIndex | slice, value: _T | Iterable[_T]) -> None:
+    def __setitem__(self, index: SupportsIndex | slice, value: T | Iterable[T]) -> None:
         """Detect list set events and emit change events."""
 
         super().__setitem__(index, TrackedObject.make_nested_trackable(value, self))
@@ -82,28 +85,28 @@ class TrackedList(list[_T], TrackedObject):
         super().__delitem__(index)
         self.changed()
 
-    def pop(self, *arg: SupportsIndex) -> _T:
+    def pop(self, *arg: SupportsIndex) -> T:
         result = super().pop(*arg)
         self.changed()
         return result
 
-    def append(self, x: _T) -> None:
+    def append(self, x: T) -> None:
         super().append(TrackedObject.make_nested_trackable(x, self))
         self.changed()
 
-    def extend(self, x: Iterable[_T]) -> None:
+    def extend(self, x: Iterable[T]) -> None:
         super().extend(x)
         self.changed()
 
-    def __iadd__(self, x: Iterable[_T]) -> Self:  # type: ignore
+    def __iadd__(self, x: Iterable[T]) -> Self:
         self.extend(TrackedObject.make_nested_trackable(v, self) for v in x)
         return self
 
-    def insert(self, i: SupportsIndex, x: _T) -> None:
+    def insert(self, i: SupportsIndex, x: T) -> None:
         super().insert(i, TrackedObject.make_nested_trackable(x, self))
         self.changed()
 
-    def remove(self, i: _T) -> None:
+    def remove(self, i: T) -> None:
         super().remove(i)
         self.changed()
 
@@ -120,8 +123,8 @@ class TrackedList(list[_T], TrackedObject):
         self.changed()
 
 
-class TrackedDict(TrackedObject, dict[_KT, _VT]):
-    def __setitem__(self, key: _KT, value: _VT) -> None:
+class TrackedDict(TrackedObject, dict[KT, VT]):
+    def __setitem__(self, key: KT, value: VT) -> None:
         """Detect dictionary set events and emit change events."""
         super().__setitem__(key, value)
         self.changed()
@@ -130,26 +133,26 @@ class TrackedDict(TrackedObject, dict[_KT, _VT]):
         # from https://github.com/python/mypy/issues/14858
 
         @overload
-        def setdefault(self: TrackedDict[_KT, _T | None], key: _KT, value: None = None) -> _T | None: ...
+        def setdefault(self: TrackedDict[KT, T | None], key: KT, value: None = None) -> T | None: ...
 
         @overload
-        def setdefault(self, key: _KT, value: _VT) -> _VT: ...
+        def setdefault(self, key: KT, value: VT) -> VT: ...
 
-        def setdefault(self, key: _KT, value: object = None) -> object: ...
+        def setdefault(self, key: KT, value: object = None) -> object: ...
 
     else:
 
-        def setdefault(self, key, value=None):
+        def setdefault(self, key, value=None):  # noqa: ANN001
             result = super().setdefault(key, value=TrackedObject.make_nested_trackable(value, self))
             self.changed()
             return result
 
-    def __delitem__(self, key: _KT) -> None:
+    def __delitem__(self, key: KT) -> None:
         """Detect dictionary del events and emit change events."""
         super().__delitem__(key)
         self.changed()
 
-    def update(self, *a: Any, **kw: _VT) -> None:
+    def update(self, *a: Any, **kw: VT) -> None:
         a = tuple(TrackedObject.make_nested_trackable(e, self) for e in a)
         kw = {k: TrackedObject.make_nested_trackable(v, self) for k, v in kw.items()}
         super().update(*a, **kw)
@@ -158,12 +161,12 @@ class TrackedDict(TrackedObject, dict[_KT, _VT]):
     if TYPE_CHECKING:
 
         @overload
-        def pop(self, __key: _KT) -> _VT: ...
+        def pop(self, __key: KT) -> VT: ...
 
         @overload
-        def pop(self, __key: _KT, __default: _VT | _T) -> _VT | _T: ...
+        def pop(self, __key: KT, __default: VT | T) -> VT | T: ...
 
-        def pop(self, __key: _KT, __default: _VT | _T | None = None) -> _VT | _T: ...
+        def pop(self, __key: KT, __default: VT | T | None = None) -> VT | T: ...
 
     else:
 
@@ -172,7 +175,7 @@ class TrackedDict(TrackedObject, dict[_KT, _VT]):
             self.changed()
             return result
 
-    def popitem(self) -> tuple[_KT, _VT]:
+    def popitem(self) -> tuple[KT, VT]:
         result = super().popitem()
         self.changed()
         return result
@@ -187,15 +190,15 @@ class TrackedDict(TrackedObject, dict[_KT, _VT]):
 
 class TrackedPydanticBaseModel(TrackedObject, Mutable, pydantic.BaseModel):
     @classmethod
-    def coerce(cls, key, value):
+    def coerce(cls, key: str, value: Any) -> TrackedPydanticBaseModel:
         return value if isinstance(value, cls) else cls.model_validate(value)
 
-    def __init__(self, **data):
+    def __init__(self, **data):  # noqa: D107
         super().__init__(**data)
         for field in self.model_fields:
             setattr(self, field, TrackedObject.make_nested_trackable(getattr(self, field), self))
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: Any):
         prev_value = getattr(self, name, None)
         super().__setattr__(name, value)
         if prev_value != getattr(self, name):
