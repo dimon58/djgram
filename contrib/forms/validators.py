@@ -25,9 +25,9 @@ FormInputValidationCallback: TypeAlias = Callable[[Message, "FormInput", DialogM
 
 
 class FormInputValidator(ABC):
-    @abstractmethod
+    # noinspection PyMethodMayBeStatic
     def check_support(self, form_input: "FormInput") -> bool:
-        raise NotImplementedError
+        return True
 
     @abstractmethod
     async def validate(
@@ -43,7 +43,6 @@ class FormInputValidator(ABC):
 class EmailValidator(FormInputValidator):
     def __init__(
         self,
-        /,  # prior arguments are positional-only
         *,  # subsequent arguments are keyword-only
         allow_smtputf8: bool | None = None,
         allow_empty_local: bool = False,
@@ -71,9 +70,6 @@ class EmailValidator(FormInputValidator):
         self.globally_deliverable = globally_deliverable
         self.timeout = timeout
         self.dns_resolver = dns_resolver
-
-    def check_support(self, form_input: "FormInput") -> bool:
-        return True
 
     async def validate(
         self,
@@ -125,9 +121,6 @@ class PhoneNumberValidator(FormInputValidator):
         self.default_region = default_region
         self.check_region = check_region
         self.output_number_format = output_number_format
-
-    def check_support(self, form_input: "FormInput") -> bool:
-        return True
 
     async def validate(
         self,
