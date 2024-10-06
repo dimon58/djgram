@@ -40,13 +40,14 @@ class SendMessageStatus(enum.Enum):
     FAIL = "fail"
 
 
-async def broadcast(  # noqa: PLR0912
+async def broadcast(  # noqa: PLR0912, PLR0915
     send_method: Callable[..., Awaitable[Any]],
     chat_ids: Iterable[int],
     count: int,
     logging_message: Message | None = None,
     broadcast_timeout: float = TELEGRAM_BROADCAST_TIMEOUT,
     logging_period: float = TELEGRAM_BROADCAST_LOGGING_PERIOD,
+    per_chat_kwargs: Iterable[dict[str, Any]] | None = None,
     **kwargs,
 ) -> int:
     """
@@ -59,7 +60,8 @@ async def broadcast(  # noqa: PLR0912
         logging_message: сообщение, в ответ на которое будут приходить логи о статусе выполнения отправки
         broadcast_timeout: минимальное время межу отправкой сообщений
         logging_period: минимальный период логирования
-        kwargs: дополнительные параметры для send_method. Например для Bot.send_message нужно указать text
+        per_chat_kwargs: дополнительные параметры для send_method для каждого отельного чата
+        kwargs: дополнительные параметры для send_method. Например, для Bot.send_message нужно указать text
 
     Returns:
         int: число ошибок отправки
@@ -72,10 +74,14 @@ async def broadcast(  # noqa: PLR0912
     logger.info("Started broadcast to %s users", count)
     errors = 0
     blocked = 0
+    if per_chat_kwargs:
+        per_chat_kwargs = iter(per_chat_kwargs)
     last_logging_time = start = global_start = time.perf_counter()
     for number, chat_id in enumerate(chat_ids, start=1):
+        chat_kwargs = next(per_chat_kwargs) if per_chat_kwargs is not None else {}
+
         try:
-            status = await send_method(chat_id=chat_id, **kwargs)
+            status = await send_method(chat_id=chat_id, **chat_kwargs, **kwargs)
         except RecursionError as exc:
             logger.exception("Too many attempts to send message", exc_info=exc)
             errors += 1
@@ -128,7 +134,9 @@ async def broadcast(  # noqa: PLR0912
     return errors
 
 
-async def send_message_copy(message: Message, chat_id: int, disable_notification: bool = False) -> SendMessageStatus:
+async def send_message_copy(
+    message: Message, chat_id: int | str, disable_notification: bool = False
+) -> SendMessageStatus:
     """
     Safe messages sender
 
