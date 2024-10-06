@@ -1,19 +1,20 @@
 import asyncio
 import logging
+import os
 import time
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
-from typing import TypeAlias, TypeVar
+from typing import TypeAlias, TypeVar, Any
 
 import orjson
 from aiogram import Bot
 from aiogram.methods import TelegramMethod
+from aiogram.types import InputFile, BufferedInputFile, FSInputFile, URLInputFile
 
 from djgram.configs import ANALYTICS_BOT_SEND_TABLE
 from djgram.contrib.logs.context import UPDATE_ID
 from djgram.db import clickhouse
 from djgram.utils.serialization import jsonify
-
 from .misc import BOT_SEND_ANALYTICS_DDL_SQL
 from .utils import set_defaults
 
@@ -24,6 +25,34 @@ BotCallMethod: TypeAlias = Callable[[Bot, TelegramMethod[T], int | None], Awaita
 logger = logging.getLogger(__name__)
 
 _pending_tasks = set[asyncio.Task]()
+
+
+def _serialize_input_file(input_file: InputFile) -> dict[str, Any]:
+    data = {
+        "type": input_file.__class__.__name__,
+        "file_name": input_file.filename,
+        "chunk_size": input_file.chunk_size,
+    }
+
+    if isinstance(input_file, BufferedInputFile):
+        data["file_size"] = len(input_file.data)
+
+    elif isinstance(input_file, FSInputFile):
+        data["file_size"] = os.path.getsize(input_file.path)
+
+    elif isinstance(input_file, URLInputFile):
+        data["url"] = input_file.url
+        data["headers"] = input_file.headers
+        data["timeout"] = input_file.timeout
+
+    return data
+
+
+def _serialize_default(obj: Any) -> Any:
+    if isinstance(obj, InputFile):
+        return _serialize_input_file(obj)
+
+    raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
 
 def analytics_wrapper(original_call: BotCallMethod) -> BotCallMethod:
@@ -46,7 +75,7 @@ def analytics_wrapper(original_call: BotCallMethod) -> BotCallMethod:
             "bot_id": self.id,
             "date": date,
             "method": method.__class__.__name__,
-            "method_data": orjson.dumps(method_data),
+            "method_data": orjson.dumps(method_data, default=_serialize_default),
             "execution_time": end - start,
             "request_timeout": request_timeout,
             "answer": orjson.dumps(jsonify(answer)),
