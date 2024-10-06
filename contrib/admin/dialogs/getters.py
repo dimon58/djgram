@@ -109,7 +109,16 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
 
         # Обрабатываем колонки вида user__id, т.е. непрямых полей
         for column in model_admin.list_display:
+            if column.startswith("call:"):
+                need_call = True
+                column = column[5:]
+            else:
+                need_call = False
+
             _value = get_field_by_path(row, column)
+
+            if need_call:
+                _value = _value()
 
             _row.append(_value)
 

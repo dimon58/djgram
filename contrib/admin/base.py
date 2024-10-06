@@ -61,12 +61,14 @@ class ModelAdmin:
 
         errors = set()
         for extra_field in extra_fields:
+            extra_field = extra_field.split(":", maxsplit=1)[-1]
+
             # todo добавить валидацию таких полей - полей у внешних ключей
             if "__" not in extra_field and not hasattr(cls.model, extra_field):
                 errors.add(extra_field)
 
         if len(errors) > 0:
-            raise ValueError("У %s есть лишние поля в %s: %s", cls, list_name, sorted(errors))
+            raise ValueError(f"У {cls} есть лишние поля в {list_name}: {sorted(errors)}")
 
     def __init_subclass__(cls, **kwargs):
         if cls.model is None:
