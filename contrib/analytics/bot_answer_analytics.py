@@ -4,17 +4,18 @@ import os
 import time
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
-from typing import TypeAlias, TypeVar, Any
+from typing import Any, TypeAlias, TypeVar
 
 import orjson
 from aiogram import Bot
 from aiogram.methods import TelegramMethod
-from aiogram.types import InputFile, BufferedInputFile, FSInputFile, URLInputFile
+from aiogram.types import BufferedInputFile, FSInputFile, InputFile, URLInputFile
 
 from djgram.configs import ANALYTICS_BOT_SEND_TABLE
 from djgram.contrib.logs.context import UPDATE_ID
 from djgram.db import clickhouse
 from djgram.utils.serialization import jsonify
+
 from .misc import BOT_SEND_ANALYTICS_DDL_SQL
 from .utils import set_defaults
 
@@ -38,7 +39,7 @@ def _serialize_input_file(input_file: InputFile) -> dict[str, Any]:
         data["file_size"] = len(input_file.data)
 
     elif isinstance(input_file, FSInputFile):
-        data["file_size"] = os.path.getsize(input_file.path)
+        data["file_size"] = os.path.getsize(input_file.path)  # noqa: PTH202
 
     elif isinstance(input_file, URLInputFile):
         data["url"] = input_file.url

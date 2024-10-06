@@ -61,7 +61,7 @@ class ModelAdmin:
 
         errors = set()
         for extra_field in extra_fields:
-            extra_field = extra_field.split(":", maxsplit=1)[-1]
+            extra_field = extra_field.split(":", maxsplit=1)[-1]  # noqa: PLW2901
 
             # todo добавить валидацию таких полей - полей у внешних ключей
             if "__" not in extra_field and not hasattr(cls.model, extra_field):

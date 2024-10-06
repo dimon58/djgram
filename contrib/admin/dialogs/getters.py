@@ -111,7 +111,7 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
         for column in model_admin.list_display:
             if column.startswith("call:"):
                 need_call = True
-                column = column[5:]
+                column = column[5:]  # noqa: PLW2901
             else:
                 need_call = False
 
