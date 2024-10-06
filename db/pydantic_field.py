@@ -15,6 +15,7 @@ _P = TypeVar("_P", bound=pydantic.BaseModel)
 
 class ExtendedPydanticType(PydanticType[_P]):  # pyright: ignore [reportInvalidTypeArguments]
     cache_ok = True
+    _alembic_additional_params = ()
 
     @classmethod
     def get_alembic_import_name(cls) -> str:
@@ -41,14 +42,33 @@ class ExtendedPydanticType(PydanticType[_P]):  # pyright: ignore [reportInvalidT
 
             json_sql_type = f", {self.sqltype.__module__}.{sql_type_name}()"
 
-        return f"{alembic_import_name}({base_type.__module__}.{base_type.__name__}{json_sql_type})"
+        alembic_additional_params = [f"{param}={getattr(self, param)}" for param in self._alembic_additional_params]
+
+        alembic_additional_params = ", ".join(alembic_additional_params)
+        if len(alembic_additional_params) > 0:
+            alembic_additional_params = f", {alembic_additional_params}"
+
+        return (
+            f"{alembic_import_name}("
+            f"{base_type.__module__}.{base_type.__name__}"
+            f"{json_sql_type}"
+            f"{alembic_additional_params}"
+            f")"
+        )
 
 
 class ImmutablePydanticField(ExtendedPydanticType[_P]):
     cache_ok = True
+    _alembic_additional_params = ("should_frozen",)
 
-    def __init__(self, pydantic_type: type[_P], sqltype: TypeEngine[_T] | None = None):  # noqa: D107
-        if not pydantic_type.model_config.get("frozen"):
+    def __init__(  # noqa: D107
+        self,
+        pydantic_type: type[_P],
+        sqltype: TypeEngine[_T] | None = None,
+        should_frozen: bool = True,
+    ):
+        self.should_frozen = should_frozen
+        if self.should_frozen and not pydantic_type.model_config.get("frozen"):
             raise TypeError(f"pydantic_type {pydantic_type} should be frozen. Use PydanticField instead.")
 
         super().__init__(pydantic_type, sqltype)
