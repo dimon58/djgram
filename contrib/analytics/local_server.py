@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import sys
 import time
@@ -13,7 +12,7 @@ from djgram.configs import (
     ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_COLLECTION_PERIOD,
     ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_GENERAL_TABLE,
 )
-from djgram.contrib.analytics.misc import UPDATE_DDL_SQL
+from djgram.contrib.analytics.misc import LOCAL_SERVER_ANALYTICS_DDL_SQL
 from djgram.db import clickhouse
 from djgram.utils.async_tools import PeriodicTask
 
@@ -33,6 +32,9 @@ _mod = {
     "G": 1024 * 1024 * 1024,
     "T": 1024 * 1024 * 1024 * 1024,
 }
+
+# https://github.com/tdlib/telegram-bot-api/blob/master/telegram-bot-api/Stats.h#L61
+_durations = [0, 0, 5, 60, 60 * 60]
 
 
 async def get_stats() -> str:
@@ -117,30 +119,37 @@ def parse_value(text: str) -> StatValueType:  # noqa: PLR0911
             return text
 
 
-def parse_stats_block(text: str) -> StatDictType:
+def parse_stats_block(text: str, duration_idx: int) -> StatDictType:
     """
     Парсит и возвращает блок статистики в удобном виде
     """
-    result = {}
+    split = text.split("\n")
 
-    for line in text.split("\n")[1:]:  # skip header: DURATION inf 5sec 1min 1hour
+    first_line = split[0]
+    result = {}
+    if first_line.startswith("id"):
+        result["id"] = int(first_line.split("\t", maxsplit=1)[-1])
+
+    for line in split[1:]:  # skip header: DURATION inf 5sec 1min 1hour
         values = line.split("\t")
         if len(values) > 2:  # noqa: PLR2004
-            result[values[0]] = parse_value(values[ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_AVERAGE_INDEX])
+            result[values[0]] = parse_value(values[duration_idx])
         else:
             result[values[0]] = parse_value(values[1])
+
+    result["duration"] = _durations[duration_idx]
 
     return result
 
 
-def parse_stats(stats: str) -> tuple[StatDictType, ...]:
+def parse_stats(stats: str, duration_idx: int) -> tuple[StatDictType, ...]:
     """
     Парсит и возвращает неочищенную статистику локального телеграм сервера в виде (общая, бот1, бот2, бот3, ...)
     """
-    return tuple(parse_stats_block(block) for block in stats.split("\n\n"))
+    return tuple(parse_stats_block(block, duration_idx) for block in stats.split("\n\n"))
 
 
-async def collect_stats() -> tuple[StatDictType, ...]:
+async def collect_stats(duration_idx: int) -> tuple[StatDictType, ...]:
     """
     Возвращает очищенную статистику локального телеграм сервера в виде (общая, бот1, бот2, бот3, ...)
     """
@@ -150,13 +159,13 @@ async def collect_stats() -> tuple[StatDictType, ...]:
     now = datetime.now(tz=UTC)
     collection_time = end - start
 
-    stats = parse_stats(stats)
+    stats = parse_stats(stats, duration_idx)
     for stat in stats:
         stat["date"] = now
         stat["collection_time"] = collection_time
 
     for bot in stats[1:]:
-        bot.pop("token")
+        bot.pop("token")  # Безопасность
 
         km = {}
         for key in bot:
@@ -172,7 +181,7 @@ async def collect_stats() -> tuple[StatDictType, ...]:
 async def collect_and_save() -> None:
     try:
 
-        general, *bots = await collect_stats()
+        general, *bots = await collect_stats(ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_AVERAGE_INDEX)
 
         async with clickhouse.connection() as clickhouse_connection:
             await clickhouse.insert_dict(
@@ -188,7 +197,7 @@ async def collect_and_save() -> None:
                     bot,
                 )
 
-        logger.debug("Local server statistics saved to clickhouse")
+        logger.info("Local server statistics saved to clickhouse")
 
     # pylint: disable=broad-exception-caught
     except Exception as exc:
@@ -201,9 +210,12 @@ async def collect_and_save() -> None:
         return
 
 
+_pending_tasks = set[PeriodicTask]()
+
+
 async def run_telegram_local_server_stats_collection_in_background() -> None:
     logger.debug("Ensuring clickhouse tables for local server statistics")
-    with open(UPDATE_DDL_SQL, encoding="utf-8") as sql_file:  # noqa: ASYNC230,PTH123
+    with open(LOCAL_SERVER_ANALYTICS_DDL_SQL, encoding="utf-8") as sql_file:  # noqa: ASYNC230,PTH123
         await clickhouse.run_sql(sql_file.read())
 
     logger.info(
@@ -211,4 +223,5 @@ async def run_telegram_local_server_stats_collection_in_background() -> None:
         ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_COLLECTION_PERIOD,
     )
     task = PeriodicTask(collect_and_save, ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_COLLECTION_PERIOD)
-    await asyncio.create_task(task.start())
+    _pending_tasks.add(task)  # Сохраняем, чтобы gc не убил
+    task.start()

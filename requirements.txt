@@ -1,6 +1,7 @@
 Jinja2~=3.1.4
 aiogram-dialog[tools]>=2.0.0,<3.0.0
 aiogram==3.13.1
+aiohttp~=3.10.9
 asynch[compression]~=0.2.4
 cachetools~=5.5.0
 clickhouse-cityhash~=1.0.2.4

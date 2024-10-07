@@ -1,6 +1,8 @@
 from contextlib import suppress
 from datetime import timedelta
 
+from djgram.contrib.local_server.constants import TelegramLocalServerStatsAverage
+
 MEDIA_DIR = None
 
 # Настройки базы данных
@@ -30,14 +32,13 @@ ANALYTICS_DIALOG_TABLE = "dialog_analytics"
 #: Таблица в clickhouse, в которую сохраняется статистика отправки ботом сообщений
 ANALYTICS_BOT_SEND_TABLE = "bot_send_analytics"
 #: Таблица в clickhouse, в которую сохраняется общая статистика локального сервера
-ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_GENERAL_TABLE = "general_statistics"
+ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_GENERAL_TABLE = "local_server_general_statistics"
 #: Таблица в clickhouse, в которую сохраняется статистика по каждому боту, подключенному к локальному серверу
-ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_BOT_TABLE = "bot_statistics"
+ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_BOT_TABLE = "local_server_bot_statistics"
 #: Период сбора статистики локального сервера в секундах
 ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_COLLECTION_PERIOD = 60
 #: Какое среднее сохраняется в статистику, возможные варианты
-# 1 - inf, 2 - 5 sec, 3 - 1 min, 4 - 1 hour
-ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_AVERAGE_INDEX = 3
+ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_AVERAGE_INDEX = TelegramLocalServerStatsAverage.ONE_MINUTE
 
 #: Путь до папки с диаграммами диалогов
 DIALOG_DIAGRAMS_DIR = "dialog_diagrams"
