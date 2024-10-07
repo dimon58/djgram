@@ -35,7 +35,7 @@ class PeriodicTask:
         self._is_started = False
         self._task = None
 
-    async def start(self) -> None:
+    def start(self) -> None:
         if self._is_started:
             return
 
