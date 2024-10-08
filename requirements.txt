@@ -11,7 +11,7 @@ graphviz~=0.20.3
 humanfriendly~=10.0
 limiter~=0.5.0
 orjson~=3.10.7
-phonenumbers==8.13.46
+phonenumbers==8.13.47
 pydantic>=2.0.0,<3.0.0
 sqlalchemy-file~=0.6.0
 sqlalchemy-utils~=0.41.2

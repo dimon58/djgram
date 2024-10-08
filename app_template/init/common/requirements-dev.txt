@@ -3,8 +3,8 @@
 
 # Code quality
 # ------------------------------------------------------------------------------
-bandit==1.7.9                       # https://github.com/PyCQA/bandit
-black==24.4.2                       # https://github.com/psf/black
-ruff==0.5.5                         # https://github.com/astral-sh/ruff
+bandit==1.7.10                      # https://github.com/PyCQA/bandit
+black==24.10.0                      # https://github.com/psf/black
+ruff==0.6.9                         # https://github.com/astral-sh/ruff
 isort==5.13.2                       # https://github.com/PyCQA/isort
-pre-commit==3.7.1                   # https://github.com/pre-commit/pre-commit
+pre-commit==4.0.1                   # https://github.com/pre-commit/pre-commit
