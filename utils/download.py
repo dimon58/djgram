@@ -14,7 +14,7 @@ async def download_file(
     bot: Bot,
     file: str | Downloadable,
     file_size: int,
-    timeout: int = 30,
+    timeout: int = 30,  # noqa: ASYNC109
     chunk_size: int = 65536,
     seek: bool = True,
 ) -> BytesIO:
