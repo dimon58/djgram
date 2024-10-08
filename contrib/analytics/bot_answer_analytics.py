@@ -14,10 +14,10 @@ from aiogram.types import BufferedInputFile, FSInputFile, InputFile, URLInputFil
 from djgram.configs import ANALYTICS_BOT_SEND_TABLE
 from djgram.contrib.logs.context import UPDATE_ID
 from djgram.db import clickhouse
-from djgram.utils.serialization import jsonify
-
 from djgram.utils.input_file_ext import S3FileInput
+from djgram.utils.serialization import jsonify
 from djgram.utils.upload import LoggingInputFile
+
 from .misc import BOT_SEND_ANALYTICS_DDL_SQL
 from .utils import set_defaults
 

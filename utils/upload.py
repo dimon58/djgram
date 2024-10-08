@@ -2,12 +2,15 @@ import logging
 import os
 import time
 from collections.abc import AsyncGenerator
+from typing import TYPE_CHECKING
 
-from aiogram import Bot
 from aiogram.types import BufferedInputFile, FSInputFile, InputFile
 
 from djgram.utils.formating import get_bytes_size_format
 from djgram.utils.input_file_ext import S3FileInput
+
+if TYPE_CHECKING:
+    from aiogram import Bot
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +19,8 @@ class LoggingInputFile(InputFile):
     """
     Используется в качестве логирующего прокси для загрузки файла в телеграм
     """
-    def __init__(self, input_file: InputFile, debounce_time: float = 5):
+
+    def __init__(self, input_file: InputFile, debounce_time: float = 5):  # noqa: D107
         super().__init__(filename=input_file.filename, chunk_size=input_file.chunk_size)
         self.real_input_file = input_file
         self.debounce_time = debounce_time
@@ -25,10 +29,10 @@ class LoggingInputFile(InputFile):
         if isinstance(self.real_input_file, BufferedInputFile):
             return len(self.real_input_file.data)
 
-        elif isinstance(self.real_input_file, FSInputFile):
+        if isinstance(self.real_input_file, FSInputFile):
             return os.path.getsize(self.real_input_file.path)  # noqa: PTH202
 
-        elif isinstance(self.real_input_file, S3FileInput):
+        if isinstance(self.real_input_file, S3FileInput):
             return self.real_input_file.obj.size
 
         return None
