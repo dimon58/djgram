@@ -16,6 +16,8 @@ from djgram.contrib.logs.context import UPDATE_ID
 from djgram.db import clickhouse
 from djgram.utils.serialization import jsonify
 
+from djgram.utils.input_file_ext import S3FileInput
+from djgram.utils.upload import LoggingInputFile
 from .misc import BOT_SEND_ANALYTICS_DDL_SQL
 from .utils import set_defaults
 
@@ -29,6 +31,10 @@ _pending_tasks = set[asyncio.Task]()
 
 
 def _serialize_input_file(input_file: InputFile) -> dict[str, Any]:
+
+    if isinstance(input_file, LoggingInputFile):
+        input_file = input_file.real_input_file
+
     data = {
         "type": input_file.__class__.__name__,
         "file_name": input_file.filename,
@@ -45,6 +51,15 @@ def _serialize_input_file(input_file: InputFile) -> dict[str, Any]:
         data["url"] = input_file.url
         data["headers"] = input_file.headers
         data["timeout"] = input_file.timeout
+
+    elif isinstance(input_file, S3FileInput):
+        data["file_size"] = input_file.obj.size
+        data["name"] = input_file.obj.name
+        data["hash"] = input_file.obj.hash
+        data["container"] = input_file.obj.container.name
+        data["extra"] = input_file.obj.extra
+        data["meta_data"] = input_file.obj.meta_data
+        data["driver"] = input_file.obj.driver.name
 
     return data
 
