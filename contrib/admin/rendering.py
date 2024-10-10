@@ -385,11 +385,20 @@ class JsonRenderer(AdminFieldRenderer):
     ```
     """
 
+    indent = 2
+
+    def json_dumps_support_pydantic(self, obj: Any):
+
+        if isinstance(obj, pydantic.BaseModel):
+            return obj.model_dump_json(indent=self.indent)
+
+        raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+
     def render_body(self, obj: BaseModel) -> str:
         data = self.get_from_obj(obj)
         if data is None:
             return "<pre>None</pre>"
-        data = json.dumps(data, ensure_ascii=False, indent=2)
+        data = json.dumps(data, ensure_ascii=False, indent=self.indent, default=self.json_dumps_support_pydantic)
         return f'<pre><code class="json">{html_escape(data)}</code></pre>'
 
 
