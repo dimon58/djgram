@@ -6,9 +6,11 @@ import asyncio
 import logging.config
 
 from aiogram import Bot, Dispatcher, Router
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import Command, CommandStart, ExceptionTypeFilter
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message
+from aiogram.types import ErrorEvent, Message
+from aiogram_dialog import DialogManager
+from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
 
 from configs import LOGGING_CONFIG, TELEGRAM_BOT_TOKEN
 
@@ -59,6 +61,15 @@ def setup_routers(dp: Dispatcher) -> None:
     logger.info("Routers setup")
 
 
+async def on_unknown_intent(event: ErrorEvent, dialog_manager: DialogManager):
+    logging.error("Error in dialog: %s", event.exception)
+
+
+async def on_unknown_state(event: ErrorEvent, dialog_manager: DialogManager):
+    # Example of handling UnknownState Error and starting new dialog.
+    logging.error("Error in dialog: %s", event.exception)
+
+
 async def main() -> None:
     """
     Точка входа в бота
@@ -66,6 +77,8 @@ async def main() -> None:
 
     storage = MemoryStorage()  # todo:  Стоит поменять на RedisStorage
     dp = Dispatcher(storage=storage)
+    dp.errors.register(on_unknown_intent, ExceptionTypeFilter(UnknownIntent))
+    dp.errors.register(on_unknown_state, ExceptionTypeFilter(UnknownState))
     bot = Bot(TELEGRAM_BOT_TOKEN)
 
     setup_djgram(dp, analytics=False)
