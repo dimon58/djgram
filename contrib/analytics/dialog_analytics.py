@@ -307,8 +307,10 @@ class DialogAnalytics(pydantic.BaseModel):
         calendar_user_config = await calendar._get_user_config(widget_data, manager)  # noqa: SLF001
 
         self.calendar_user_config_firstweekday = calendar_user_config.firstweekday
-        self.calendar_user_config_timezone_name = calendar_user_config.timezone.tzname(None)
-        self.calendar_user_config_timezone_offset = calendar_user_config.timezone.utcoffset(None).seconds
+        _timezone = calendar_user_config.timezone
+        if _timezone is not None:
+            self.calendar_user_config_timezone_name = _timezone.tzname(None)
+            self.calendar_user_config_timezone_offset = _timezone.utcoffset(None).seconds
 
     async def extend_from(self, keyboard: Keyboard, middleware_data: dict[str, Any]) -> None:
 
