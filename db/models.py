@@ -3,6 +3,7 @@ import datetime
 from sqlalchemy import MetaData, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 from sqlalchemy.sql import sqltypes
+from uuid6 import UUID, uuid7
 
 from djgram.configs import DB_METADATA
 from djgram.utils.misc import utcnow
@@ -39,6 +40,18 @@ class BaseModel(Base):
     @declared_attr.directive
     def __tablename__(cls) -> str:  # noqa: N805
         return cls.__name__.lower()
+
+
+class UUIDBaseModel(BaseModel):
+    __abstract__ = True
+
+    id: Mapped[UUID] = mapped_column(
+        sqltypes.UUID(as_uuid=True),
+        nullable=False,
+        primary_key=True,
+        default=uuid7,  # Генерация UUIDv7 по умолчанию
+        doc="The primary identifier of the object",
+    )
 
 
 class CreatedAtMixin:
