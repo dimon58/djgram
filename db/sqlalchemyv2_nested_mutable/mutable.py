@@ -1,23 +1,28 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self, TypeVar
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeVar, cast
 
 import sqlalchemy as sa
 from pydantic import BaseModel
 from sqlalchemy import Dialect
 from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.sql.type_api import TypeEngine
 
-from ._typing import T
+from ._typing import KT, VT, T
 from .trackable import TrackedDict, TrackedList, TrackedObject, TrackedPydanticBaseModel
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Mapping
+    from collections.abc import Mapping
+
+    from sqlalchemy.sql.type_api import TypeEngine
 
 _P = TypeVar("_P", bound="MutablePydanticBaseModel")
+_DB_JSON = TypeVar("_DB_JSON", bound=sa.JSON)
+
+default_json = sa.JSON()
 
 
-class MutableList(TrackedList, Mutable, list[T]):
+class MutableList(TrackedList[T], Mutable):
     """
     A mutable list that tracks changes to itself and its children.
 
@@ -28,23 +33,28 @@ class MutableList(TrackedList, Mutable, list[T]):
     """
 
     @classmethod
-    def coerce(cls, key: str, value: Any) -> MutableList:
+    def coerce(cls, key: str, value: Any) -> MutableList[T]:
         return value if isinstance(value, cls) else cls(value)
 
-    def __init__(self, __iterable: Iterable[T] = []):  # noqa: D107
-        super().__init__(TrackedObject.make_nested_trackable(__iterable, self))
+    def __init__(self, __iterable: Iterable[T] | None = None):  # noqa: D107
+        if __iterable is None:
+            __iterable = []
+
+        super().__init__(TrackedObject.make_nested_trackable(cast(Iterable[T], __iterable), self))
 
 
-class MutableDict(TrackedDict, Mutable):
+class MutableDict(TrackedDict[KT, VT], Mutable):
     @classmethod
-    def coerce(cls, key: str, value: Any) -> MutableDict:
+    def coerce(cls, key: str, value: Any) -> MutableDict[KT, VT]:
         return value if isinstance(value, cls) else cls(value)
 
-    def __init__(self, source: Mapping | Iterable = (), **kwds):  # noqa: D107
-        super().__init__(TrackedObject.make_nested_trackable(dict(source, **kwds), self))
+    def __init__(self, source: Mapping[KT, VT] | Iterable[tuple[KT, VT]] = (), **kwds):  # noqa: D107
+        super().__init__(  # pyright: ignore [reportCallIssue]
+            TrackedObject.make_nested_trackable(dict(source, **kwds), self)  # pyright: ignore [reportArgumentType]
+        )
 
 
-class PydanticType(sa.types.TypeDecorator, TypeEngine[_P]):
+class PydanticType(sa.types.TypeDecorator[_P], Generic[_P, _DB_JSON]):
     """
     Inspired by https://gist.github.com/imankulov/4051b7805ad737ace7d8de3d3f934d6b
     """
@@ -52,23 +62,28 @@ class PydanticType(sa.types.TypeDecorator, TypeEngine[_P]):
     cache_ok = True
     impl = sa.types.JSON
 
-    def __init__(self, pydantic_type: type[_P], sqltype: TypeEngine[T] | None = None):  # noqa: D107
+    def __init__(  # noqa: D107
+        self,
+        pydantic_type: type[_P],
+        sqltype: TypeEngine[_DB_JSON] = default_json,
+        use_jsonb_if_postgres: bool = True,
+    ):
         super().__init__()
         if not issubclass(pydantic_type, BaseModel):
             raise TypeError(f"pydantic_type should be subclass of BaseModel not {type(pydantic_type)}")
 
         self.pydantic_type = pydantic_type
         self.sqltype = sqltype
+        self.use_jsonb_if_postgres = use_jsonb_if_postgres
 
-    def load_dialect_impl(self, dialect: Dialect) -> TypeEngine[sa.JSON]:
-        from sqlalchemy.dialects.postgresql import JSONB
+    def load_dialect_impl(self, dialect: Dialect) -> TypeEngine[_DB_JSON]:
 
-        if self.sqltype is not None:
-            return dialect.type_descriptor(self.sqltype)
+        if dialect.name == "postgresql" and self.use_jsonb_if_postgres:
+            from sqlalchemy.dialects.postgresql import JSONB
 
-        if dialect.name == "postgresql":
             return dialect.type_descriptor(JSONB())
-        return dialect.type_descriptor(sa.JSON())
+
+        return dialect.type_descriptor(self.sqltype)
 
     def __repr__(self):
         # NOTE: the `__repr__` is used by Alembic to generate the migration script.
@@ -81,9 +96,9 @@ class PydanticType(sa.types.TypeDecorator, TypeEngine[_P]):
         return self.pydantic_type.model_validate(value) if value else None
 
 
-class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):
+class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable, Generic[_DB_JSON]):
     @classmethod
-    def coerce(cls, key: str, value: Any) -> Self:
+    def coerce(cls, key: str, value: Any) -> MutablePydanticBaseModel:
         return value if isinstance(value, cls) else cls.model_validate(value)
 
     def dict(self, *args, **kwargs):
@@ -92,5 +107,8 @@ class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):
         return res
 
     @classmethod
-    def as_mutable(cls, sqltype: TypeEngine[T] | None = None) -> TypeEngine[Self]:
+    def as_mutable(  # pyright: ignore [reportIncompatibleMethodOverride]
+        cls,
+        sqltype: TypeEngine[_DB_JSON] = default_json,
+    ) -> TypeEngine[Self]:
         return super().as_mutable(PydanticType(cls, sqltype))
