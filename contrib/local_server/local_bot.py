@@ -1,6 +1,8 @@
+import logging
 import re
-from contextlib import AbstractAsyncContextManager, asynccontextmanager
-from typing import TypeVar
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+from typing import TypeVar, cast
 
 from aiogram import Bot
 from aiogram.client.session.aiohttp import AiohttpSession
@@ -10,6 +12,8 @@ from aiogram.types import File
 from djgram.utils.misc import unfreeze_model
 
 T = TypeVar("T")
+
+logger = logging.getLogger(__name__)
 
 
 class SemiLocalBot(Bot):
@@ -28,10 +32,18 @@ class SemiLocalBot(Bot):
     ) -> File:
         file_ = await super().get_file(file_id, request_timeout)
 
+        if file_.file_path is None:
+            raise ValueError(f"File {file_.file_id} has no file path. You should use SemiLocalBot with local server")
+
+        match = re.match(self._PATH_REGEX, cast(str, file_.file_path))
+        if match is None:
+            logger.debug("Invalid file path: regex %s does not match %s", self._PATH_REGEX, file_.file_path)
+            raise ValueError("Invalid file path")
+
         with unfreeze_model(file_):
             # /var/lib/telegram-bot-api/<token>/<path>
             # noinspection Pydantic
-            file_.file_path = re.match(self._PATH_REGEX, file_.file_path).group(1)
+            file_.file_path = cast(re.Match, match).group(1)
 
         return file_
 
@@ -68,7 +80,7 @@ async def get_local_bot_context(
     telegram_local: bool,
     telegram_local_server_url: str,
     telegram_local_server_files_url: str,
-) -> AbstractAsyncContextManager[Bot]:
+) -> AsyncGenerator[Bot, None]:
     bot = get_local_bot(
         telegram_bot_token=telegram_bot_token,
         telegram_local=telegram_local,

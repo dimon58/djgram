@@ -1,7 +1,7 @@
 import abc
 import logging
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from aiogram.enums import ChatAction
 from aiogram.types import BufferedInputFile, CallbackQuery
@@ -17,11 +17,12 @@ from .misc import get_admin_representation_for_logging
 if TYPE_CHECKING:
     from sqlalchemy_file import File
 
+T = TypeVar("T", bound=BaseModel)
 
 logger = logging.getLogger(__name__)
 
 
-class AbstractObjectActionButton(abc.ABC):
+class AbstractObjectActionButton(abc.ABC, Generic[T]):
     """
     Базовый класс кнопки действия над объектом в админке
 
@@ -37,7 +38,7 @@ class AbstractObjectActionButton(abc.ABC):
         self.title = title
 
     # noinspection PyMethodMayBeStatic
-    def should_render(self, obj: BaseModel, middleware_data: dict[str, Any]) -> bool:
+    def should_render(self, obj: T, middleware_data: dict[str, Any]) -> bool:
         """
         Нужно ли рендерить кнопку
 
@@ -47,7 +48,7 @@ class AbstractObjectActionButton(abc.ABC):
         """
         return True
 
-    def get_title(self, obj: BaseModel) -> str:
+    def get_title(self, obj: T) -> str:
         """
         Возвращает название кнопки с учётом конкретного объекта
 
@@ -56,7 +57,7 @@ class AbstractObjectActionButton(abc.ABC):
         return self.title
 
     @abc.abstractmethod
-    async def click(self, obj: BaseModel, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
+    async def click(self, obj: T, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
         """
         Обработчик нажатия на кнопку
 
@@ -65,23 +66,23 @@ class AbstractObjectActionButton(abc.ABC):
         """
 
 
-class CallbackObjectActionButton(AbstractObjectActionButton):
+class CallbackObjectActionButton(AbstractObjectActionButton[T]):
     """
     Кнопка выполняющая переданный колбек при нажатии
     """
 
-    def __init__(self, button_id: str, title: str, callback: Callable[[CallbackQuery, BaseModel], Awaitable[None]]):
+    def __init__(self, button_id: str, title: str, callback: Callable[[CallbackQuery, T], Awaitable[None]]):
         """
         :param callback: колбек при нажатии на кнопку
         """
         super().__init__(button_id, title)
         self.callback = callback
 
-    async def click(self, obj: BaseModel, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
+    async def click(self, obj: T, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
         await self.callback(callback_query, obj)
 
 
-class DownloadFileActionButton(AbstractObjectActionButton):
+class DownloadFileActionButton(AbstractObjectActionButton[T]):
     """
     Отправляет файл при нажатии
     """
@@ -93,7 +94,7 @@ class DownloadFileActionButton(AbstractObjectActionButton):
         super().__init__(button_id, title)
         self.file_field = file_field
 
-    async def click(self, obj: BaseModel, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
+    async def click(self, obj: T, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
         if not hasattr(obj, self.file_field):
             logger.error("%s has no attribute %s", obj.__class__, self.file_field)
             return
