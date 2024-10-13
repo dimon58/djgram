@@ -7,9 +7,8 @@ from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.sql.type_api import TypeEngine
 
 from djgram.db.sqlalchemyv2_nested_mutable import TrackedPydanticBaseModel
-from djgram.db.sqlalchemyv2_nested_mutable.mutable import PydanticType
+from djgram.db.sqlalchemyv2_nested_mutable.mutable import DB_JSON, PydanticType, default_json
 
-_T = TypeVar("_T", bound=Any)
 _P = TypeVar("_P", bound=pydantic.BaseModel)
 
 
@@ -64,7 +63,7 @@ class ImmutablePydanticField(ExtendedPydanticType[_P]):
     def __init__(  # noqa: D107
         self,
         pydantic_type: type[_P],
-        sqltype: TypeEngine[_T] | None = None,
+        sqltype: TypeEngine[DB_JSON] = default_json,
         should_frozen: bool = True,
     ):
         self.should_frozen = should_frozen
@@ -99,12 +98,13 @@ class ExtendedMutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):
         return res
 
     @classmethod
-    def as_mutable(cls, sqltype: TypeEngine[_T] | None = None) -> TypeEngine[ExtendedPydanticType[Self]]:
+    def as_mutable(cls, sqltype: TypeEngine[DB_JSON] = default_json) -> TypeEngine[Self]:
         return super().as_mutable(ExtendedPydanticType(cls, sqltype))
 
 
 def PydanticField(  # noqa: N802
-    pydantic_type: type[_P], json_sql_type: TypeEngine | None = None
+    pydantic_type: type[_P],
+    json_sql_type: TypeEngine[DB_JSON] = default_json,
 ) -> TypeEngine[ExtendedPydanticType[_P]]:
     """
     Возвращает обёртку над json в виде pydantic_type, которая позволяет отслеживать вложенные изменения в данных
@@ -115,7 +115,7 @@ def PydanticField(  # noqa: N802
     :param json_sql_type: тип хранения в базе данных (JSON и JSONB)
     """
 
-    if json_sql_type is not None and (
+    if (
         isinstance(json_sql_type, type)
         and not issubclass(json_sql_type, JSON)
         or not isinstance(json_sql_type, type)

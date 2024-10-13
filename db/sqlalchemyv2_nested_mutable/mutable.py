@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from sqlalchemy.sql.type_api import TypeEngine
 
 _P = TypeVar("_P", bound="MutablePydanticBaseModel")
-_DB_JSON = TypeVar("_DB_JSON", bound=sa.JSON)
+DB_JSON = TypeVar("DB_JSON", bound=sa.JSON)
 
 default_json = sa.JSON()
 
@@ -54,7 +54,7 @@ class MutableDict(TrackedDict[KT, VT], Mutable):
         )
 
 
-class PydanticType(sa.types.TypeDecorator[_P], Generic[_P, _DB_JSON]):
+class PydanticType(sa.types.TypeDecorator[_P], Generic[_P, DB_JSON]):
     """
     Inspired by https://gist.github.com/imankulov/4051b7805ad737ace7d8de3d3f934d6b
     """
@@ -65,7 +65,7 @@ class PydanticType(sa.types.TypeDecorator[_P], Generic[_P, _DB_JSON]):
     def __init__(  # noqa: D107
         self,
         pydantic_type: type[_P],
-        sqltype: TypeEngine[_DB_JSON] = default_json,
+        sqltype: TypeEngine[DB_JSON] = default_json,
         use_jsonb_if_postgres: bool = True,
     ):
         super().__init__()
@@ -76,7 +76,7 @@ class PydanticType(sa.types.TypeDecorator[_P], Generic[_P, _DB_JSON]):
         self.sqltype = sqltype
         self.use_jsonb_if_postgres = use_jsonb_if_postgres
 
-    def load_dialect_impl(self, dialect: Dialect) -> TypeEngine[_DB_JSON]:
+    def load_dialect_impl(self, dialect: Dialect) -> TypeEngine[DB_JSON]:
 
         if dialect.name == "postgresql" and self.use_jsonb_if_postgres:
             from sqlalchemy.dialects.postgresql import JSONB
@@ -96,7 +96,7 @@ class PydanticType(sa.types.TypeDecorator[_P], Generic[_P, _DB_JSON]):
         return self.pydantic_type.model_validate(value) if value else None
 
 
-class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable, Generic[_DB_JSON]):
+class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable, Generic[DB_JSON]):
     @classmethod
     def coerce(cls, key: str, value: Any) -> MutablePydanticBaseModel:
         return value if isinstance(value, cls) else cls.model_validate(value)
@@ -109,6 +109,6 @@ class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable, Generic[_DB_JS
     @classmethod
     def as_mutable(  # pyright: ignore [reportIncompatibleMethodOverride]
         cls,
-        sqltype: TypeEngine[_DB_JSON] = default_json,
+        sqltype: TypeEngine[DB_JSON] = default_json,
     ) -> TypeEngine[Self]:
         return super().as_mutable(PydanticType(cls, sqltype))
