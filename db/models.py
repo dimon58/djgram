@@ -45,7 +45,7 @@ class BaseModel(Base):
 class UUIDBaseModel(BaseModel):
     __abstract__ = True
 
-    id: Mapped[UUID] = mapped_column(
+    id: Mapped[UUID] = mapped_column(  # pyright: ignore [reportIncompatibleVariableOverride]
         sqltypes.UUID(as_uuid=True),
         nullable=False,
         primary_key=True,

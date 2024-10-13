@@ -13,7 +13,7 @@ from sqlalchemy_file import FileField
 
 from djgram.db import db_engine
 from djgram.db.pydantic_field import ExtendedPydanticType
-from main import BaseModel
+from main import BaseModel  # pyright: ignore [reportMissingImports]
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
