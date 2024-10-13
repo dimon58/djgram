@@ -60,7 +60,7 @@ import copy
 import logging
 import time
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any, Self, cast
 
 import orjson
 import pydantic
@@ -95,6 +95,10 @@ _pending_tasks = set[asyncio.Task]()
 DIALOG_ANALYTICS_ENABLED = False
 
 
+def _json_dump_optional(obj: Any, name: str) -> str:
+    return orjson.dumps(getattr(obj, name, None)).decode()
+
+
 class DialogAnalytics(pydantic.BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -115,7 +119,7 @@ class DialogAnalytics(pydantic.BaseModel):
     telegram_user_id: int | None = None
     telegram_chat_id: int | None = None
     telegram_thread_id: int | None = None
-    telegram_business_connection_id: int | None = None
+    telegram_business_connection_id: str | None = None
     user_id: int | None = None
 
     # Widget info
@@ -187,7 +191,9 @@ class DialogAnalytics(pydantic.BaseModel):
         if callback is None:
             return None
 
-        if (reply_markup := callback.message.reply_markup) is None:
+        # TODO: Разобраться, когда в callback нет message
+        # У InaccessibleMessage нет поля reply_markup
+        if (reply_markup := getattr(callback.message, "reply_markup", None)) is None:
             return None
 
         aiogd_original_callback_data = middleware_data[CALLBACK_DATA_KEY]
@@ -202,7 +208,10 @@ class DialogAnalytics(pydantic.BaseModel):
     @staticmethod
     def get_aiogd_context_group_name(aiogd_context_state: State | None) -> str | None:
         if aiogd_context_state is not None:
-            return aiogd_context_state._group.__full_group_name__  # noqa: SLF001
+            # noinspection PyProtectedMember
+            return (
+                aiogd_context_state._group.__full_group_name__  # noqa: SLF001 # pyright: ignore [reportOptionalMemberAccess]
+            )
 
         return None
 
@@ -266,9 +275,9 @@ class DialogAnalytics(pydantic.BaseModel):
             aiogd_context_stack_id=getattr(aiogd_context_before, "stack_id", None),
             aiogd_context_state=getattr(aiogd_context_state_before, "state", None),
             aiogd_context_state_group_name=cls.get_aiogd_context_group_name(aiogd_context_state_before),
-            aiogd_context_start_data=orjson.dumps(getattr(aiogd_context_before, "start_data", None)),
-            aiogd_context_dialog_data=orjson.dumps(getattr(aiogd_context_before, "dialog_data", None)),
-            aiogd_context_widget_data=orjson.dumps(getattr(aiogd_context_before, "widget_data", None)),
+            aiogd_context_start_data=_json_dump_optional(aiogd_context_before, "start_data"),
+            aiogd_context_dialog_data=_json_dump_optional(aiogd_context_before, "dialog_data"),
+            aiogd_context_widget_data=_json_dump_optional(aiogd_context_before, "widget_data"),
             # aiogram_dialog.api.entities.Stack
             aiogd_stack_id=getattr(aiogd_stack_before, "id", None),
             aiogd_stack_intents=getattr(aiogd_stack_before, "intents", []),
@@ -284,9 +293,9 @@ class DialogAnalytics(pydantic.BaseModel):
             aiogd_context_stack_id_new=getattr(aiogd_context_new, "stack_id", None),
             aiogd_context_state_new=getattr(aiogd_context_state_new, "state", None),
             aiogd_context_state_group_name_new=cls.get_aiogd_context_group_name(aiogd_context_state_new),
-            aiogd_context_start_data_new=orjson.dumps(getattr(aiogd_context_new, "start_data", None)),
-            aiogd_context_dialog_data_new=orjson.dumps(getattr(aiogd_context_new, "dialog_data", None)),
-            aiogd_context_widget_data_new=orjson.dumps(getattr(aiogd_context_new, "widget_data", None)),
+            aiogd_context_start_data_new=_json_dump_optional(aiogd_context_new, "start_data"),
+            aiogd_context_dialog_data_new=_json_dump_optional(aiogd_context_new, "dialog_data"),
+            aiogd_context_widget_data_new=_json_dump_optional(aiogd_context_new, "widget_data"),
             # aiogram_dialog.api.entities.Stack
             aiogd_stack_id_new=getattr(aiogd_stack_new, "id", None),
             aiogd_stack_intents_new=getattr(aiogd_stack_new, "intents", []),
@@ -318,7 +327,7 @@ class DialogAnalytics(pydantic.BaseModel):
         dialog_manager = middleware_data.get(MANAGER_KEY)
 
         if isinstance(keyboard, Calendar):
-            await self.extend_from_calendar(keyboard, aiogd_context.widget_data, dialog_manager)
+            await self.extend_from_calendar(keyboard, aiogd_context.widget_data, cast(DialogManager, dialog_manager))
             return
 
     async def save_to_clickhouse(self) -> None:
@@ -374,6 +383,7 @@ async def keyboard_process_callback(
     dialog: DialogProtocol,
     manager: DialogManager,
 ) -> bool:
+    # TODO: разобраться, когда у callback нет data
     if callback.data == self.widget_id:
         aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
         aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
@@ -400,7 +410,7 @@ async def keyboard_process_callback(
         return processed
 
     prefix = self.callback_prefix()
-    if prefix and callback.data.startswith(prefix):
+    if prefix and callback.data.startswith(prefix):  # pyright: ignore [reportOptionalMemberAccess]
         aiogd_context_before: Context = copy.deepcopy(manager.middleware_data[CONTEXT_KEY])
         aiogd_stack_before: Stack = copy.deepcopy(manager.middleware_data[STACK_KEY])
         state_before: str | None = await manager.middleware_data["state"].get_state()
@@ -408,7 +418,7 @@ async def keyboard_process_callback(
         start = time.perf_counter()
         processed = await self._process_item_callback(
             callback,
-            callback.data[len(prefix) :],
+            callback.data[len(prefix) :],  # pyright: ignore [reportOptionalSubscript]
             dialog,
             manager,
         )
@@ -559,7 +569,7 @@ async def text_input_process_message(
         return False
     start = time.perf_counter()
     try:
-        value = self.type_factory(message.text)
+        value = self.type_factory(cast(str, message.text))
     except ValueError as err:
         await self.on_error.process_event(
             message,

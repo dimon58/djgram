@@ -9,7 +9,7 @@ import time
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from time import perf_counter
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, cast
 
 import orjson
 from aiogram import BaseMiddleware, Bot
@@ -105,7 +105,7 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
         finish = perf_counter()
 
         # Если перед этой мидлварью установлена UserContextMiddleware из aiogram, то есть event_context
-        event_context: EventContext = data.get(EVENT_CONTEXT_KEY)
+        event_context: EventContext | None = data.get(EVENT_CONTEXT_KEY)
         if event_context is not None:
             event_context = UserContextMiddleware.resolve_event_context(update)
 
@@ -113,7 +113,7 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
             save_event_to_clickhouse(
                 update=update,
                 execution_time=finish - start,
-                event_context=event_context,
+                event_context=cast(EventContext, event_context),
                 bot=data["bot"],
             )
         )

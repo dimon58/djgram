@@ -113,4 +113,5 @@ def setup_bot_answer_analytics():
         task.add_done_callback(_pending_tasks.remove)
         _pending_tasks.add(task)
 
-    Bot.__call__ = analytics_wrapper(Bot.__call__)
+    # noinspection PyTypeChecker
+    Bot.__call__ = analytics_wrapper(Bot.__call__)  # pyright: ignore [reportAttributeAccessIssue]

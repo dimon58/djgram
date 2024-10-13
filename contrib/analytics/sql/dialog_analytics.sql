@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS dialog_analytics
     `telegram_user_id`                          Nullable(Int64),
     `telegram_chat_id`                          Nullable(Int64),
     `telegram_thread_id`                        Nullable(Int64),
-    `telegram_business_connection_id`           Nullable(Int64),
+    `telegram_business_connection_id`           Nullable(String),
     `user_id`                                   Nullable(Int64),
 
     -- Widget info
