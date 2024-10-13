@@ -16,6 +16,7 @@ from djgram.contrib.dialogs.utils import delete_last_message_from_dialog_manager
 from ..misc import get_admin_representation_for_logging_from_middleware_data
 from ..rendering import QUERY_KEY
 from . import getters
+from .getters import PAGE_KEY
 from .states import AdminStates
 
 logger = logging.getLogger(__name__)
@@ -75,6 +76,7 @@ async def on_model_selected(callback: CallbackQuery, widget: Any, manager: Dialo
     """
     Обработчик выбора модели
     """
+    manager.current_context().widget_data[PAGE_KEY] = 0
     manager.dialog_data[getters.MODEL_ID_KEY] = int(model_id)
     await manager.switch_to(AdminStates.row_list)
 
@@ -85,12 +87,14 @@ async def on_search_row_input(message: Message, message_input: MessageInput, man
         await message.answer("Поддерживается только поиск по тексту")
         return
 
+    manager.current_context().widget_data[PAGE_KEY] = 0
     manager.dialog_data[QUERY_KEY] = message.text
     await manager.switch_to(AdminStates.row_list)
 
 
 # pylint: disable=unused-argument
 async def reset_search_query(callback_query: CallbackQuery, button: Button, manager: DialogManager):
+    manager.current_context().widget_data[PAGE_KEY] = 0
     manager.dialog_data.pop(QUERY_KEY, None)
 
 

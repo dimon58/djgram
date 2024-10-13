@@ -31,6 +31,7 @@ MODELS_KEY = "models"
 
 APPS_NAME_KEY = "app_name"
 MODEL_NAME_KEY = "model_name"
+PAGE_KEY = "page"
 OBJECT_NAME_KEY = "object_name"
 
 TEXT_KEY = "text"
@@ -87,7 +88,7 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
     app = apps_admins[dialog_manager.dialog_data[APP_ID_KEY]]
     model_admin = app.admin_models[dialog_manager.dialog_data[MODEL_ID_KEY]]
 
-    page = DatabasePaginatedScrollingGroup.get_page_number_from_manager(dialog_manager, "page")
+    page = DatabasePaginatedScrollingGroup.get_page_number_from_manager(dialog_manager, PAGE_KEY)
 
     stmt = select(model_admin.model)
     total_stmt = select(func.count()).select_from(model_admin.model)

@@ -105,7 +105,7 @@ admin_dialog = Dialog(
                 items=getters.ROWS_KEY,
                 on_click=on_row_selected,
             ),
-            id="page",
+            id=getters.PAGE_KEY,
             width=1,
             height=ADMIN_ROWS_PER_PAGE,
             hide_on_single_page=True,
