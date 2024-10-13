@@ -5,7 +5,7 @@ from typing import cast
 from aiogram import Bot
 from aiogram.types import BufferedInputFile
 
-from djgram.utils import resolve_pyobj
+from djgram.utils.misc import resolve_pyobj
 
 
 class TelegramFormatter(Formatter):

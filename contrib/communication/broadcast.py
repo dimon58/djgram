@@ -78,7 +78,9 @@ async def broadcast(  # noqa: PLR0912, PLR0915
         per_chat_kwargs = iter(per_chat_kwargs)
     last_logging_time = start = global_start = time.perf_counter()
     for number, chat_id in enumerate(chat_ids, start=1):
-        chat_kwargs = next(per_chat_kwargs) if per_chat_kwargs is not None else {}
+        chat_kwargs = (
+            next(per_chat_kwargs) if per_chat_kwargs is not None else {}  # pyright: ignore [reportArgumentType]
+        )
 
         try:
             status = await send_method(chat_id=chat_id, **chat_kwargs, **kwargs)

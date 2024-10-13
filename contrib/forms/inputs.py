@@ -2,7 +2,7 @@ import copy
 import time
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Hashable, Sequence
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import phonenumbers
 from aiogram.enums import ContentType
@@ -45,14 +45,15 @@ class FormInput(MessageInput, ABC):
         content_types: Sequence[str] | str = ContentType.ANY,
         filter: Callable[..., Any] | None = None,  # noqa: A002
     ):
+        # noinspection PyTypeChecker
         super().__init__(
-            func=self.form_input_func,
+            func=self.form_input_func,  # pyright: ignore [reportArgumentType]
             content_types=content_types,
             filter=filter,
         )
         if isinstance(key, str):
             key = [key]
-        self.key = key
+        self.key = cast(Sequence[Hashable], key)
         self.on_validation_success = on_validation_success
         self.on_validation_failure = on_validation_failure
 
@@ -102,7 +103,7 @@ class FormInput(MessageInput, ABC):
 
                 return False
 
-        data = self.get_input_data(message)
+        data = cast(str, self.get_input_data(message))
         for validator in self.validators:
             is_valid, data = await validator.validate(data, message, self, manager)
             if not is_valid:
@@ -155,13 +156,13 @@ class FormInput(MessageInput, ABC):
     @staticmethod
     def get_validated_data(message: Message) -> Any:
         # noinspection PyProtectedMember
-        return message._validated_form_data  # noqa: SLF001
+        return message._validated_form_data  # noqa: SLF001 # pyright: ignore [reportAttributeAccessIssue]
 
     @staticmethod
     def set_validated_data(value: Any, message: Message) -> None:
         with unfreeze_model(message):
             # noinspection Pydantic
-            message._validated_form_data = value  # noqa: SLF001
+            message._validated_form_data = value  # noqa: SLF001 # pyright: ignore [reportAttributeAccessIssue]
 
     @abstractmethod
     def get_input_data(self, message: Message) -> Any:

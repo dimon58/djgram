@@ -142,7 +142,7 @@ def suppress_decorator(
         logging_level: уровень логирования по умолчанию
     """
 
-    def wrapper(func: Callable[P, ...]) -> Callable[P, None]:
+    def wrapper(func: Callable[P, Any]) -> Callable[P, None]:
         @wraps(func)
         def inner(*args: P.args, **kwargs: P.kwargs) -> None:
             try:
@@ -177,7 +177,7 @@ def suppress_decorator_async(
         logging_level: уровень логирования по умолчанию
     """
 
-    def wrapper(func: Callable[P, ...]) -> Callable[P, Awaitable[None]]:
+    def wrapper(func: Callable[P, Any]) -> Callable[P, Awaitable[None]]:
         @wraps(func)
         async def inner(*args: P.args, **kwargs: P.kwargs) -> None:
             try:

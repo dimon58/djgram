@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeAlias, TypeVar
 
 import phonenumbers
 from aiogram.types import Message
@@ -24,7 +24,7 @@ T = TypeVar("T")
 FormInputValidationCallback: TypeAlias = Callable[[Message, "FormInput", DialogManager], Awaitable[None]]
 
 
-class FormInputValidator(ABC):
+class FormInputValidator(ABC, Generic[T]):
     # noinspection PyMethodMayBeStatic
     def check_support(self, form_input: "FormInput") -> bool:
         return True
@@ -40,7 +40,7 @@ class FormInputValidator(ABC):
         raise NotImplementedError
 
 
-class EmailValidator(FormInputValidator):
+class EmailValidator(FormInputValidator[str]):
     def __init__(
         self,
         *,  # subsequent arguments are keyword-only
@@ -101,7 +101,7 @@ class EmailValidator(FormInputValidator):
             return True, emailinfo.normalized
 
 
-class PhoneNumberValidator(FormInputValidator):
+class PhoneNumberValidator(FormInputValidator[str]):
 
     def __init__(
         self,

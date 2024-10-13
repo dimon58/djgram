@@ -9,7 +9,7 @@ from abc import abstractmethod
 from datetime import date, datetime
 from enum import Enum
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 from uuid import UUID
 
 import pydantic
@@ -311,10 +311,10 @@ class HttpStatusRenderer(SpecialStringOneLineTextRenderer):
     Ренедерит статус код http
     """
 
-    @staticmethod
-    def get_code_phrase(code: int) -> str:
+    @classmethod
+    def get_code_phrase(cls, code: int) -> str:
         # noinspection PyProtectedMember
-        status: HTTPStatus | None = HTTPStatus._value2member_map_.get(code, None)
+        status = cast(HTTPStatus | None, HTTPStatus._value2member_map_.get(code, None))
         return status.phrase if status is not None else "Unknown"
 
     def prepare_data(self, obj: BaseModel) -> str:

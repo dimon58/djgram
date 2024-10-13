@@ -156,8 +156,8 @@ class LimitedBot(Bot):
                 await self._retry_after_event.wait()
 
                 # run request
-                coro = self.__original__call__(  # pyright: ignore [reportArgumentType]
-                    method, request_timeout=request_timeout
+                coro = self.__original__call__(  # pyright: ignore [reportCallIssue]
+                    method=method, request_timeout=request_timeout
                 )
                 # if hasattr(method, "chat_id") and not isinstance(method, GetChat):
                 if isinstance(method, SendMessage):
@@ -203,5 +203,5 @@ def patch_bot_with_limiter():
 
     If you want to use non-default limiter setting use LimitedBot class instead of Bot
     """
-    Bot.__original__call__ = Bot.__call__
+    Bot.__original__call__ = Bot.__call__  # pyright: ignore [reportAttributeAccessIssue]
     Bot.__call__ = LimitedBot.__call__  # pyright: ignore [reportAttributeAccessIssue]

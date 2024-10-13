@@ -8,7 +8,7 @@ from collections.abc import Sequence
 from contextlib import suppress
 from dataclasses import dataclass
 from dataclasses import field as dc_field
-from typing import Any, ClassVar, TypeVar
+from typing import Any, ClassVar, TypeVar, cast
 
 from sqlalchemy import ColumnElement, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -103,7 +103,8 @@ class ModelAdmin:
         fields = get_fields_of_model(cls.model, cls.skip_synonyms_origin)
 
         if cls.exclude_fields is not None:
-            fields = list(filter(lambda f: f not in cls.exclude_fields, fields))
+            exclude_fields = cast(Sequence[str], cls.exclude_fields)
+            fields = list(filter(lambda f: f not in exclude_fields, fields))
 
         return fields
 

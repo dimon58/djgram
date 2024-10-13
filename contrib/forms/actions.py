@@ -3,7 +3,7 @@
 """
 
 from collections.abc import Hashable, Sequence
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from aiogram.fsm.state import State
 from aiogram.types import CallbackQuery, Message
@@ -55,7 +55,7 @@ def set_value(
     async def inner(callback: CallbackQuery, button: Button, manager: DialogManager) -> None:
         set_value_using_composite_key(
             data=manager.dialog_data,
-            key=key,
+            key=cast(Sequence[Hashable], key),
             value=value,
         )
 
