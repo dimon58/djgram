@@ -1,4 +1,5 @@
 # ruff: noqa
+# type: ignore
 import pydantic
 import pytest
 import sqlalchemy as sa

@@ -1,4 +1,5 @@
 # ruff: noqa
+# type: ignore
 import os
 import random
 from functools import lru_cache

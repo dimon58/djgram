@@ -1,4 +1,5 @@
 # ruff: noqa
+# type: ignore
 import pytest
 import sqlalchemy as sa
 from pytest_docker_service import docker_container

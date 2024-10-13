@@ -1,4 +1,5 @@
 # ruff: noqa
+# type: ignore
 import time
 
 import psycopg2
