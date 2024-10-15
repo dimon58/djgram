@@ -1,8 +1,10 @@
 import abc
+import json
 import logging
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
+import pydantic
 from aiogram.enums import ChatAction
 from aiogram.types import BufferedInputFile, CallbackQuery
 from aiogram.utils.chat_action import ChatActionSender
@@ -136,6 +138,76 @@ class DownloadFileActionButton(AbstractObjectActionButton[T]):
             obj,
             file["filename"],
             file["file_id"],
+            get_bytes_size_format(file_size),
+            td.elapsed,
+            get_bytes_size_format(file_size / td.elapsed),
+            get_admin_representation_for_logging(
+                telegram_user=middleware_data[MIDDLEWARE_TELEGRAM_USER_KEY],
+                user=middleware_data[MIDDLEWARE_AUTH_USER_KEY],
+            ),
+            message.message_id,
+            message.document.file_id,  # pyright: ignore [reportOptionalMemberAccess]
+        )
+
+
+class DownloadJsonActionButton(AbstractObjectActionButton[T]):
+    """
+    Отправляет json в виде файла при нажатии
+    """
+
+    def __init__(self, button_id: str, title: str, json_field: str, filename: str | None = None):
+        """
+        :param json_field: название поля с json из sqlalchemy_file
+        """
+        super().__init__(button_id, title)
+        self.json_field = json_field
+        self.filename = filename
+
+    async def click(self, obj: T, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
+        if not hasattr(obj, self.json_field):
+            logger.error("%s has no attribute %s", obj.__class__, self.json_field)
+            return
+
+        json_data_field = getattr(obj, self.json_field)
+
+        if json_data_field is None:
+            await callback_query.answer("Json is empty")
+            return
+
+        if isinstance(json_data_field, pydantic.BaseModel):
+            json_data = json_data_field.model_dump_json(indent=2).encode("utf8")
+        elif isinstance(json_data_field, dict):
+            json_data = json.dumps(json_data_field, indent=2, ensure_ascii=False).encode("utf8")
+        else:
+            raise TypeError(f"Type {json_data_field.__class__.__name__} not supported")
+
+        logger.info(
+            "Sending json from %s to admin %s",
+            obj,
+            get_admin_representation_for_logging(
+                telegram_user=middleware_data[MIDDLEWARE_TELEGRAM_USER_KEY],
+                user=middleware_data[MIDDLEWARE_AUTH_USER_KEY],
+            ),
+        )
+        async with ChatActionSender(
+            bot=callback_query.bot,  # pyright: ignore [reportArgumentType]
+            chat_id=callback_query.message.chat.id,  # pyright: ignore [reportOptionalMemberAccess]
+            action=ChatAction.UPLOAD_DOCUMENT,
+        ):
+            with measure_time() as td:
+                message = await callback_query.bot.send_document(  # pyright: ignore [reportOptionalMemberAccess]
+                    chat_id=callback_query.message.chat.id,  # pyright: ignore [reportOptionalMemberAccess]
+                    document=BufferedInputFile(
+                        file=json_data,
+                        filename=self.filename or f"{self.json_field}.json",
+                    ),
+                )
+
+        file_size = len(json_data)
+        logger.info(
+            "Json from %s with size %s successfully sent in %.2f sec (avg %s/s) "
+            "to admin %s in message %s (telegram file id = %s)",
+            obj,
             get_bytes_size_format(file_size),
             td.elapsed,
             get_bytes_size_format(file_size / td.elapsed),
