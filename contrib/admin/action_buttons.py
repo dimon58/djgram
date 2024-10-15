@@ -13,7 +13,6 @@ from djgram.db.models import BaseModel
 from djgram.system_configs import MIDDLEWARE_AUTH_USER_KEY, MIDDLEWARE_TELEGRAM_USER_KEY
 from djgram.utils.formating import get_bytes_size_format
 from djgram.utils.misc import measure_time
-
 from .misc import get_admin_representation_for_logging
 
 if TYPE_CHECKING:
@@ -89,22 +88,23 @@ class DownloadFileActionButton(AbstractObjectActionButton[T]):
     Отправляет файл при нажатии
     """
 
-    def __init__(self, button_id: str, title: str, file_field: str):
+    def __init__(self, button_id: str, title: str, field_name: str, on_empty_message_text: str = "File is empty"):
         """
-        :param file_field: название поля с файлом из sqlalchemy_file
+        :param field_name: название поля с файлом из sqlalchemy_file
         """
         super().__init__(button_id, title)
-        self.file_field = file_field
+        self.field_name = field_name
+        self.on_empty_message_text = on_empty_message_text
 
     async def click(self, obj: T, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
-        if not hasattr(obj, self.file_field):
-            logger.error("%s has no attribute %s", obj.__class__, self.file_field)
+        if not hasattr(obj, self.field_name):
+            logger.error("%s has no attribute %s", obj.__class__, self.field_name)
             return
 
-        file: File = getattr(obj, self.file_field)
+        file: File = getattr(obj, self.field_name)
 
         if file is None:
-            await callback_query.answer("File is empty")
+            await callback_query.answer(self.on_empty_message_text)
             return
 
         logger.info(
@@ -150,28 +150,39 @@ class DownloadFileActionButton(AbstractObjectActionButton[T]):
         )
 
 
-class DownloadJsonActionButton(AbstractObjectActionButton[T]):
+class DownloadJsonActionButton(DownloadFileActionButton[T]):
     """
     Отправляет json в виде файла при нажатии
     """
 
-    def __init__(self, button_id: str, title: str, json_field: str, filename: str | None = None):
+    def __init__(
+        self,
+        button_id: str,
+        title: str,
+        json_field_name: str,
+        filename: str | None = None,
+        on_empty_message_text: str = "Json is empty",
+    ):
         """
-        :param json_field: название поля с json из sqlalchemy_file
+        :param json_field_name: название поля с json из sqlalchemy_file
         """
-        super().__init__(button_id, title)
-        self.json_field = json_field
+        super().__init__(
+            button_id=button_id,
+            title=title,
+            field_name=json_field_name,
+            on_empty_message_text=on_empty_message_text,
+        )
         self.filename = filename
 
     async def click(self, obj: T, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
-        if not hasattr(obj, self.json_field):
-            logger.error("%s has no attribute %s", obj.__class__, self.json_field)
+        if not hasattr(obj, self.field_name):
+            logger.error("%s has no attribute %s", obj.__class__, self.field_name)
             return
 
-        json_data_field = getattr(obj, self.json_field)
+        json_data_field = getattr(obj, self.field_name)
 
         if json_data_field is None:
-            await callback_query.answer("Json is empty")
+            await callback_query.answer(self.on_empty_message_text)
             return
 
         if isinstance(json_data_field, pydantic.BaseModel):
@@ -199,7 +210,7 @@ class DownloadJsonActionButton(AbstractObjectActionButton[T]):
                     chat_id=callback_query.message.chat.id,  # pyright: ignore [reportOptionalMemberAccess]
                     document=BufferedInputFile(
                         file=json_data,
-                        filename=self.filename or f"{self.json_field}.json",
+                        filename=self.filename or f"{self.field_name}.json",
                     ),
                 )
 
