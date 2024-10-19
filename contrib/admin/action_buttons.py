@@ -89,13 +89,21 @@ class DownloadFileActionButton(AbstractObjectActionButton[T]):
     Отправляет файл при нажатии
     """
 
-    def __init__(self, button_id: str, title: str, field_name: str, on_empty_message_text: str = "File is empty"):
+    def __init__(
+        self,
+        button_id: str,
+        title: str,
+        field_name: str,
+        on_empty_message_text: str = "File is empty",
+        filename: str | None = None,
+    ):
         """
         :param field_name: название поля с файлом из sqlalchemy_file
         """
         super().__init__(button_id, title)
         self.field_name = field_name
         self.on_empty_message_text = on_empty_message_text
+        self.filename = filename
 
     async def click(self, obj: T, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
         if not hasattr(obj, self.field_name):
@@ -128,7 +136,7 @@ class DownloadFileActionButton(AbstractObjectActionButton[T]):
                     chat_id=callback_query.message.chat.id,  # pyright: ignore [reportOptionalMemberAccess]
                     document=BufferedInputFile(
                         file=file.file.read(),
-                        filename=file["filename"],
+                        filename=self.filename or file["filename"],
                     ),
                 )
 
@@ -151,50 +159,45 @@ class DownloadFileActionButton(AbstractObjectActionButton[T]):
         )
 
 
-class DownloadJsonActionButton(DownloadFileActionButton[T]):
-    """
-    Отправляет json в виде файла при нажатии
-    """
+class DownloadStringAsFileActionButton(DownloadFileActionButton[T]):
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         button_id: str,
         title: str,
-        json_field_name: str,
+        field_name: str,
         filename: str | None = None,
-        on_empty_message_text: str = "Json is empty",
+        on_empty_message_text: str = "Text is empty",
+        default_ext: str = "txt",
     ):
-        """
-        :param json_field_name: название поля с json из sqlalchemy_file
-        """
         super().__init__(
             button_id=button_id,
             title=title,
-            field_name=json_field_name,
+            field_name=field_name,
+            filename=filename,
             on_empty_message_text=on_empty_message_text,
         )
-        self.filename = filename
+        self.default_ext = default_ext
+
+    def prepare_field_content(self, field_content: Any) -> bytes:
+        return field_content.encode("utf8")
 
     async def click(self, obj: T, callback_query: CallbackQuery, middleware_data: dict[str, Any]) -> None:
         if not hasattr(obj, self.field_name):
             logger.error("%s has no attribute %s", obj.__class__, self.field_name)
             return
 
-        json_data_field = getattr(obj, self.field_name)
+        field_content = getattr(obj, self.field_name)
 
-        if json_data_field is None:
+        if field_content is None:
             await callback_query.answer(self.on_empty_message_text)
             return
 
-        if isinstance(json_data_field, pydantic.BaseModel):
-            json_data = json_data_field.model_dump_json(indent=2).encode("utf8")
-        elif isinstance(json_data_field, dict):
-            json_data = json.dumps(json_data_field, indent=2, ensure_ascii=False).encode("utf8")
-        else:
-            raise TypeError(f"Type {json_data_field.__class__.__name__} not supported")
+        field_content = self.prepare_field_content(field_content)
 
         logger.info(
-            "Sending json from %s to admin %s",
+            "Sending content from field %s from %s to admin %s",
+            self.field_name,
             obj,
             get_admin_representation_for_logging(
                 telegram_user=middleware_data[MIDDLEWARE_TELEGRAM_USER_KEY],
@@ -210,15 +213,16 @@ class DownloadJsonActionButton(DownloadFileActionButton[T]):
                 message = await callback_query.bot.send_document(  # pyright: ignore [reportOptionalMemberAccess]
                     chat_id=callback_query.message.chat.id,  # pyright: ignore [reportOptionalMemberAccess]
                     document=BufferedInputFile(
-                        file=json_data,
-                        filename=self.filename or f"{self.field_name}.json",
+                        file=field_content,
+                        filename=self.filename or f"{self.field_name}.{self.default_ext}",
                     ),
                 )
 
-        file_size = len(json_data)
+        file_size = len(field_content)
         logger.info(
-            "Json from %s with size %s successfully sent in %.2f sec (avg %s/s) "
+            "Data from field %s from %s with size %s successfully sent in %.2f sec (avg %s/s) "
             "to admin %s in message %s (telegram file id = %s)",
+            self.field_name,
             obj,
             get_bytes_size_format(file_size),
             td.elapsed,
@@ -230,3 +234,38 @@ class DownloadJsonActionButton(DownloadFileActionButton[T]):
             message.message_id,
             message.document.file_id,  # pyright: ignore [reportOptionalMemberAccess]
         )
+
+
+class DownloadJsonActionButton(DownloadStringAsFileActionButton[T]):
+    """
+    Отправляет json в виде файла при нажатии
+    """
+
+    def __init__(
+        self,
+        button_id: str,
+        title: str,
+        field_name: str,
+        filename: str | None = None,
+        on_empty_message_text: str = "Json is empty",
+        default_ext: str = "json",
+    ):
+        """
+        :param field_name: название поля с json из sqlalchemy_file
+        """
+        super().__init__(
+            button_id=button_id,
+            title=title,
+            field_name=field_name,
+            filename=filename,
+            on_empty_message_text=on_empty_message_text,
+            default_ext=default_ext,
+        )
+
+    def prepare_field_content(self, field_content: Any) -> bytes:
+
+        if isinstance(field_content, pydantic.BaseModel):
+            return field_content.model_dump_json(indent=2).encode("utf8")
+        if isinstance(field_content, dict):
+            return json.dumps(field_content, indent=2, ensure_ascii=False).encode("utf8")
+        raise TypeError(f"Type {field_content.__class__.__name__} not supported")
