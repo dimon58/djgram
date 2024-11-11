@@ -23,7 +23,7 @@
 """
 
 
-def telegramify(rendered: str, collapse_spaces: bool = True) -> str:
+def telegramify(html: str, collapse_spaces: bool = True) -> str:
     """
     Костыльный метод добавляющий поддержку тега <br> в сообщения телеграмм.
 
@@ -35,8 +35,10 @@ def telegramify(rendered: str, collapse_spaces: bool = True) -> str:
     """
     # Схлопываем все пробельные символы в один пробел
     if collapse_spaces:
-        rendered = " ".join(rendered.split())
+        html = " ".join(html.split())
+    # Удаляем теги <p></p>, которые генерирует ckeditor
+    html = html.replace("<p>", "").replace("</p>", "")
     # Превращает теги <br> в перенос строки
-    rendered = rendered.replace("<br>", "\n")
+    html = html.replace("<br>", "\n")
     # На концах получившихся строк убираем лишние пробельные символы
-    return "\n".join(line.strip() for line in rendered.split("\n"))
+    return "\n".join(line.strip() for line in html.split("\n"))
