@@ -197,7 +197,7 @@ async def collect_and_save() -> None:
                     bot,
                 )
 
-        logger.info("Local server statistics saved to clickhouse")
+        logger.debug("Local server statistics saved to clickhouse")
 
     # pylint: disable=broad-exception-caught
     except Exception as exc:
