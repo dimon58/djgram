@@ -176,7 +176,7 @@ class TextFormInput(FormInput):
 
     def __init__(  # noqa: D107
         self,
-        key: str,
+        key: Hashable | Sequence[Hashable],
         on_validation_success: FormInputValidationCallback | None = None,
         on_validation_failure: FormInputValidationCallback | None = None,
         validators: Sequence[FormInputValidator] | None = None,
@@ -206,7 +206,7 @@ class EmailFormInput(TextFormInput):
 
     def __init__(
         self,
-        key: str,
+        key: Hashable | Sequence[Hashable],
         on_validation_success: FormInputValidationCallback | None = None,
         on_validation_failure: FormInputValidationCallback | None = None,
         validators: Sequence[FormInputValidator] | None = None,
@@ -265,7 +265,7 @@ class PhoneNumberFormInput(TextFormInput):
 
     def __init__(
         self,
-        key: str,
+        key: Hashable | Sequence[Hashable],
         on_validation_success: FormInputValidationCallback | None = None,
         on_validation_failure: FormInputValidationCallback | None = None,
         validators: Sequence[FormInputValidator] | None = None,
