@@ -40,8 +40,9 @@ class TelegramChatFullInfo(AbstractTelegramChat):
     )
 
     if DB_SUPPORTS_ARRAYS:
-        active_usernames: Mapped[list[str]] = mapped_column(
+        active_usernames: Mapped[list[str] | None] = mapped_column(
             sqltypes.ARRAY(sqltypes.String),
+            nullable=True,
             doc="Optional. If non-empty, the list of all active chat usernames; "
             "for private chats, supergroups and channels",
         )
