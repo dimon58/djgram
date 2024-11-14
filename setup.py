@@ -22,6 +22,7 @@ from djgram.contrib.misc.handlers import cancel_handler
 from djgram.contrib.misc.middlewares import ErrorHandlingMiddleware
 from djgram.contrib.telegram.middlewares import TelegramMiddleware
 from djgram.db.middlewares import DbSessionMiddleware
+from djgram.system_configs import DEFAULT_ERROR_TEXT_FOR_USER
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +35,9 @@ def setup_router(dp: Dispatcher) -> None:
     logger.info("djgram routers setup")
 
 
-def setup_middlewares(dp: Dispatcher, analytics: bool) -> None:
+def setup_middlewares(dp: Dispatcher, analytics: bool, error_text: str) -> None:
     dp.update.outer_middleware(TraceMiddleware())
-    dp.update.outer_middleware(ErrorHandlingMiddleware())
+    dp.update.outer_middleware(ErrorHandlingMiddleware(error_text))
     dp.update.outer_middleware(UserContextMiddleware())
     if analytics:
         dp.update.outer_middleware(SaveUpdateToClickHouseMiddleware())
@@ -52,6 +53,7 @@ def setup_djgram(
     *,
     add_limiter: bool = True,
     analytics: bool = False,
+    error_text: str = DEFAULT_ERROR_TEXT_FOR_USER,
     dialog_manager_factory: DialogManagerFactory | None = None,
 ) -> None:
     """
@@ -62,9 +64,10 @@ def setup_djgram(
         add_limiter: включить лимитер со стандартными настройками
             https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this
         analytics: включить сохранение аналитики в ClickHouse
+        error_text: текст сообщения, которое будет отправляться пользователями при ошибках в системе
         dialog_manager_factory: фабрика диалоговых менеджеров для aiogram-dialog
     """
-    setup_middlewares(dp, analytics=analytics)
+    setup_middlewares(dp, analytics=analytics, error_text=error_text)
     setup_router(dp)
     setup_dialogs(dp, dialog_manager_factory=dialog_manager_factory)
 
