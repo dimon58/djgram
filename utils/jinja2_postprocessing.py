@@ -37,7 +37,12 @@ def telegramify(html: str, collapse_spaces: bool = True) -> str:
     if collapse_spaces:
         html = " ".join(html.split())
     # Удаляем теги <p></p>, которые генерирует ckeditor
-    html = html.replace("<p>", "").replace("</p>", "")
+    html = (
+        html
+        .replace("&nbsp;", "")
+        .replace("<p>", "")
+        .replace("</p>", "\n")
+    )
     # Превращает теги <br> в перенос строки
     html = html.replace("<br>", "\n")
     # На концах получившихся строк убираем лишние пробельные символы
