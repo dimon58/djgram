@@ -48,4 +48,4 @@ def telegramify(html: str, collapse_spaces: bool = True) -> str:
     # Превращает теги <br> в перенос строки
     html = html.replace("<br>", "\n")
     # На концах получившихся строк убираем лишние пробельные символы
-    return "\n".join(line.strip() for line in html.split("\n"))
+    return "\n".join(line.strip() for line in html.split("\n")).strip()
