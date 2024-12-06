@@ -249,7 +249,7 @@ class TelegramChatFullInfo(AbstractTelegramChat):
     )
 
     linked_chat_id: Mapped[int | None] = mapped_column(
-        sqltypes.Integer,
+        sqltypes.BigInteger,
         nullable=True,
         doc="Optional. Unique identifier for the linked chat, i.e. the discussion group identifier "
         "for a channel and vice versa; "
