@@ -143,11 +143,14 @@ class TelegramMiddleware(BaseMiddleware):
         """
         logger.info("Updating chat full info %s", telegram_chat.id)
 
-        telegram_chat_full_info = await bot.get_chat(telegram_chat.id)
-
-        data[MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY], telegram_chat_full_info_return_state = (
-            await self.save_telegram_chat_full_info_to_db(telegram_chat_full_info, db_session)
-        )
+        try:
+            telegram_chat_full_info = await bot.get_chat(telegram_chat.id)
+        except Exception as exc:
+            logger.exception("Failed to get chat full info %s: %s", telegram_chat.id, exc, exc_info=exc)  # noqa: TRY401
+        else:
+            data[MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY], telegram_chat_full_info_return_state = (
+                await self.save_telegram_chat_full_info_to_db(telegram_chat_full_info, db_session)
+            )
 
     async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
         self,
