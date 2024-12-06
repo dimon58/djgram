@@ -25,6 +25,7 @@
 import re
 
 _P_REGEX = re.compile("<p[^>]*>")
+_SPAN_REGEX = re.compile("<span[^>]*>")
 
 
 def telegramify(html: str, collapse_spaces: bool = True) -> str:
@@ -41,8 +42,9 @@ def telegramify(html: str, collapse_spaces: bool = True) -> str:
     if collapse_spaces:
         html = " ".join(html.split())
     # Удаляем теги <p></p>, которые генерирует ckeditor
-    html = html.replace("&nbsp;", "").replace("</p>", "\n")
+    html = html.replace("&nbsp;", "").replace("</p>", "\n").replace("</span>", "\n")
     html = _P_REGEX.sub("", html)
+    html = _SPAN_REGEX.sub("", html)
     # Превращает теги <br> в перенос строки
     html = html.replace("<br>", "\n")
     # На концах получившихся строк убираем лишние пробельные символы
