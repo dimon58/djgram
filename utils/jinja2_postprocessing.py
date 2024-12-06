@@ -22,6 +22,10 @@
 Подробнее https://core.telegram.org/bots/api#html-style
 """
 
+import re
+
+_P_REGEX = re.compile("<p[^>]*>")
+
 
 def telegramify(html: str, collapse_spaces: bool = True) -> str:
     """
@@ -37,7 +41,8 @@ def telegramify(html: str, collapse_spaces: bool = True) -> str:
     if collapse_spaces:
         html = " ".join(html.split())
     # Удаляем теги <p></p>, которые генерирует ckeditor
-    html = html.replace("&nbsp;", "").replace("<p>", "").replace("</p>", "\n")
+    html = html.replace("&nbsp;", "").replace("</p>", "\n")
+    html = _P_REGEX.sub("", html)
     # Превращает теги <br> в перенос строки
     html = html.replace("<br>", "\n")
     # На концах получившихся строк убираем лишние пробельные символы
