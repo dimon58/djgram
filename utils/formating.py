@@ -161,10 +161,11 @@ _month_to_name_rus = [
 ]
 
 
-def date_to_human_readable(date_: date | datetime):
+def date_to_human_readable(date_: date | datetime) -> str:
     """
     Превращает дату в строку вида "6 сентября 2024"
     """
+
     return f"{date_.day} {_month_to_name_rus[date_.month]} {date_.year}"
 
 

@@ -173,7 +173,7 @@ class TrackedDict(TrackedObject, dict[KT, VT]):
 
     else:
 
-        def setdefault(self, key, value=None):  # noqa: ANN001
+        def setdefault(self, key, value=None):  # noqa: ANN001, ANN201
             result = super().setdefault(key, TrackedObject.make_nested_trackable(value, self))
             self.changed()
             return result
@@ -201,7 +201,7 @@ class TrackedDict(TrackedObject, dict[KT, VT]):
 
     else:
 
-        def pop(self, *arg):
+        def pop(self, *arg):  # noqa: ANN201
             result = super().pop(*arg)
             self.changed()
             return result

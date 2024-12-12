@@ -95,7 +95,7 @@ async def delete_last_message_from_dialog_manager(dialog_manager: DialogManager)
     )
 
 
-def set_value_and_switch_to(key: str, next_state: State):
+def set_value_and_switch_to(key: str, next_state: State):  # noqa: ANN201
     async def on_click(callback: CallbackQuery, widget: Select, manager: DialogManager, value: str) -> None:
         old_value = manager.dialog_data.get(key)
         manager.dialog_data[key] = value

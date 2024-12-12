@@ -88,7 +88,7 @@ class PydanticType(sa.types.TypeDecorator[_P], Generic[_P, DB_JSON]):
         # NOTE: the `__repr__` is used by Alembic to generate the migration script.
         return f"{self.__class__.__name__}({self.pydantic_type.__name__})"
 
-    def process_bind_param(self, value: _P | None, dialect: Dialect):
+    def process_bind_param(self, value: _P | None, dialect: Dialect):  # noqa: ANN201
         return value.model_dump(mode="json") if value else None
 
     def process_result_value(self, value: Any, dialect: Dialect) -> _P | None:
@@ -100,7 +100,7 @@ class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable, Generic[DB_JSO
     def coerce(cls, key: str, value: Any) -> MutablePydanticBaseModel:
         return value if isinstance(value, cls) else cls.model_validate(value)
 
-    def dict(self, *args, **kwargs):
+    def dict(self, *args, **kwargs):  # noqa: ANN201
         res = super().model_dump(*args, **kwargs)
         res.pop("_parents", None)
         return res

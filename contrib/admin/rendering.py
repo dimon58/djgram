@@ -386,7 +386,7 @@ class JsonRenderer(AdminFieldRenderer):
 
     indent = 2
 
-    def json_dumps_support_pydantic(self, obj: Any):
+    def json_dumps_support_pydantic(self, obj: Any) -> str:
         if isinstance(obj, pydantic.BaseModel):
             return obj.model_dump_json(indent=self.indent)
 

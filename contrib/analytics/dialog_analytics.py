@@ -345,7 +345,7 @@ async def save_keyboard_statistics(
     state_before: str | None,
     aiogd_context_before: Context | None,
     aiogd_stack_before: Stack | None,
-):
+) -> None:
     dialog_analytics = DialogAnalytics.from_event(
         processor=processor,
         processed=processed,
@@ -437,7 +437,7 @@ async def keyboard_process_callback(
     return await self._process_other_callback(callback, dialog, manager)
 
 
-def patch_keyboard():
+def patch_keyboard() -> None:
     Keyboard.process_callback = keyboard_process_callback
 
 
@@ -453,7 +453,7 @@ async def save_input_statistics(
     state_before: str | None,
     aiogd_context_before: Context | None,
     aiogd_stack_before: Stack | None,
-):
+) -> None:
     dialog_analytics = DialogAnalytics.from_event(
         processor=processor,
         processed=processed,
@@ -602,12 +602,12 @@ async def text_input_process_message(
     return True
 
 
-def patch_input():
+def patch_input() -> None:
     MessageInput.process_message = message_input_process_message
     TextInput.process_message = text_input_process_message
 
 
-def setup_dialog_analytics():
+def setup_dialog_analytics() -> None:
     logger.debug("Ensuring clickhouse tables for dialog analytics")
     with open(DIALOG_ANALYTICS_DDL_SQL, encoding="utf-8") as sql_file:  # noqa: PTH123
         task = clickhouse.run_sql_from_sync(sql_file.read())

@@ -194,7 +194,7 @@ class LimitedBot(Bot):
         return await LimitedBot._call(self, method, request_timeout)
 
 
-def patch_bot_with_limiter():
+def patch_bot_with_limiter() -> None:
     """
     Patches the bot, these changes are not reversible
 

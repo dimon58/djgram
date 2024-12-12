@@ -16,13 +16,13 @@ INIT_FULL_TEMPLATE_DIR = INIT_TEMPLATE_DIR / "full"
 
 
 @click.group()
-def cli():
+def cli() -> None:
     pass
 
 
 @cli.command()
 @click.argument("name")
-def startapp(name: str):
+def startapp(name: str) -> None:
     """
     Создаёт новое приложение
     """
@@ -84,7 +84,7 @@ def render_folder(init_template_dir: str | os.PathLike, app_dir: str) -> None:
 
 @cli.command()
 @click.argument("type", type=click.Choice(["base", "full"], case_sensitive=False), default="base")
-def init(type: str):  # noqa: A002
+def init(type: str) -> None:  # noqa: A002
     """
     Инициализация проекта
 
@@ -163,7 +163,7 @@ def compare_models(
 
 
 @cli.command()
-def sync_tg_models():
+def sync_tg_models() -> None:
     """
     Сравнивает схему базы данных с моделями в aiogram
     """

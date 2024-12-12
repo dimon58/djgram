@@ -141,7 +141,7 @@ class DatabasePaginatedScrollingGroup(Group):
         )
 
     # pylint: disable=missing-function-docstring
-    def managed(self, manager: DialogManager):
+    def managed(self, manager: DialogManager):  # noqa: ANN201
         return ManagedDatabasePaginatedScrollingGroupAdapter(self, manager)
 
 

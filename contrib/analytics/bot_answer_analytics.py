@@ -105,7 +105,7 @@ def analytics_wrapper(original_call: BotCallMethod) -> BotCallMethod:
     return __call__
 
 
-def setup_bot_answer_analytics():
+def setup_bot_answer_analytics() -> None:
     logger.debug("Ensuring clickhouse tables for bot send analytics")
     with open(BOT_SEND_ANALYTICS_DDL_SQL, encoding="utf-8") as sql_file:  # noqa: PTH123
         task = clickhouse.run_sql_from_sync(sql_file.read())

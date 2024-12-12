@@ -50,6 +50,6 @@ async def broadcast_start(message: Message, db_session: AsyncSession, command: C
 
 
 @router.message(StateFilter(BroadcastStatesGroup.wait_message))
-async def broadcast(message: Message, db_session: AsyncSession, state: FSMContext):
+async def broadcast(message: Message, db_session: AsyncSession, state: FSMContext) -> None:
     await broadcast_message(message, db_session, message)
     await state.clear()

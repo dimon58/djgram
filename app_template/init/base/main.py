@@ -24,7 +24,7 @@ main_router = Router()
 
 
 @main_router.message(CommandStart())
-async def start_handler(message: Message):
+async def start_handler(message: Message) -> None:
     """
     Обработчик команды /start
     """
@@ -33,7 +33,7 @@ async def start_handler(message: Message):
 
 
 @main_router.message(Command("help"))
-async def help_handler(message: Message):
+async def help_handler(message: Message) -> None:
     """
     Обработчик команды /help
     """
@@ -44,7 +44,7 @@ async def help_handler(message: Message):
 
 
 @main_router.message()
-async def echo_handler(message: Message):
+async def echo_handler(message: Message) -> None:
     """
     Эхо
     """
@@ -61,11 +61,11 @@ def setup_routers(dp: Dispatcher) -> None:
     logger.info("Routers setup")
 
 
-async def on_unknown_intent(event: ErrorEvent, dialog_manager: DialogManager):
+async def on_unknown_intent(event: ErrorEvent, dialog_manager: DialogManager) -> None:
     logging.error("Error in dialog: %s", event.exception)
 
 
-async def on_unknown_state(event: ErrorEvent, dialog_manager: DialogManager):
+async def on_unknown_state(event: ErrorEvent, dialog_manager: DialogManager) -> None:
     # Example of handling UnknownState Error and starting new dialog.
     logging.error("Error in dialog: %s", event.exception)
 

@@ -128,7 +128,7 @@ async def try_run_async(
     return False, None
 
 
-def suppress_decorator(
+def suppress_decorator(  # noqa: ANN201
     *exceptions: type[BaseException],
     log_on_exception: bool = True,
     logging_level: int = logging.WARNING,
@@ -163,7 +163,7 @@ def suppress_decorator(
     return wrapper
 
 
-def suppress_decorator_async(
+def suppress_decorator_async(  # noqa: ANN201
     *exceptions: type[BaseException],
     log_on_exception: bool = True,
     logging_level: int = logging.WARNING,
