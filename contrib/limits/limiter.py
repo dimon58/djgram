@@ -33,7 +33,7 @@ ChatIdType: TypeAlias = int | str
 logger = logging.getLogger("limiter")
 
 
-class LimitCaller:
+class LimitCaller:  # noqa: D101
     __slots__ = (
         "_overall_max_rate",
         "_user_max_rate",
@@ -116,6 +116,10 @@ class LimitCaller:
 
 
 class LimitedBot(Bot):
+    """
+    Бот с ограничением запросов в секунду к серверам телеграм
+    """
+
     def __init__(
         self,
         token: str,

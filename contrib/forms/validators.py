@@ -25,6 +25,10 @@ FormInputValidationCallback: TypeAlias = Callable[[Message, "FormInput", DialogM
 
 
 class FormInputValidator(ABC, Generic[T]):
+    """
+    Базовый класс валидатора
+    """
+
     # noinspection PyMethodMayBeStatic
     def check_support(self, form_input: "FormInput") -> bool:
         return True
@@ -41,6 +45,10 @@ class FormInputValidator(ABC, Generic[T]):
 
 
 class EmailValidator(FormInputValidator[str]):
+    """
+    Валидатор электронной почты
+    """
+
     def __init__(
         self,
         *,  # subsequent arguments are keyword-only
@@ -102,6 +110,10 @@ class EmailValidator(FormInputValidator[str]):
 
 
 class PhoneNumberValidator(FormInputValidator[str]):
+    """
+    Валидатор номера телефона
+    """
+
     def __init__(
         self,
         default_region: str | None = None,

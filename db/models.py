@@ -9,7 +9,7 @@ from djgram.configs import DB_METADATA
 from djgram.utils.misc import utcnow
 
 
-class Base(DeclarativeBase):
+class Base(DeclarativeBase):  # noqa: D101
     metadata = DB_METADATA or MetaData()
 
 
@@ -43,6 +43,10 @@ class BaseModel(Base):
 
 
 class UUIDBaseModel(BaseModel):
+    """
+    Модель с первичным ключом UUIDv7
+    """
+
     __abstract__ = True
 
     id: Mapped[UUID] = mapped_column(  # pyright: ignore [reportIncompatibleVariableOverride]

@@ -100,6 +100,10 @@ def _json_dump_optional(obj: Any, name: str) -> str:
 
 
 class DialogAnalytics(pydantic.BaseModel):
+    """
+    Статистические данные для сообщения/колбека
+    """
+
     model_config = ConfigDict(extra="forbid")
 
     date: datetime

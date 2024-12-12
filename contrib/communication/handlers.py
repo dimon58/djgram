@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 router = make_admin_router()
 
 
-class BroadcastStatesGroup(StatesGroup):
+class BroadcastStatesGroup(StatesGroup):  # noqa: D101
     wait_message = State()
 
 

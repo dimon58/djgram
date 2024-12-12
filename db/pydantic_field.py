@@ -12,7 +12,7 @@ from djgram.db.sqlalchemyv2_nested_mutable.mutable import DB_JSON, PydanticType,
 _P = TypeVar("_P", bound=pydantic.BaseModel)
 
 
-class ExtendedPydanticType(PydanticType[_P]):  # pyright: ignore [reportInvalidTypeArguments]
+class ExtendedPydanticType(PydanticType[_P]):  # noqa: D101  # pyright: ignore [reportInvalidTypeArguments]
     cache_ok = True
     _alembic_additional_params = ()
 
@@ -56,6 +56,10 @@ class ExtendedPydanticType(PydanticType[_P]):  # pyright: ignore [reportInvalidT
 
 
 class ImmutablePydanticField(ExtendedPydanticType[_P]):
+    """
+    Неизменяемое pydantic поле
+    """
+
     cache_ok = True
     _alembic_additional_params = ("should_frozen",)
 
@@ -79,7 +83,7 @@ class ImmutablePydanticField(ExtendedPydanticType[_P]):
         return self.pydantic_type
 
 
-class ExtendedMutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):
+class ExtendedMutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):  # noqa: D101
     @classmethod
     def coerce(cls, key: str, value: Any) -> Self:
         if isinstance(value, cls):

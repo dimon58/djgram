@@ -160,6 +160,12 @@ class DownloadFileActionButton(AbstractObjectActionButton[T]):
 
 
 class DownloadStringAsFileActionButton(DownloadFileActionButton[T]):
+    """
+    Копка скачивания текста в виде файла
+
+    Полезно, если строка очень длинная
+    """
+
     def __init__(  # noqa: D107
         self,
         button_id: str,

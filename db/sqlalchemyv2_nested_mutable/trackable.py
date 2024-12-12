@@ -84,7 +84,7 @@ class TrackedObject:
         return new_val
 
 
-class TrackedList(TrackedObject, list[T]):
+class TrackedList(TrackedObject, list[T]):  # noqa: D101
     def __reduce_ex__(self, proto: SupportsIndex) -> tuple[type[TrackedList[T]], tuple[list[T]]]:
         return self.__class__, (list(self),)
 
@@ -156,7 +156,7 @@ class TrackedList(TrackedObject, list[T]):
         self.changed()
 
 
-class TrackedDict(TrackedObject, dict[KT, VT]):
+class TrackedDict(TrackedObject, dict[KT, VT]):  # noqa: D101
     def __setitem__(self, key: KT, value: VT) -> None:
         """Detect dictionary set events and emit change events."""
         super().__setitem__(key, value)
@@ -225,7 +225,7 @@ class TrackedDict(TrackedObject, dict[KT, VT]):
         self.update(state)
 
 
-class TrackedPydanticBaseModel(TrackedObject, Mutable, pydantic.BaseModel):
+class TrackedPydanticBaseModel(TrackedObject, Mutable, pydantic.BaseModel):  # noqa: D101
     @classmethod
     def coerce(cls, key: str, value: Any) -> TrackedPydanticBaseModel:
         return value if isinstance(value, cls) else cls.model_validate(value)

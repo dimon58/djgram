@@ -9,6 +9,10 @@ if TYPE_CHECKING:
 
 
 class S3FileInput(InputFile):
+    """
+    Файл, загружаемы из S3 через libcloud
+    """
+
     def __init__(
         self,
         obj: "Object",

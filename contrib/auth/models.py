@@ -4,7 +4,7 @@ from .user_model_base import AbstractUser
 
 if TYPE_CHECKING:
 
-    class User(AbstractUser): ...
+    class User(AbstractUser): ...  # noqa: D101
 
     import contextlib
 
@@ -18,7 +18,7 @@ else:
 
     except ImportError:
 
-        class User(AbstractUser): ...
+        class User(AbstractUser): ...  # noqa: D101
 
     else:
         if not issubclass(User, AbstractUser):

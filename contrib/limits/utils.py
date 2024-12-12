@@ -12,7 +12,7 @@ P = ParamSpec("P")
 logger = logging.getLogger(__name__)
 
 
-class HasRetryAfterError(Protocol):
+class HasRetryAfterError(Protocol):  # noqa: D101
     retry_after: float | None
 
 

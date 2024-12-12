@@ -43,7 +43,7 @@ class MutableList(TrackedList[T], Mutable):
         super().__init__(TrackedObject.make_nested_trackable(cast(Iterable[T], __iterable), self))
 
 
-class MutableDict(TrackedDict[KT, VT], Mutable):
+class MutableDict(TrackedDict[KT, VT], Mutable):  # noqa: D101
     @classmethod
     def coerce(cls, key: str, value: Any) -> MutableDict[KT, VT]:
         return value if isinstance(value, cls) else cls(value)
@@ -95,7 +95,7 @@ class PydanticType(sa.types.TypeDecorator[_P], Generic[_P, DB_JSON]):
         return self.pydantic_type.model_validate(value) if value else None
 
 
-class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable, Generic[DB_JSON]):
+class MutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable, Generic[DB_JSON]):  # noqa: D101
     @classmethod
     def coerce(cls, key: str, value: Any) -> MutablePydanticBaseModel:
         return value if isinstance(value, cls) else cls.model_validate(value)

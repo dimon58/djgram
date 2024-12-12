@@ -132,6 +132,10 @@ def get_field_by_path(obj: BaseModel, field: str) -> Any:  # noqa: C901, PLR0912
 
 
 class AdminFieldRenderer:
+    """
+    Базовый класс рендерера виджета в админке
+    """
+
     def __init__(self, field: str, title: str | None = None, docs: str | None = None):
         """
         Args:
@@ -272,7 +276,7 @@ class OneLineTextRenderer(AdminFieldRenderer):
         return "\n".join(head)
 
 
-class SpecialStringOneLineTextRenderer(OneLineTextRenderer):
+class SpecialStringOneLineTextRenderer(OneLineTextRenderer):  # noqa: D101
     @abstractmethod
     def prepare_data(self, obj: BaseModel) -> str | None:
         raise NotImplementedError

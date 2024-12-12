@@ -146,7 +146,7 @@ class DatabasePaginatedScrollingGroup(Group):
 
 
 # pylint: disable=missing-class-docstring
-class ManagedDatabasePaginatedScrollingGroupAdapter(ManagedWidget[DatabasePaginatedScrollingGroup]):
+class ManagedDatabasePaginatedScrollingGroupAdapter(ManagedWidget[DatabasePaginatedScrollingGroup]):  # noqa: D101
     # pylint: disable=missing-function-docstring
     def get_page(self) -> int:
         return self.widget.get_page_number(self.manager)

@@ -173,7 +173,7 @@ class DialogAnalyticsInnerMiddleware(BaseMiddleware, Generic[T]):
         return result
 
 
-class DialogAnalyticsInnerMessageMiddleware(DialogAnalyticsInnerMiddleware[Message]):
+class DialogAnalyticsInnerMessageMiddleware(DialogAnalyticsInnerMiddleware[Message]):  # noqa: D101
     @classmethod
     async def save_statistics(
         cls,
@@ -198,7 +198,7 @@ class DialogAnalyticsInnerMessageMiddleware(DialogAnalyticsInnerMiddleware[Messa
         )
 
 
-class DialogAnalyticsInnerCallbackQueryMiddleware(DialogAnalyticsInnerMiddleware[CallbackQuery]):
+class DialogAnalyticsInnerCallbackQueryMiddleware(DialogAnalyticsInnerMiddleware[CallbackQuery]):  # noqa: D101
     @classmethod
     async def save_statistics(
         cls,
