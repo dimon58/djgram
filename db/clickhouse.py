@@ -31,7 +31,7 @@ def monkey_patch_asynch() -> None:
 monkey_patch_asynch()
 
 
-# todo: по хорошему надо сделать пул соединений
+# TODO: по хорошему надо сделать пул соединений
 async def get_connection() -> Connection:
     logger.debug("Creating connection to ClickHouse")
     return await connect(

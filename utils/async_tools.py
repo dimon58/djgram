@@ -29,6 +29,7 @@ class PeriodicTask:
             func: Асинхронная функция без аргументов
             period: Период выполнения. Если функция работает дольше, чем период, то будут проблемы.
         """
+
         self.func = func
         self.period = period
 

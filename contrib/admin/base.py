@@ -63,7 +63,7 @@ class ModelAdmin:
         for extra_field in extra_fields:
             extra_field = extra_field.split(":", maxsplit=1)[-1]  # noqa: PLW2901
 
-            # todo добавить валидацию таких полей - полей у внешних ключей
+            # TODO добавить валидацию таких полей - полей у внешних ключей
             if "__" not in extra_field and not hasattr(cls.model, extra_field):
                 errors.add(extra_field)
 
@@ -129,7 +129,7 @@ class ModelAdmin:
 
         allowed_fields = set(get_fields_of_model(cls.model, skip_synonyms_origin=True))
         ilike_query = None
-        for field_name in set(cls.search_fields) & allowed_fields:  # todo: добавить фильтрацию по внешним ключам
+        for field_name in set(cls.search_fields) & allowed_fields:  # TODO: добавить фильтрацию по внешним ключам
             field = getattr(cls.model, field_name)
             # Все возможные Varchar, Char, Text - подклассы String
             if isinstance(field.type, sqltypes.String):

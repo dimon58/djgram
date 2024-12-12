@@ -71,7 +71,6 @@ def measure_time() -> Generator[MeasureResult, None, None]:
     """
     Измеряет время с помощью контекстного менеджера
 
-
     with measure_time() as td:
         func()
 

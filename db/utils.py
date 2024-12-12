@@ -59,7 +59,7 @@ def get_fields_of_model(model_class: type[BaseModel], *, skip_synonyms_origin: b
     fields = []
 
     for field_name, value in inspect(model_class).attrs.items():
-        # todo: добавить нормальную поддержку внешних ключей
+        # TODO: добавить нормальную поддержку внешних ключей
         # if isinstance(value, Relationship):
         #     ...
         if isinstance(value, RelationshipProperty):

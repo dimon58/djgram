@@ -75,7 +75,7 @@ async def main() -> None:
     Точка входа в бота
     """
 
-    storage = MemoryStorage()  # todo:  Стоит поменять на RedisStorage
+    storage = MemoryStorage()  # TODO:  Стоит поменять на RedisStorage
     dp = Dispatcher(storage=storage)
     dp.errors.register(on_unknown_intent, ExceptionTypeFilter(UnknownIntent))
     dp.errors.register(on_unknown_state, ExceptionTypeFilter(UnknownState))
