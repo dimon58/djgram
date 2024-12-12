@@ -56,7 +56,7 @@ class TrackedObject:
 
     @classmethod
     def make_nested_trackable(cls, value: T, parent: TrackedObject) -> TrackedObject | T:
-        # val: dict[KT, VT] | list[T] | pydantic.BaseModel | TrackedPydanticBaseModel | TrackedObject | T
+        # val: dict[KT, VT] | list[T] | pydantic.BaseModel | TrackedPydanticBaseModel | TrackedObject | T noqa: ERA001
         # -> TrackedDict[KT, VT | TrackedObject] | TrackedList[T]
         # | TrackedObject] | TrackedPydanticBaseModel | TrackedObject | T:
         new_val = value

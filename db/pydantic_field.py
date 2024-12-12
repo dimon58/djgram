@@ -130,9 +130,9 @@ def PydanticField(  # noqa: N802
 
     # Гарантируем, что содержательный класс является первым родителем
     # Чтобы получить к нему доступ:
-    #   generated = PydanticField(Type)
-    #   OriginalType = generated.pydantic_type.__bases__[0]
-    #   generated is Type == True
+    #   generated = PydanticField(Type)  # noqa: ERA001
+    #   OriginalType = generated.pydantic_type.__bases__[0]  # noqa: ERA001
+    #   generated is Type == True  # noqa: ERA001
     # noinspection PyUnresolvedReferences
     return type(  # pyright: ignore [reportGeneralTypeIssues, reportReturnType]
         pydantic_type.__class__.__name__,

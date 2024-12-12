@@ -1,3 +1,4 @@
+# ruff: noqa: ERA001
 class HasFullNameComponents:
     """
     Представляет модель, содержащую поля first_name и last_name
