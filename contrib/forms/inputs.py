@@ -74,7 +74,7 @@ class FormInput(MessageInput, ABC):
             value=cls.get_validated_data(message),
         )
 
-    async def process_message(
+    async def process_message(  # noqa: C901
         self,
         message: Message,
         dialog: DialogProtocol,

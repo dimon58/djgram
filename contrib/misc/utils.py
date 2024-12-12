@@ -15,7 +15,7 @@ from aiogram.types import (
 ContainsFile: TypeAlias = Audio | Animation | Document | PhotoSize | Sticker | Video | VideoNote | Voice
 
 
-def get_file_content(message: Message) -> ContainsFile | None:  # noqa: PLR0911
+def get_file_content(message: Message) -> ContainsFile | None:  # noqa: C901, PLR0911
     """
     Возвращают файл из сообщения, если он там есть, иначе None
     """

@@ -153,7 +153,7 @@ class TelegramMiddleware(BaseMiddleware):
                 telegram_chat_full_info_return_state,
             ) = await self.save_telegram_chat_full_info_to_db(telegram_chat_full_info, db_session)
 
-    async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
+    async def __call__(  # noqa: C901 # pyright: ignore [reportIncompatibleMethodOverride]
         self,
         handler: Callable[[Update, dict[str, Any]], Awaitable[Any]],
         update: Update,

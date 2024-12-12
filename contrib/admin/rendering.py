@@ -72,7 +72,7 @@ def prepare_rows(rows: list[list[Any]]) -> list[str]:
     return row_stings
 
 
-def get_field_by_path(obj: BaseModel, field: str) -> Any:  # noqa: PLR0912
+def get_field_by_path(obj: BaseModel, field: str) -> Any:  # noqa: C901, PLR0912
     """
     Возвращает значения поля объекта по пути
 

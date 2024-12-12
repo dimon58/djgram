@@ -78,7 +78,7 @@ async def get_models(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
 
 
 # pylint: disable=too-many-locals
-async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:
+async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:  # noqa: C901
     """
     Геттер строк для модели
     """

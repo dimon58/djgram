@@ -40,7 +40,7 @@ class SendMessageStatus(enum.Enum):
     FAIL = "fail"
 
 
-async def broadcast(  # noqa: PLR0912, PLR0915
+async def broadcast(  # noqa: C901, PLR0912, PLR0915
     send_method: Callable[..., Awaitable[Any]],
     chat_ids: Iterable[int],
     count: int,
