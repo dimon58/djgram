@@ -9,7 +9,7 @@ from abc import abstractmethod
 from datetime import date, datetime
 from enum import Enum
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 from uuid import UUID
 
 import pydantic
@@ -337,7 +337,7 @@ class WebsocketStatusRenderer(HttpStatusRenderer):
     Ренедерит статус код http
     """
 
-    WEBSOCKET_STATUS_CODES = {
+    WEBSOCKET_STATUS_CODES: ClassVar[dict[int, str]] = {
         1000: "Normal Closure",
         1001: "Going Away",
         1002: "Protocol Error",
