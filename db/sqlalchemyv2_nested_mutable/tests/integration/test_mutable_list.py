@@ -85,7 +85,6 @@ def user2_2():
 
 
 def test_mutable_list_aliases(session: Session, user1_1: User):
-
     # Arrange
     u = user1_1
 
@@ -100,7 +99,6 @@ def test_mutable_list_aliases(session: Session, user1_1: User):
 
 
 def test_mutable_list_aliases_append(session: Session, user1_1: User):
-
     # Arrange
     u = user1_1
     session.add(u)
@@ -117,7 +115,6 @@ def test_mutable_list_aliases_append(session: Session, user1_1: User):
 
 
 def test_nested_mutable_list_schedule(session: Session, user1_2: User):
-
     # Arrange
     u = user1_2
 
@@ -130,7 +127,6 @@ def test_nested_mutable_list_schedule(session: Session, user1_2: User):
 
 
 def test_nested_mutable_list_schedule_mutate_top_level(session: Session, user1_2: User):
-
     # Arrange
     u = user1_2
     session.add(u)
@@ -144,7 +140,6 @@ def test_nested_mutable_list_schedule_mutate_top_level(session: Session, user1_2
 
 
 def test_nested_mutable_list_schedule_mutate_nested(session: Session, user1_3: User):
-
     # Arrange
     u = user1_3
     session.add(u)
@@ -159,7 +154,6 @@ def test_nested_mutable_list_schedule_mutate_nested(session: Session, user1_3: U
 
 
 def test_nested_mutable_list_schedule_mutate_pop(session: Session, user1_3: User):
-
     # Arrange
     u = user1_3
     session.add(u)
@@ -174,7 +168,6 @@ def test_nested_mutable_list_schedule_mutate_pop(session: Session, user1_3: User
 
 
 def test_mutable_list_stored_as_jsonb(session: Session, user2_1: User):
-
     # Arrange
     u = user2_1
 
@@ -188,7 +181,6 @@ def test_mutable_list_stored_as_jsonb(session: Session, user2_1: User):
 
 
 def test_mutable_list_stored_as_jsonb_append(session: Session, user2_1: User):
-
     # Arrange
     u = user2_1
     session.add(u)
@@ -204,7 +196,6 @@ def test_mutable_list_stored_as_jsonb_append(session: Session, user2_1: User):
 
 
 def test_nested_mutable_list_stored_as_jsonb(session: Session, user2_2: User):
-
     # Arrange - aliases is None, so should default
     u = user2_2
 
@@ -219,7 +210,6 @@ def test_nested_mutable_list_stored_as_jsonb(session: Session, user2_2: User):
 
 
 def test_nested_mutable_list_stored_as_jsonb_mutation_top_level(session: Session, user2_2: User):
-
     # Assert - aliases is None, so should default
     u = user2_2
     session.add(u)
@@ -236,7 +226,6 @@ def test_nested_mutable_list_stored_as_jsonb_mutation_top_level(session: Session
 
 
 def test_nested_mutable_list_stored_as_jsonb_mutation_nested_level(session: Session):
-
     # Assert - aliases is None, so should default
     u = UserV2(name="foo", schedule=[["meeting", "launch"], ["training", "presentation"], ["breakfast", "consulting"]])
     session.add(u)
@@ -257,7 +246,6 @@ def test_nested_mutable_list_stored_as_jsonb_mutation_nested_level(session: Sess
 
 
 def test_nested_mutable_list_stored_as_jsonb_mutation_nested_level_pop(session: Session):
-
     # Assert - aliases is None, so should default
     u = UserV2(
         name="foo",
@@ -275,7 +263,6 @@ def test_nested_mutable_list_stored_as_jsonb_mutation_nested_level_pop(session: 
 
 
 def test_mutable_list_mixed_with_dict(session: Session):
-
     # Arrange
     u = UserV2(
         name="foo",
@@ -296,7 +283,6 @@ def test_mutable_list_mixed_with_dict(session: Session):
 
 
 def test_mutable_list_mixed_with_dict_insert(session: Session):
-
     # Arrange
     u = UserV2(
         name="foo",
@@ -318,7 +304,6 @@ def test_mutable_list_mixed_with_dict_insert(session: Session):
 
 
 def test_mutable_list_stored_as_jsonb_and_nullable(session: Session):
-
     # Arrange
     u = UserV3(name="foo", aliases=["bar", "baz"])
 
@@ -333,7 +318,6 @@ def test_mutable_list_stored_as_jsonb_and_nullable(session: Session):
 
 
 def test_mutable_list_stored_as_jsonb_and_nullable_append(session: Session):
-
     # Arrange
     u = UserV3(name="foo")
     u.aliases = MutableList(["bar", "baz"])
@@ -352,7 +336,6 @@ def test_mutable_list_stored_as_jsonb_and_nullable_append(session: Session):
 
 
 def test_mutable_list_stored_as_jsonb_and_nullable_add(session: Session):
-
     # Arrange
     u = UserV3(name="foo")
     u.aliases = MutableList(["bar", "baz", "qux"])
@@ -368,7 +351,6 @@ def test_mutable_list_stored_as_jsonb_and_nullable_add(session: Session):
 
 
 def test_nested_mutable_list_stored_as_jsonb_and_nullable(session: Session):
-
     # Arrange
     u = UserV3(name="foo", schedule=[["meeting", "launch"], ["training", "presentation"]])
     session.add(u)
@@ -386,7 +368,6 @@ def test_nested_mutable_list_stored_as_jsonb_and_nullable(session: Session):
 
 
 def test_nested_mutable_list_stored_as_jsonb_and_nullable_and_mutate(session: Session):
-
     # Arrange
     u = UserV3(name="foo")
     u.schedule = MutableList([["meeting", "launch"], ["training", "presentation"]])
@@ -404,7 +385,6 @@ def test_nested_mutable_list_stored_as_jsonb_and_nullable_and_mutate(session: Se
 
 
 def test_nested_mutable_list_stored_as_jsonb_and_nullable_and_mutate_nested_level(session: Session):
-
     # Arrange
     u = UserV3(name="foo")
     u.schedule = MutableList([["meeting", "launch"], ["training", "presentation"], ["breakfast", "consulting"]])
@@ -426,7 +406,6 @@ def test_nested_mutable_list_stored_as_jsonb_and_nullable_and_mutate_nested_leve
 
 
 def test_nested_mutable_list_stored_as_jsonb_and_nullable_and_mutate_within_nested(session: Session):
-
     # Arrange
     u = UserV3(name="foo")
     u.schedule = MutableList([["meeting", "launch"], ["training", "presentation"], ["breakfast", "consulting"]])

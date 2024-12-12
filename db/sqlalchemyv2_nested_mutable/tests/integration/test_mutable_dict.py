@@ -50,7 +50,6 @@ def mapper():
 
 
 def test_mutable_dict(session: Session, user1: User):
-
     # Arrange
     u = user1
 
@@ -66,7 +65,6 @@ def test_mutable_dict(session: Session, user1: User):
 
 
 def test_mutable_dict_shallow_change(session: Session, user1: User):
-
     # Arrange
     u = user1
     session.add(u)
@@ -81,7 +79,6 @@ def test_mutable_dict_shallow_change(session: Session, user1: User):
 
 
 def test_mutable_dict_deep_change(session: Session, user1: User):
-
     # Arrange
     u = user1
     session.add(u)
@@ -96,7 +93,6 @@ def test_mutable_dict_deep_change(session: Session, user1: User):
 
 
 def test_mutable_dict_update(session: Session, user1: User):
-
     # Arrange
     u = user1
     session.add(u)
@@ -111,7 +107,6 @@ def test_mutable_dict_update(session: Session, user1: User):
 
 
 def test_mutable_dict_update2(session: Session, user1: User):
-
     # Arrange
     u = user1
     session.add(u)
@@ -126,7 +121,6 @@ def test_mutable_dict_update2(session: Session, user1: User):
 
 
 def test_mutable_dict_mixed_with_list(session: Session, user2: User):
-
     # Arrange
     u = user2
 
@@ -140,7 +134,6 @@ def test_mutable_dict_mixed_with_list(session: Session, user2: User):
 
 
 def test_mutable_dict_mixed_with_list_deep_change(session: Session, user2: User):
-
     # Arrange
     u = user2
 
@@ -156,7 +149,6 @@ def test_mutable_dict_mixed_with_list_deep_change(session: Session, user2: User)
 
 
 def test_mutable_dict_mixed_with_list_deep_changes(session: Session, user2: User):
-
     # Arrange
     u = user2
 

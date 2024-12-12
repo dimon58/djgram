@@ -148,9 +148,10 @@ class TelegramMiddleware(BaseMiddleware):
         except Exception as exc:
             logger.exception("Failed to get chat full info %s: %s", telegram_chat.id, exc, exc_info=exc)  # noqa: TRY401
         else:
-            data[MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY], telegram_chat_full_info_return_state = (
-                await self.save_telegram_chat_full_info_to_db(telegram_chat_full_info, db_session)
-            )
+            (
+                data[MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY],
+                telegram_chat_full_info_return_state,
+            ) = await self.save_telegram_chat_full_info_to_db(telegram_chat_full_info, db_session)
 
     async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
         self,
@@ -190,7 +191,10 @@ class TelegramMiddleware(BaseMiddleware):
             # Или включено обновление каждый раз
             if telegram_chat_need_commit or TELEGRAM_CHAT_FULL_INFO_UPDATE_ON_EACH_EVENT:
                 await self.update_telegram_chat_full_info(
-                    data, db_session, aiogram_chat, update.bot  # pyright: ignore [reportArgumentType]
+                    data,
+                    db_session,
+                    aiogram_chat,
+                    update.bot,  # pyright: ignore [reportArgumentType]
                 )
             else:
                 chat_full_info_stmt = select(TelegramChatFullInfo).where(TelegramChatFullInfo.id == aiogram_chat.id)
@@ -205,7 +209,10 @@ class TelegramMiddleware(BaseMiddleware):
                     > telegram_chat_full_info.updated_at.astimezone(tz=UTC) + TELEGRAM_CHAT_FULL_INFO_UPDATE_PERIOD
                 ):
                     await self.update_telegram_chat_full_info(
-                        data, db_session, aiogram_chat, update.bot  # pyright: ignore [reportArgumentType]
+                        data,
+                        db_session,
+                        aiogram_chat,
+                        update.bot,  # pyright: ignore [reportArgumentType]
                     )
                 else:
                     data[MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY] = telegram_chat_full_info

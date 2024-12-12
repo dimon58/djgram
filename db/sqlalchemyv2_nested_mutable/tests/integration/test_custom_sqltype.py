@@ -38,7 +38,6 @@ def mapper():
 
 
 def test_mutable_pydantic_type(session: Session):
-
     # Arrange
     u = User(name="foo")
 

@@ -77,7 +77,6 @@ class PydanticType(sa.types.TypeDecorator[_P], Generic[_P, DB_JSON]):
         self.use_jsonb_if_postgres = use_jsonb_if_postgres
 
     def load_dialect_impl(self, dialect: Dialect) -> TypeEngine[DB_JSON]:
-
         if dialect.name == "postgresql" and self.use_jsonb_if_postgres:
             from sqlalchemy.dialects.postgresql import JSONB
 

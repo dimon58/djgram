@@ -273,7 +273,6 @@ class OneLineTextRenderer(AdminFieldRenderer):
 
 
 class SpecialStringOneLineTextRenderer(OneLineTextRenderer):
-
     @abstractmethod
     def prepare_data(self, obj: BaseModel) -> str | None:
         raise NotImplementedError
@@ -388,7 +387,6 @@ class JsonRenderer(AdminFieldRenderer):
     indent = 2
 
     def json_dumps_support_pydantic(self, obj: Any):
-
         if isinstance(obj, pydantic.BaseModel):
             return obj.model_dump_json(indent=self.indent)
 
@@ -447,7 +445,6 @@ class AutoRenderer(TextRenderer):
     """
 
     def render_for_obj(self, obj: BaseModel, render_docs: bool) -> str:
-
         data = self.get_from_obj(obj)
 
         # Тут функция get_from_obj будет вызываться 2 раза

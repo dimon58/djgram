@@ -24,7 +24,6 @@ class ExtendedPydanticType(PydanticType[_P]):  # pyright: ignore [reportInvalidT
         return self.pydantic_type.__bases__[0]
 
     def alembic_definition(self, autogen_context: AutogenContext) -> str:
-
         alembic_import_name = self.get_alembic_import_name()
 
         autogen_context.imports.add(f"from {self.__module__} import {alembic_import_name}")
@@ -81,7 +80,6 @@ class ImmutablePydanticField(ExtendedPydanticType[_P]):
 
 
 class ExtendedMutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):
-
     @classmethod
     def coerce(cls, key: str, value: Any) -> Self:
         if isinstance(value, cls):

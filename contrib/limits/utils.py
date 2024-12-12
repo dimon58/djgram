@@ -47,7 +47,6 @@ def limit_retry_call(
     """
 
     def wrapper(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
-
         _limiter = Limiter(max_rate, burst)
 
         _retry_after_event = asyncio.Event()

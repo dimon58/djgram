@@ -46,7 +46,6 @@ class User(Base):
 
 
 def test_mutable_pydantic_type(session: Session, user1: User):
-
     # Arrange
     u = user1
 
@@ -63,7 +62,6 @@ def test_mutable_pydantic_type(session: Session, user1: User):
 
 
 def test_mutable_pydantic_type_shallow_change(session: Session, user1: User):
-
     # Arrange
     u = user1
     session.add(u)
@@ -81,7 +79,6 @@ def test_mutable_pydantic_type_shallow_change(session: Session, user1: User):
 
 
 def test_mutable_pydantic_type_deep_change(session: Session, user1: User):
-
     # Arrange
     u = user1
     session.add(u)
@@ -102,7 +99,6 @@ def test_mutable_pydantic_type_deep_change(session: Session, user1: User):
 
 
 def test_mutable_pydantic_type_deep_append(session: Session, user1: User):
-
     # Arrange
     u = user1
     session.add(u)
@@ -120,7 +116,6 @@ def test_mutable_pydantic_type_deep_append(session: Session, user1: User):
 
 
 def test_mutable_pydantic_type_deep_pop(session: Session, user1: User):
-
     # Arrange
     u = user1
     assert u.addresses is not None

@@ -21,7 +21,6 @@ app = AppAdmin(verbose_name="Пользователи")
 
 
 class BanUserButton(AbstractObjectActionButton[User]):
-
     def get_title(self, obj: User) -> str:
         return "🔒 Забанить" if not obj.banned else "🔑 Разбанить"
 
@@ -39,7 +38,6 @@ class BanUserButton(AbstractObjectActionButton[User]):
 
 
 class ToggleAdminUserButton(AbstractObjectActionButton[User]):
-
     def get_title(self, obj: User) -> str:
         return "⭐ Сделать администратором" if not obj.is_admin else "👤 Исключить из администраторов"
 

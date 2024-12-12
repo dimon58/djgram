@@ -110,7 +110,6 @@ class ModelAdmin:
 
     @classmethod
     def get_fields_widgets(cls) -> list[AdminFieldRenderer]:
-
         widgets: list[AdminFieldRenderer] = []
 
         for field in cls.get_fields():

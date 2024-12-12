@@ -54,7 +54,6 @@ class PeriodicTask:
             await self._task  # pyright: ignore [reportGeneralTypeIssues]
 
     async def _run(self) -> None:
-
         # Делаем, чтобы выполнялось именно раз в период, без отклонений частоты
         first_call = time.perf_counter()
         iters = 0

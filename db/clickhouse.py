@@ -99,7 +99,10 @@ async def safe_insert_dict(table_name: str, data: dict[str, Any]) -> int | None:
     # pylint: disable=broad-exception-caught
     except Exception as exc:
         logger.exception(
-            "Inserting in clickhouse error: %s: %s", exc.__class__.__name__, exc, exc_info=exc  # noqa: TRY401
+            "Inserting in clickhouse error: %s: %s",
+            exc.__class__.__name__,
+            exc,  # noqa: TRY401
+            exc_info=exc,
         )
         return None
 

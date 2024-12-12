@@ -130,7 +130,8 @@ class TrackedList(TrackedObject, list[T]):
 
     def insert(self, __index: SupportsIndex, __object: T) -> None:
         super().insert(
-            __index, TrackedObject.make_nested_trackable(__object, self)  # pyright: ignore [reportArgumentType]
+            __index,
+            TrackedObject.make_nested_trackable(__object, self),  # pyright: ignore [reportArgumentType]
         )
         self.changed()
 

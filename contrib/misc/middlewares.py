@@ -29,7 +29,6 @@ class ErrorHandlingMiddleware(BaseMiddleware):
         update: Update,
         data: dict[str, Any],
     ) -> Any:
-
         try:
             return await handler(update, data)
         except (SkipHandler, CancelHandler):  # pragma: no cover

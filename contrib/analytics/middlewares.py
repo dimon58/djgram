@@ -174,7 +174,6 @@ class DialogAnalyticsInnerMiddleware(BaseMiddleware, Generic[T]):
 
 
 class DialogAnalyticsInnerMessageMiddleware(DialogAnalyticsInnerMiddleware[Message]):
-
     @classmethod
     async def save_statistics(
         cls,
@@ -200,7 +199,6 @@ class DialogAnalyticsInnerMessageMiddleware(DialogAnalyticsInnerMiddleware[Messa
 
 
 class DialogAnalyticsInnerCallbackQueryMiddleware(DialogAnalyticsInnerMiddleware[CallbackQuery]):
-
     @classmethod
     async def save_statistics(
         cls,

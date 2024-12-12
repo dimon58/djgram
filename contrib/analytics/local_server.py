@@ -180,7 +180,6 @@ async def collect_stats(duration_idx: int) -> tuple[StatDictType, ...]:
 
 async def collect_and_save() -> None:
     try:
-
         general, *bots = await collect_stats(ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_AVERAGE_INDEX)
 
         async with clickhouse.connection() as clickhouse_connection:

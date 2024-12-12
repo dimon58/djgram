@@ -31,7 +31,6 @@ _pending_tasks = set[asyncio.Task]()
 
 
 def _serialize_input_file(input_file: InputFile) -> dict[str, Any]:
-
     if isinstance(input_file, LoggingInputFile):
         input_file = input_file.real_input_file
 

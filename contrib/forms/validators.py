@@ -102,7 +102,6 @@ class EmailValidator(FormInputValidator[str]):
 
 
 class PhoneNumberValidator(FormInputValidator[str]):
-
     def __init__(
         self,
         default_region: str | None = None,

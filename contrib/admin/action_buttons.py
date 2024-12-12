@@ -160,7 +160,6 @@ class DownloadFileActionButton(AbstractObjectActionButton[T]):
 
 
 class DownloadStringAsFileActionButton(DownloadFileActionButton[T]):
-
     def __init__(  # noqa: D107
         self,
         button_id: str,
@@ -263,7 +262,6 @@ class DownloadJsonActionButton(DownloadStringAsFileActionButton[T]):
         )
 
     def prepare_field_content(self, field_content: Any) -> bytes:
-
         if isinstance(field_content, pydantic.BaseModel):
             return field_content.model_dump_json(indent=2).encode("utf8")
         if isinstance(field_content, dict):

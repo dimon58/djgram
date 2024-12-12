@@ -187,7 +187,6 @@ class DialogAnalytics(pydantic.BaseModel):
 
     @staticmethod
     def get_widget_text(callback: CallbackQuery | None, middleware_data: dict[str, Any]) -> str | None:
-
         if callback is None:
             return None
 
@@ -322,7 +321,6 @@ class DialogAnalytics(pydantic.BaseModel):
             self.calendar_user_config_timezone_offset = _timezone.utcoffset(None).seconds
 
     async def extend_from(self, keyboard: Keyboard, middleware_data: dict[str, Any]) -> None:
-
         aiogd_context: Context = middleware_data[CONTEXT_KEY]
         dialog_manager = middleware_data.get(MANAGER_KEY)
 

@@ -85,7 +85,6 @@ class AuthMiddleware(BaseMiddleware):
         update: Update,
         data: dict[str, Any],
     ) -> Any:
-
         chat = data.get(MIDDLEWARE_TELEGRAM_CHAT_KEY)
 
         if chat is not None and chat.type == ChatType.CHANNEL:

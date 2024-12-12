@@ -2,6 +2,7 @@
 """
 Модуль для форматирования цветных логов
 """
+
 import logging
 
 from coloredlogs import ColoredFormatter, Empty
