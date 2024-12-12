@@ -16,7 +16,7 @@ from configs import LOGGING_CONFIG, TELEGRAM_BOT_TOKEN
 
 # noinspection PyUnresolvedReferences
 from djgram.db.models import BaseModel  # noqa: F401 нужно для корректной работы alembic
-from djgram.setup import setup_djgram
+from djgram.setup_djgram import setup_djgram
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
