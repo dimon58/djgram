@@ -166,7 +166,7 @@ class DownloadStringAsFileActionButton(DownloadFileActionButton[T]):
     Полезно, если строка очень длинная
     """
 
-    def __init__(  # noqa: D107
+    def __init__(  # noqa: D107, PLR0913
         self,
         button_id: str,
         title: str,
@@ -246,7 +246,7 @@ class DownloadJsonActionButton(DownloadStringAsFileActionButton[T]):
     Отправляет json в виде файла при нажатии
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         button_id: str,
         title: str,

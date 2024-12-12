@@ -130,7 +130,7 @@ class DialogAnalyticsInnerMiddleware(BaseMiddleware, Generic[T]):
     """
 
     @classmethod
-    async def save_statistics(
+    async def save_statistics(  # noqa: PLR0913
         cls,
         process_time: float,
         event: T,
@@ -175,7 +175,7 @@ class DialogAnalyticsInnerMiddleware(BaseMiddleware, Generic[T]):
 
 class DialogAnalyticsInnerMessageMiddleware(DialogAnalyticsInnerMiddleware[Message]):  # noqa: D101
     @classmethod
-    async def save_statistics(
+    async def save_statistics(  # noqa: PLR0913
         cls,
         process_time: float,
         event: Message,
@@ -200,7 +200,7 @@ class DialogAnalyticsInnerMessageMiddleware(DialogAnalyticsInnerMiddleware[Messa
 
 class DialogAnalyticsInnerCallbackQueryMiddleware(DialogAnalyticsInnerMiddleware[CallbackQuery]):  # noqa: D101
     @classmethod
-    async def save_statistics(
+    async def save_statistics(  # noqa: PLR0913
         cls,
         process_time: float,
         event: CallbackQuery,

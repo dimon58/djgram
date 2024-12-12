@@ -16,7 +16,7 @@ class HasRetryAfterError(Protocol):  # noqa: D101
     retry_after: float | None
 
 
-def limit_retry_call(  # noqa: ANN201
+def limit_retry_call(  # noqa: ANN201, PLR0913
     retry_exception_class: type[HasRetryAfterError],
     max_rate: float,
     burst: int = 1,

@@ -36,7 +36,7 @@ class FormInput(MessageInput, ABC):
     При пользовательском вводе валидирует данные и, если всё корректно, сохраняет в dialog_data в поле key
     """
 
-    def __init__(  # noqa: D107
+    def __init__(  # noqa: D107, PLR0913
         self,
         key: Hashable | Sequence[Hashable],
         on_validation_success: FormInputValidationCallback | None = None,
@@ -204,7 +204,7 @@ class EmailFormInput(TextFormInput):
     https://github.com/JoshData/python-email-validator
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         key: Hashable | Sequence[Hashable],
         on_validation_success: FormInputValidationCallback | None = None,
@@ -263,7 +263,7 @@ class PhoneNumberFormInput(TextFormInput):
     https://github.com/daviddrysdale/python-phonenumbers
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         key: Hashable | Sequence[Hashable],
         on_validation_success: FormInputValidationCallback | None = None,

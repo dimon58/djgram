@@ -10,7 +10,7 @@ from djgram.utils.misc import measure_time
 logger = logging.getLogger(__name__)
 
 
-async def download_file(
+async def download_file(  # noqa: PLR0913
     bot: Bot,
     file: str | Downloadable,
     file_size: int,

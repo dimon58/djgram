@@ -33,7 +33,7 @@ class DatabasePaginatedScrollingGroup(Group):
     В геттере нужно указать поле total, которое будет означать общее число элементов.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         *buttons: Keyboard,
         id: str,  # pylint: disable=redefined-builtin  # noqa: A002
