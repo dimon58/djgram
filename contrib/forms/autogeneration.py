@@ -63,7 +63,11 @@ class FormWindowBuilder:
 
 
 def form_element(
-    key: str, text: str, state: State, input_class: type[FormInput] = TextFormInput, **input_kwargs
+    key: str,
+    text: str,
+    state: State,
+    input_class: type[FormInput] = TextFormInput,
+    **input_kwargs,
 ) -> FormWindowBuilder:
     """
     Создаёт элемент формы
@@ -102,7 +106,9 @@ class LinearFormDialog(Dialog):
 
         widgets = (
             elements[idx].build(
-                back_text, first_window=idx == 0, on_validation_success=switch_to(elements[idx + 1].state)
+                back_text,
+                first_window=idx == 0,
+                on_validation_success=switch_to(elements[idx + 1].state),
             )
             for idx in range(len(elements) - 1)
         )

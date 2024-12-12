@@ -50,7 +50,7 @@ class MutableDict(TrackedDict[KT, VT], Mutable):
 
     def __init__(self, source: Mapping[KT, VT] | Iterable[tuple[KT, VT]] = (), **kwds):  # noqa: D107
         super().__init__(  # pyright: ignore [reportCallIssue]
-            TrackedObject.make_nested_trackable(dict(source, **kwds), self)  # pyright: ignore [reportArgumentType]
+            TrackedObject.make_nested_trackable(dict(source, **kwds), self),  # pyright: ignore [reportArgumentType]
         )
 
 

@@ -25,7 +25,9 @@ logger = logging.getLogger(__name__)
 
 
 get_kotoriy_bil_activniy_word = get_default_word_builder(
-    "которые были активны", "который был активен", "которые были активны"
+    "которые были активны",
+    "который был активен",
+    "которые были активны",
 )
 get_user_word = get_default_word_builder("пользователям", "пользователю", "пользователям")
 
@@ -137,7 +139,9 @@ async def broadcast(  # noqa: C901, PLR0912, PLR0915
 
 
 async def send_message_copy(
-    message: Message, chat_id: int | str, disable_notification: bool = False
+    message: Message,
+    chat_id: int | str,
+    disable_notification: bool = False,
 ) -> SendMessageStatus:
     """
     Safe messages sender
@@ -205,7 +209,7 @@ async def broadcast_message(message: Message, db_session: AsyncSession, logging_
     await message.reply(
         f"Начинаю рассылку {count} {get_user_word(count)}, "
         f"{get_kotoriy_bil_activniy_word(count)} не более, "
-        f"чем {seconds_to_human_readable(ACTIVE_USER_TIMEOUT)} назад"
+        f"чем {seconds_to_human_readable(ACTIVE_USER_TIMEOUT)} назад",
     )
 
     chat_id_stmt = apply_active_date_filter(select(TelegramChat.id), last_interaction_min_date)

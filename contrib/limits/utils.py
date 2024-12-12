@@ -72,7 +72,7 @@ def limit_retry_call(  # noqa: ANN201
                     # Make sure we don't allow other requests to be processed
                     _retry_after_event.clear()
                     await asyncio.sleep(
-                        exc.retry_after + sleep_gap if exc.retry_after is not None else default_retry_after_time
+                        exc.retry_after + sleep_gap if exc.retry_after is not None else default_retry_after_time,
                     )
 
                 finally:

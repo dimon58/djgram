@@ -115,7 +115,7 @@ class SaveUpdateToClickHouseMiddleware(BaseMiddleware):
                 execution_time=finish - start,
                 event_context=cast(EventContext, event_context),
                 bot=data["bot"],
-            )
+            ),
         )
         task.add_done_callback(self.pending_tasks.remove)
         # Храним ссылку на задачу, чтобы она не уничтожилась в процессе выполнения

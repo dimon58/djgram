@@ -427,7 +427,7 @@ class FileRenderer(AdminFieldRenderer):
 
         head = [
             f"<strong>●{self.get_title()}:</strong> "
-            f"<code>{html_escape(data['filename'])}</code> ({get_bytes_size_format(data['size'])})"
+            f"<code>{html_escape(data['filename'])}</code> ({get_bytes_size_format(data['size'])})",
         ]
 
         if render_docs:

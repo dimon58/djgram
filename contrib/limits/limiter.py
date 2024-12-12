@@ -154,7 +154,8 @@ class LimitedBot(Bot):
 
                 # run request
                 coro = self.__original__call__(  # pyright: ignore [reportCallIssue]
-                    method=method, request_timeout=request_timeout
+                    method=method,
+                    request_timeout=request_timeout,
                 )
                 # if hasattr(method, "chat_id") and not isinstance(method, GetChat):
                 if isinstance(method, SendMessage):

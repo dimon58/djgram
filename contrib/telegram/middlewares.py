@@ -110,7 +110,9 @@ class TelegramMiddleware(BaseMiddleware):
         return result
 
     async def save_telegram_chat_full_info_to_db(
-        self, chat_full_info: ChatFullInfo, db_session: AsyncSession
+        self,
+        chat_full_info: ChatFullInfo,
+        db_session: AsyncSession,
     ) -> tuple[TelegramChatFullInfo, ReturnState]:
         """
         Сохраняет полную информацию о чате в базе
@@ -172,14 +174,16 @@ class TelegramMiddleware(BaseMiddleware):
 
         if event_context.user is not None:
             data[MIDDLEWARE_TELEGRAM_USER_KEY], telegram_user_return_state = await self.save_telegram_user_to_db(
-                event_context.user, db_session
+                event_context.user,
+                db_session,
             )
             need_commit = need_commit or telegram_user_return_state.need_commit()
 
         aiogram_chat = event_context.chat
         if aiogram_chat is not None:
             data[MIDDLEWARE_TELEGRAM_CHAT_KEY], telegram_chat_return_state = await self.save_telegram_chat_to_db(
-                aiogram_chat, db_session
+                aiogram_chat,
+                db_session,
             )
             telegram_chat_need_commit = telegram_chat_return_state.need_commit()
             need_commit = need_commit or telegram_chat_need_commit

@@ -166,7 +166,7 @@ admin_dialog = Dialog(
                 item_id_getter=operator.itemgetter(0),
                 items=getters.OBJECT_ACTION_BUTTONS_KEY,
                 on_click=handle_object_action_button,
-            )
+            ),
         ),
         Row(
             SwitchTo(

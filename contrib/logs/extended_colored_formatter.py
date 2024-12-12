@@ -63,7 +63,8 @@ class ExtendedColoredFormatter(ColoredFormatter):
             copy.msg = ansi_wrap(coerce_string(record.msg), **style)  # pyright: ignore [reportAttributeAccessIssue]
             # Отличие
             copy.levelname = ansi_wrap(  # pyright: ignore [reportAttributeAccessIssue]
-                coerce_string(record.levelname), **style
+                coerce_string(record.levelname),
+                **style,
             )
             record = copy  # pyright: ignore [reportAssignmentType]
 

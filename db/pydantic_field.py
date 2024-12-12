@@ -131,5 +131,7 @@ def PydanticField(  # noqa: N802
     #   generated is Type == True
     # noinspection PyUnresolvedReferences
     return type(  # pyright: ignore [reportGeneralTypeIssues, reportReturnType]
-        pydantic_type.__class__.__name__, (pydantic_type, ExtendedMutablePydanticBaseModel), {}
+        pydantic_type.__class__.__name__,
+        (pydantic_type, ExtendedMutablePydanticBaseModel),
+        {},
     ).as_mutable(json_sql_type)

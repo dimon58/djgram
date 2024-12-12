@@ -37,7 +37,9 @@ class TrackedObject:
     @classmethod
     @overload
     def make_nested_trackable(
-        cls, value: dict[KT, VT], parent: TrackedObject
+        cls,
+        value: dict[KT, VT],
+        parent: TrackedObject,
     ) -> TrackedDict[KT, VT | TrackedObject]: ...
 
     @classmethod
@@ -66,7 +68,9 @@ class TrackedObject:
         elif isinstance(value, pydantic.BaseModel) and not isinstance(value, TrackedPydanticBaseModel):
             # noinspection PyTypeChecker
             model_cls: type[TrackedPydanticBaseModel] = type(
-                "Tracked" + value.__class__.__name__, (TrackedPydanticBaseModel, value.__class__), {}
+                "Tracked" + value.__class__.__name__,
+                (TrackedPydanticBaseModel, value.__class__),
+                {},
             )
             model_cls.__doc__ = (
                 f"This class is composed of `{value.__class__.__name__}` and `TrackedPydanticBaseModel` "
@@ -168,7 +172,9 @@ class TrackedDict(TrackedObject, dict[KT, VT]):
         def setdefault(self, key: KT, value: VT) -> VT: ...
 
         def setdefault(  # pyright: ignore [reportIncompatibleMethodOverride]
-            self, key: KT, value: object = None
+            self,
+            key: KT,
+            value: object = None,
         ) -> object: ...
 
     else:
