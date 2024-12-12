@@ -141,6 +141,7 @@ async def broadcast(  # noqa: C901, PLR0912, PLR0915
 async def send_message_copy(
     message: Message,
     chat_id: int | str,
+    *,
     disable_notification: bool = False,
 ) -> SendMessageStatus:
     """

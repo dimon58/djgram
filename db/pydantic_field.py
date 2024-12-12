@@ -67,6 +67,7 @@ class ImmutablePydanticField(ExtendedPydanticType[_P]):
         self,
         pydantic_type: type[_P],
         sqltype: TypeEngine[DB_JSON] = default_json,
+        *,
         should_frozen: bool = True,
     ):
         self.should_frozen = should_frozen

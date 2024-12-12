@@ -16,6 +16,7 @@ async def download_file(
     file_size: int,
     timeout: int = 30,  # noqa: ASYNC109
     chunk_size: int = 65536,
+    *,
     seek: bool = True,
 ) -> BytesIO:
     """

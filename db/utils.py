@@ -79,8 +79,9 @@ def get_fields_of_model(model_class: type[BaseModel], skip_synonyms_origin: bool
 async def get_or_create(
     session: AsyncSession,
     model: type[T],
-    with_for_update: bool = False,
     defaults: dict[str, Any] | None = None,
+    *,
+    with_for_update: bool = False,
     **kwargs,
 ) -> tuple[T, bool]:
     """

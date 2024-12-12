@@ -28,7 +28,7 @@ _P_REGEX = re.compile("<p[^>]*>")
 _SPAN_REGEX = re.compile("<span[^>]*>")
 
 
-def telegramify(html: str, collapse_spaces: bool = True) -> str:
+def telegramify(html: str, *, collapse_spaces: bool = True) -> str:
     """
     Костыльный метод добавляющий поддержку тега <br> в сообщения телеграмм.
 

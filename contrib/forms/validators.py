@@ -117,8 +117,9 @@ class PhoneNumberValidator(FormInputValidator[str]):
     def __init__(
         self,
         default_region: str | None = None,
-        check_region: bool = True,
         output_number_format: int = phonenumbers.PhoneNumberFormat.E164,
+        *,
+        check_region: bool = True,
     ):
         """
         :param default_region: Регион номера по умолчанию. Полезен, когда номер не записан в международном формате.

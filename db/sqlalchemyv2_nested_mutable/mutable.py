@@ -66,6 +66,7 @@ class PydanticType(sa.types.TypeDecorator[_P], Generic[_P, DB_JSON]):
         self,
         pydantic_type: type[_P],
         sqltype: TypeEngine[DB_JSON] = default_json,
+        *,
         use_jsonb_if_postgres: bool = True,
     ):
         super().__init__()
