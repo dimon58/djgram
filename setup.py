@@ -35,7 +35,7 @@ def setup_router(dp: Dispatcher) -> None:
     logger.info("djgram routers setup")
 
 
-def setup_middlewares(dp: Dispatcher, analytics: bool, error_text: str) -> None:
+def setup_middlewares(dp: Dispatcher, *, analytics: bool, error_text: str) -> None:
     dp.update.outer_middleware(TraceMiddleware())
     dp.update.outer_middleware(ErrorHandlingMiddleware(error_text))
     dp.update.outer_middleware(UserContextMiddleware())

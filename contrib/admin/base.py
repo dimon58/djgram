@@ -100,7 +100,7 @@ class ModelAdmin:
         if cls.fields is not None:
             return cls.fields
 
-        fields = get_fields_of_model(cls.model, cls.skip_synonyms_origin)
+        fields = get_fields_of_model(cls.model, skip_synonyms_origin=cls.skip_synonyms_origin)
 
         if cls.exclude_fields is not None:
             exclude_fields = cast(Sequence[str], cls.exclude_fields)

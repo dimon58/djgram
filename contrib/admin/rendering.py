@@ -188,7 +188,7 @@ class AdminFieldRenderer:
         """
         return self._title if self._title is not None else self._field
 
-    def render_head(self, obj: BaseModel, render_docs: bool) -> list[str]:
+    def render_head(self, obj: BaseModel, *, render_docs: bool) -> list[str]:
         """
         Рендерит заголовок в виде
 
@@ -225,7 +225,7 @@ class AdminFieldRenderer:
         """
         raise NotImplementedError
 
-    def render_for_obj(self, obj: BaseModel, render_docs: bool) -> str:
+    def render_for_obj(self, obj: BaseModel, *, render_docs: bool) -> str:
         """
         Рендерит объект поля в виде
 
@@ -236,7 +236,7 @@ class AdminFieldRenderer:
             obj: объект для которого рендериться представление
             render_docs: нудно ли рендерить документацию. Не рендериться, если поле составное
         Returns:
-            str: строка с отрендереным значением
+            str: строка с отрендеренным значением
         """
         head = self.render_head(obj, render_docs)
         head.append(self.render_body(obj))
@@ -264,7 +264,7 @@ class OneLineTextRenderer(AdminFieldRenderer):
     def get_data(self, obj: BaseModel) -> str | None:
         return f"<code>{html_escape(self.get_from_obj(obj))}</code>"
 
-    def render_for_obj(self, obj: BaseModel, render_docs: bool) -> str:
+    def render_for_obj(self, obj: BaseModel, *, render_docs: bool) -> str:
         head = [f"<strong>●{self.get_title()}:</strong> {self.get_data(obj)}"]
 
         if render_docs:
@@ -426,7 +426,7 @@ class FileRenderer(AdminFieldRenderer):
     Например: document.pdf (1.23 MB)
     """
 
-    def render_for_obj(self, obj: BaseModel, render_docs: bool) -> str:
+    def render_for_obj(self, obj: BaseModel, *, render_docs: bool) -> str:
         data = self.get_from_obj(obj)
 
         head = [
@@ -448,7 +448,7 @@ class AutoRenderer(TextRenderer):
     Автоматически выбирает способ отображения для данных
     """
 
-    def render_for_obj(self, obj: BaseModel, render_docs: bool) -> str:
+    def render_for_obj(self, obj: BaseModel, *, render_docs: bool) -> str:
         data = self.get_from_obj(obj)
 
         # Тут функция get_from_obj будет вызываться 2 раза
@@ -469,4 +469,4 @@ class AutoRenderer(TextRenderer):
         else:
             renderer = super()
 
-        return renderer.render_for_obj(obj, render_docs)
+        return renderer.render_for_obj(obj, render_docs=render_docs)

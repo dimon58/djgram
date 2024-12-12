@@ -221,6 +221,7 @@ class DialogAnalytics(pydantic.BaseModel):
     @classmethod
     def from_event(
         cls,
+        *,
         processor: str,
         processed: bool,
         process_time: float | None,
@@ -340,6 +341,7 @@ class DialogAnalytics(pydantic.BaseModel):
 
 @suppress_decorator_async(Exception, logging_level=logging.ERROR)
 async def save_keyboard_statistics(
+    *,
     processor: str,
     processed: bool,
     process_time: float,
@@ -447,6 +449,7 @@ def patch_keyboard() -> None:
 
 @suppress_decorator_async(Exception, logging_level=logging.ERROR)
 async def save_input_statistics(
+    *,
     processor: str,
     processed: bool,
     process_time: float | None,

@@ -50,9 +50,10 @@ class SemiLocalBot(Bot):
 
 def get_local_bot(
     telegram_bot_token: str,
-    telegram_local: bool,
     telegram_local_server_url: str,
     telegram_local_server_files_url: str,
+    *,
+    telegram_local: bool,
 ) -> Bot:
     if telegram_local:
         # Читает файлы напрямую с диска. Будет работать, только если запускать сервер и бота в одном контейнере
@@ -77,9 +78,10 @@ def get_local_bot(
 @asynccontextmanager
 async def get_local_bot_context(
     telegram_bot_token: str,
-    telegram_local: bool,
     telegram_local_server_url: str,
     telegram_local_server_files_url: str,
+    *,
+    telegram_local: bool,
 ) -> AsyncGenerator[Bot, None]:
     bot = get_local_bot(
         telegram_bot_token=telegram_bot_token,

@@ -51,7 +51,7 @@ def get_fields_of_declarative_meta(model_class: type) -> set[str]:
     return {field for field, value in model_class.__dict__.items() if isinstance(value, MappedColumn)}
 
 
-def get_fields_of_model(model_class: type[BaseModel], skip_synonyms_origin: bool) -> list[str]:
+def get_fields_of_model(model_class: type[BaseModel], *, skip_synonyms_origin: bool) -> list[str]:
     """
     Получает список всех полей модели
     """
