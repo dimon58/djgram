@@ -119,10 +119,8 @@ def PydanticField(  # noqa: N802
     """
 
     if (
-        isinstance(json_sql_type, type)
-        and not issubclass(json_sql_type, JSON)
-        or not isinstance(json_sql_type, type)
-        and not isinstance(json_sql_type, JSON)
+        (isinstance(json_sql_type, type) and not issubclass(json_sql_type, JSON))
+        or (not isinstance(json_sql_type, type) and not isinstance(json_sql_type, JSON))
     ):
         raise TypeError(f"json_sql_type should be subclass or instance of JSON, but got {json_sql_type}")
 

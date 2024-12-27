@@ -35,13 +35,13 @@ logger = logging.getLogger("limiter")
 
 class LimitCaller:  # noqa: D101
     __slots__ = (
+        "_group_max_rate",
         "_overall_max_rate",
         "_user_max_rate",
-        "_group_max_rate",
-        "max_retries",
-        "main_limiter",
         "chats_limiter",
         "groups_limiter",
+        "main_limiter",
+        "max_retries",
     )
 
     def __init__(
