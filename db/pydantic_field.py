@@ -118,9 +118,8 @@ def PydanticField(  # noqa: N802
     :param json_sql_type: тип хранения в базе данных (JSON и JSONB)
     """
 
-    if (
-        (isinstance(json_sql_type, type) and not issubclass(json_sql_type, JSON))
-        or (not isinstance(json_sql_type, type) and not isinstance(json_sql_type, JSON))
+    if (isinstance(json_sql_type, type) and not issubclass(json_sql_type, JSON)) or (
+        not isinstance(json_sql_type, type) and not isinstance(json_sql_type, JSON)
     ):
         raise TypeError(f"json_sql_type should be subclass or instance of JSON, but got {json_sql_type}")
 

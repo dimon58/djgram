@@ -145,7 +145,9 @@ class LimitedBot(Bot):
         self.caller = limiter
         self.__original__call__ = Bot.__call__
 
-    async def _call(self, method: TelegramMethod[TelegramType], request_timeout: int | None = None) -> TelegramType:  # pyright: ignore [reportReturnType]
+    async def _call(
+        self, method: TelegramMethod[TelegramType], request_timeout: int | None = None
+    ) -> TelegramType:  # pyright: ignore [reportReturnType]
         """
         Just to not modify __init__ method
         """
