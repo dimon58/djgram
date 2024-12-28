@@ -36,7 +36,7 @@ class MutableList(TrackedList[T], Mutable):
     def coerce(cls, key: str, value: Any) -> MutableList[T]:
         return value if isinstance(value, cls) else cls(value)
 
-    def __init__(self, __iterable: Iterable[T] | None = None):  # noqa: D107
+    def __init__(self, __iterable: Iterable[T] | None = None):  # noqa: D107, PYI063
         if __iterable is None:
             __iterable = []
 

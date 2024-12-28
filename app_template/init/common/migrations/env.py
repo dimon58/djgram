@@ -24,10 +24,6 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
 target_metadata = BaseModel.metadata
 
 config.set_main_option(
@@ -42,7 +38,7 @@ config.set_main_option(
 # ... etc.
 
 
-def render_item(type_: str, obj: Any, autogen_context: AutogenContext):
+def render_item(type_: str, obj: Any, autogen_context: AutogenContext) -> str | bool:
     """Apply custom rendering for selected items."""
 
     if type_ == "type" and isinstance(obj, FileField):

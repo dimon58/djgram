@@ -20,9 +20,7 @@ logger = logging.getLogger(__name__)
 dialog = Dialog(  # todo: rename dialog
     Window(
         Const("Пример диалога"),
-        Button(
-            Const("Вывести приветствие"), id="say_hello", on_click=callbacks.say_hello
-        ),
+        Button(Const("Вывести приветствие"), id="say_hello", on_click=callbacks.say_hello),
         state=DialogStates.state1,
     ),
 )

@@ -117,11 +117,11 @@ class TrackedList(TrackedObject, list[T]):  # noqa: D101
         self.changed()
         return result
 
-    def append(self, __object: T) -> None:
+    def append(self, __object: T) -> None:  # noqa: PYI063
         super().append(TrackedObject.make_nested_trackable(__object, self))  # pyright: ignore [reportArgumentType]
         self.changed()
 
-    def extend(self, __iterable: Iterable[T]) -> None:
+    def extend(self, __iterable: Iterable[T]) -> None:  # noqa: PYI063
         super().extend(
             TrackedObject.make_nested_trackable(value, self)  # pyright: ignore [reportArgumentType]
             for value in __iterable
@@ -132,7 +132,7 @@ class TrackedList(TrackedObject, list[T]):  # noqa: D101
         self.extend(value)
         return self
 
-    def insert(self, __index: SupportsIndex, __object: T) -> None:
+    def insert(self, __index: SupportsIndex, __object: T) -> None:  # noqa: PYI063
         super().insert(
             __index,
             TrackedObject.make_nested_trackable(__object, self),  # pyright: ignore [reportArgumentType]
@@ -198,12 +198,12 @@ class TrackedDict(TrackedObject, dict[KT, VT]):  # noqa: D101
     if TYPE_CHECKING:
 
         @overload
-        def pop(self, __key: KT) -> VT: ...
+        def pop(self, __key: KT) -> VT: ...  # noqa: PYI063
 
         @overload
-        def pop(self, __key: KT, __default: VT | T) -> VT | T: ...
+        def pop(self, __key: KT, __default: VT | T) -> VT | T: ...  # noqa: PYI063
 
-        def pop(self, __key: KT, __default: VT | T | None = None) -> VT | T: ...
+        def pop(self, __key: KT, __default: VT | T | None = None) -> VT | T: ...  # noqa: PYI063
 
     else:
 
