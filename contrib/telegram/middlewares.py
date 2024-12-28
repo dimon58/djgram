@@ -221,7 +221,7 @@ class TelegramMiddleware(BaseMiddleware):
                 else:
                     data[MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY] = telegram_chat_full_info
 
-        assert (MIDDLEWARE_TELEGRAM_CHAT_KEY in data) == (MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY in data)  # noqa: S101
+        assert (MIDDLEWARE_TELEGRAM_CHAT_KEY in data) == (MIDDLEWARE_TELEGRAM_CHAT_FULL_INFO_KEY in data)  # noqa: S101  # nosec: B101
 
         if need_commit:
             await db_session.commit()
