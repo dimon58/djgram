@@ -36,7 +36,7 @@ def startapp(name: str) -> None:
     else:
         os.makedirs(app_dir)  # noqa: PTH103
 
-    environment = jinja2.Environment(  # nosec: B701 # noqa: S701
+    environment = jinja2.Environment(  # noqa: S701
         loader=jinja2.FileSystemLoader(APP_TEMPLATE_DIR),
         keep_trailing_newline=True,
     )

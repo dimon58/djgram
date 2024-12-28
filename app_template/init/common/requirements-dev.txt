@@ -3,6 +3,5 @@
 
 # Code quality
 # ------------------------------------------------------------------------------
-bandit==1.8.0                       # https://github.com/PyCQA/bandit
 ruff==0.8.4                         # https://github.com/astral-sh/ruff
 pre-commit==4.0.1                   # https://github.com/pre-commit/pre-commit
