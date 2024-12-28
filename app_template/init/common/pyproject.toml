@@ -148,7 +148,6 @@ split-on-trailing-comma = true
 [tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"
 
-
 # ==== pyright ====
 [tool.pyright]
 exclude = [
