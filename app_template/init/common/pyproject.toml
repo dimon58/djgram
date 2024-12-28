@@ -162,5 +162,4 @@ exclude = [
 
 # ==== bandit ====
 [tool.bandit]
-exclude_dirs = ["dev", ".venv", "venv"]
-skips = ["B703", "B308"]
+exclude_dirs = [ ".venv", "venv", "tests" ]
