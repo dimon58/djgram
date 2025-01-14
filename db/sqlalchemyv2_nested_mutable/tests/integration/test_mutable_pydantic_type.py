@@ -23,9 +23,6 @@ class Addresses(MutablePydanticBaseModel):
     home: list[AddressItem] = []
     updated_time: str | None = None
 
-    def __init__(self, **data):
-        super().__init__(**data)
-
 
 @pytest.fixture(scope="module", autouse=True)
 def mapper():
