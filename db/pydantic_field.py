@@ -96,7 +96,7 @@ class ExtendedMutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):  # no
         return cls.model_validate(value)
 
     def dict(self, *args, **kwargs) -> dict[str, Any]:
-        res = super().model_dump(*args, **kwargs)
+        res = self.model_dump(*args, **kwargs)
         res.pop("_parents", None)
         return res
 
