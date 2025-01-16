@@ -49,7 +49,7 @@ class FormWindowBuilder:
     ) -> Window:
         return Window(
             Const(self.text),
-            self.input_class(self.key, on_validation_success),
+            self.input_class(self.key, on_validation_success, **self.input_kwargs),
             Cancel(Const(back_text)) if first_window else Back(Const(back_text)),
             state=self.state,
             getter=self.getter,
