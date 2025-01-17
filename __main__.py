@@ -50,8 +50,7 @@ def startapp(name: str) -> None:
             relative_path = os.path.join(os.path.relpath(dir_, APP_TEMPLATE_DIR), file_name)  # noqa: PTH118
 
             # Jinja2 не понимает обратных слешей, поэтому переименовываем
-            if relative_path.startswith(".\\"):
-                relative_path = relative_path[2:]
+            relative_path = relative_path.removeprefix(".\\")
 
             # Файлы с расширением ".jinja2" рендерим, а остальные просто копируем
             if file_name.endswith(template_format):
