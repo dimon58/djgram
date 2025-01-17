@@ -1,4 +1,4 @@
-from contextlib import suppress
+import os
 from datetime import timedelta
 
 from djgram.contrib.local_server.constants import TelegramLocalServerStatsAverage
@@ -68,7 +68,7 @@ ADMIN_MODELS_PER_PAGE = 5
 #: Максимально количество строк на странице
 ADMIN_ROWS_PER_PAGE = 5
 
-with suppress(ImportError):
+if os.path.exists("configs.py"):  # noqa: PTH110
     from configs import *  # noqa: F401,F403,RUF100
 
 if ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_AVERAGE_INDEX not in (1, 2, 3, 4):
