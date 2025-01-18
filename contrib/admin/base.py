@@ -12,7 +12,7 @@ from typing import Any, ClassVar, TypeVar, cast
 
 from sqlalchemy import ColumnElement, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import sqltypes
+from sqlalchemy.sql import Select, sqltypes
 from sqlalchemy.sql._typing import _ColumnExpressionOrStrLabelArgument
 
 from djgram.configs import ADMIN_ROWS_PER_PAGE
@@ -23,6 +23,7 @@ from .action_buttons import AbstractObjectActionButton
 from .rendering import AdminFieldRenderer, AutoRenderer
 
 T = TypeVar("T", bound="ModelAdmin")
+V = TypeVar("V", bound=BaseModel)
 
 logger = logging.getLogger(__name__)
 
@@ -156,6 +157,24 @@ class ModelAdmin:
                 return btn
 
         return None
+
+    @classmethod
+    def get_list_select_statement(cls) -> Select[Any]:
+        """
+        Возвращает запрос списка объектов
+        """
+
+        # TODO: сюда можно прописать проверку прав доступа к объектам
+        return select(cls.model)
+
+    @classmethod
+    def get_object_select_statement(cls, id_: Any) -> Select[Any]:
+        """
+        Возвращает запрос конкретного объекта
+        """
+
+        # TODO: сюда можно прописать проверку прав доступа к объектам
+        return cls.get_list_select_statement().where(cls.model.id == id_)
 
 
 @dataclass

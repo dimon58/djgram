@@ -90,17 +90,17 @@ async def get_rows(dialog_manager: DialogManager, **kwargs) -> dict[str, Any]:  
 
     page = DatabasePaginatedScrollingGroup.get_page_number_from_manager(dialog_manager, PAGE_KEY)
 
-    stmt = select(model_admin.model)
-    total_stmt = select(func.count()).select_from(model_admin.model)
+    stmt = model_admin.get_list_select_statement()
 
     if QUERY_KEY in dialog_manager.dialog_data:
         query_filter = model_admin.generate_search_filter(dialog_manager.dialog_data[QUERY_KEY])
 
         stmt = stmt.where(query_filter)
-        total_stmt = total_stmt.where(query_filter)
 
     stmt = stmt.order_by(model_admin.ordering).offset(app.rows_per_page * page).limit(app.rows_per_page)
     rows = (await db_session.scalars(stmt)).all()
+
+    total_stmt = select(func.count()).select_from(stmt)
     total = cast(int, await db_session.scalar(total_stmt))
 
     data = []
@@ -184,7 +184,7 @@ async def get_admin_object_detail_context(
     if isinstance(model.id.type, sqltypes.Integer):
         row_id = int(row_id)
 
-    stmt = select(model).where(model.id == row_id)
+    stmt = model_admin.get_object_select_statement(row_id)
     obj: T | None = await db_session.scalar(stmt)
 
     return app, model, model_admin, obj, row_id
