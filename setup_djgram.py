@@ -35,9 +35,15 @@ def setup_router(dp: Dispatcher) -> None:
     logger.info("djgram routers setup")
 
 
-def setup_middlewares(dp: Dispatcher, *, analytics: bool, error_text: str) -> None:
+def setup_middlewares(
+    dp: Dispatcher,
+    *,
+    analytics: bool,
+    error_text: str,
+    skip_exceptions: type(Exception) | tuple[type(Exception), ...],
+) -> None:
     dp.update.outer_middleware(TraceMiddleware())
-    dp.update.outer_middleware(ErrorHandlingMiddleware(error_text))
+    dp.update.outer_middleware(ErrorHandlingMiddleware(error_text, skip_exceptions))
     dp.update.outer_middleware(UserContextMiddleware())
     if analytics:
         dp.update.outer_middleware(SaveUpdateToClickHouseMiddleware())
@@ -48,12 +54,13 @@ def setup_middlewares(dp: Dispatcher, *, analytics: bool, error_text: str) -> No
     logger.info("djgram middlewares setup")
 
 
-def setup_djgram(
+def setup_djgram(  # noqa: PLR0913
     dp: Dispatcher,
     *,
     add_limiter: bool = True,
     analytics: bool = False,
     error_text: str = DEFAULT_ERROR_TEXT_FOR_USER,
+    skip_exceptions: type(Exception) | tuple[type(Exception), ...] = (),
     dialog_manager_factory: DialogManagerFactory | None = None,
 ) -> None:
     """
@@ -65,9 +72,10 @@ def setup_djgram(
             https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this
         analytics: включить сохранение аналитики в ClickHouse
         error_text: текст сообщения, которое будет отправляться пользователями при ошибках в системе
+        skip_exceptions: список исключений, который не нужно обрабатывать в ErrorHandlingMiddleware
         dialog_manager_factory: фабрика диалоговых менеджеров для aiogram-dialog
     """
-    setup_middlewares(dp, analytics=analytics, error_text=error_text)
+    setup_middlewares(dp, analytics=analytics, error_text=error_text, skip_exceptions=skip_exceptions)
     setup_router(dp)
     setup_dialogs(dp, dialog_manager_factory=dialog_manager_factory)
 

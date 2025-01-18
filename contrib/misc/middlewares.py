@@ -16,12 +16,17 @@ class ErrorHandlingMiddleware(BaseMiddleware):
     Аналог aiogram.dispatcher.middlewares.error.ErrorsMiddleware
     """
 
-    def __init__(self, error_text: str = DEFAULT_ERROR_TEXT_FOR_USER):
+    def __init__(
+        self,
+        error_text: str = DEFAULT_ERROR_TEXT_FOR_USER,
+        skip_exceptions: type(Exception) | tuple[type(Exception), ...] = (),
+    ):
         """
         :param error_text: текст сообщения, отправляемого пользователям при ошибках
         """
         super().__init__()
         self.error_text = error_text
+        self.skip_exceptions = (SkipHandler, CancelHandler, *skip_exceptions)
 
     async def __call__(  # pyright: ignore [reportIncompatibleMethodOverride]
         self,
@@ -31,7 +36,7 @@ class ErrorHandlingMiddleware(BaseMiddleware):
     ) -> Any:
         try:
             return await handler(update, data)
-        except (SkipHandler, CancelHandler):  # pragma: no cover
+        except self.skip_exceptions:  # pragma: no cover
             raise
         except Exception:
             if answer_method := getattr(update.event, "answer", None):
