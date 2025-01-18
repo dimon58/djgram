@@ -238,7 +238,7 @@ class AdminFieldRenderer:
         Returns:
             str: строка с отрендеренным значением
         """
-        head = self.render_head(obj, render_docs)
+        head = self.render_head(obj, render_docs=render_docs)
         head.append(self.render_body(obj))
 
         return "\n".join(head)
