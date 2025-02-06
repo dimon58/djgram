@@ -12,7 +12,6 @@ from aiogram_dialog.widgets.kbd import Back, Cancel, Keyboard
 from aiogram_dialog.widgets.text import Const
 from aiogram_dialog.widgets.utils import GetterVariant
 from aiogram_dialog.window import _DEFAULT_MARKUP_FACTORY
-
 from djgram.contrib.forms.actions import switch_to
 from djgram.contrib.forms.inputs import FormInput, TextFormInput
 from djgram.contrib.forms.validators import FormInputValidationCallback

@@ -7,12 +7,11 @@ import logging
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from aiogram_dialog import DialogManager
-from sqlalchemy import func, select
-from sqlalchemy.sql import sqltypes
-
 from djgram.contrib.dialogs.database_paginated_scrolling_group import DEFAULT_TOTAL_KEY, DatabasePaginatedScrollingGroup
 from djgram.db.models import BaseModel
 from djgram.system_configs import MIDDLEWARE_DB_SESSION_KEY
+from sqlalchemy import func, select
+from sqlalchemy.sql import sqltypes
 
 from ..base import AppAdmin, ModelAdmin, apps_admins
 from ..rendering import QUERY_KEY, get_field_by_path, prepare_rows

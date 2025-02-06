@@ -10,7 +10,6 @@ from aiogram.types import Message
 from aiogram_dialog import DialogManager, DialogProtocol
 from aiogram_dialog.api.internal import CONTEXT_KEY, STACK_KEY
 from aiogram_dialog.widgets.input import MessageInput
-
 from djgram.contrib.analytics import dialog_analytics
 from djgram.utils.misc import unfreeze_model
 

@@ -3,11 +3,10 @@ from datetime import UTC, datetime
 
 import aiogram
 from aiogram import Bot
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import sqltypes
-
 from djgram.configs import DB_SUPPORTS_ARRAYS
 from djgram.db.pydantic_field import ImmutablePydanticField, PydanticField
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql import sqltypes
 
 from .chat import AbstractTelegramChat
 

@@ -1,7 +1,6 @@
+from djgram.db.models import TimeTrackableBaseModel
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import expression, sqltypes
-
-from djgram.db.models import TimeTrackableBaseModel
 
 from .misc import HasFullNameComponents
 

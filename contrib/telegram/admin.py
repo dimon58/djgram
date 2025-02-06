@@ -6,7 +6,6 @@
 from typing import Any
 
 from aiogram.types import CallbackQuery
-
 from djgram.contrib.admin import AppAdmin, ModelAdmin
 from djgram.contrib.admin.action_buttons import AbstractObjectActionButton
 from djgram.contrib.admin.rendering import OneLineTextRenderer, TelegramUsernameLinkRenderer

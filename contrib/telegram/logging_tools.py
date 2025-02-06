@@ -4,7 +4,6 @@ from typing import cast
 
 from aiogram import Bot
 from aiogram.types import BufferedInputFile
-
 from djgram.utils.misc import resolve_pyobj
 
 

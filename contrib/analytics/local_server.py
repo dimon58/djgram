@@ -5,7 +5,6 @@ from datetime import UTC, datetime
 from typing import TypeAlias
 
 import aiohttp
-
 from djgram.configs import (
     ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_AVERAGE_INDEX,
     ANALYTICS_TELEGRAM_LOCAL_SERVER_STATS_BOT_TABLE,

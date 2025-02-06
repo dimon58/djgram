@@ -10,7 +10,6 @@ import orjson
 from aiogram import Bot
 from aiogram.methods import TelegramMethod
 from aiogram.types import BufferedInputFile, FSInputFile, InputFile, URLInputFile
-
 from djgram.configs import ANALYTICS_BOT_SEND_TABLE
 from djgram.contrib.logs.context import UPDATE_ID
 from djgram.db import clickhouse

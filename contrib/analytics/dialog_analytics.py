@@ -75,13 +75,12 @@ from aiogram_dialog.manager.manager_middleware import MANAGER_KEY
 from aiogram_dialog.widgets.common import Actionable
 from aiogram_dialog.widgets.input import BaseInput, MessageInput, TextInput
 from aiogram_dialog.widgets.kbd import Calendar, Keyboard
-from pydantic import ConfigDict
-
 from djgram.configs import ANALYTICS_DIALOG_TABLE
 from djgram.contrib.analytics.misc import DIALOG_ANALYTICS_DDL_SQL
 from djgram.db import clickhouse
 from djgram.system_configs import MIDDLEWARE_AUTH_USER_KEY
 from djgram.utils.misc import suppress_decorator_async
+from pydantic import ConfigDict
 
 if TYPE_CHECKING:
     from aiogram.filters import CommandObject

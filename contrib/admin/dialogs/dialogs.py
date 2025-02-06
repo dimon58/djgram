@@ -12,7 +12,6 @@ from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Back, Button, Cancel, Column, Row, ScrollingGroup, Select, SwitchTo
 from aiogram_dialog.widgets.text import Const, Format
-
 from djgram.configs import (
     ADMIN_APPS_PER_PAGE,
     ADMIN_MODELS_PER_PAGE,

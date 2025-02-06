@@ -10,8 +10,6 @@ from typing import Any
 from aiogram import BaseMiddleware, Bot
 from aiogram.enums import ChatType
 from aiogram.types import Update
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from djgram.configs import (
     BAN_MESSAGE,
     ENABLE_ACCESS_FOR_BANNED_ADMINS,
@@ -25,6 +23,7 @@ from djgram.system_configs import (
     MIDDLEWARE_TELEGRAM_CHAT_KEY,
     MIDDLEWARE_TELEGRAM_USER_KEY,
 )
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import User
 from .user_model_base import AbstractUser

@@ -3,3 +3,8 @@
 """
 
 from . import admin, models
+
+__all__ = [
+    "admin",
+    "models",
+]

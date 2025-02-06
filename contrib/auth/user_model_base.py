@@ -4,12 +4,11 @@
 
 from datetime import datetime
 
+from djgram.contrib.telegram.models import TelegramUser
+from djgram.db.models import BaseModel, UpdatedAtMixin
 from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 from sqlalchemy.sql import sqltypes
-
-from djgram.contrib.telegram.models import TelegramUser
-from djgram.db.models import BaseModel, UpdatedAtMixin
 
 
 # pylint: disable=too-few-public-methods

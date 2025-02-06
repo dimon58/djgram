@@ -13,10 +13,9 @@ from typing import TYPE_CHECKING, Any, ClassVar, cast
 from uuid import UUID
 
 import pydantic
-from sqlalchemy_file import File
-
 from djgram.db.models import BaseModel
 from djgram.utils.formating import get_bytes_size_format
+from sqlalchemy_file import File
 
 if TYPE_CHECKING:
     from sqlalchemy import Column

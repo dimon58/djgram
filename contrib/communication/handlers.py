@@ -5,10 +5,9 @@ from aiogram.filters import Command, CommandObject, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from djgram.contrib.admin.filters import make_admin_router
 from djgram.contrib.communication.broadcast import broadcast_message
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 router = make_admin_router()
@@ -50,6 +49,6 @@ async def broadcast_start(message: Message, db_session: AsyncSession, command: C
 
 
 @router.message(StateFilter(BroadcastStatesGroup.wait_message))
-async def broadcast(message: Message, db_session: AsyncSession, state: FSMContext) -> None:
+async def broadcast(message: Message, db_session: AsyncSession, state: FSMContext):
     await broadcast_message(message, db_session, message)
     await state.clear()

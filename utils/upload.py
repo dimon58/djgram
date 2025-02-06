@@ -5,7 +5,6 @@ from collections.abc import AsyncGenerator
 from typing import TYPE_CHECKING
 
 from aiogram.types import BufferedInputFile, FSInputFile, InputFile
-
 from djgram.utils.formating import get_bytes_size_format
 from djgram.utils.input_file_ext import S3FileInput
 

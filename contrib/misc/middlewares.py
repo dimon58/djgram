@@ -4,7 +4,6 @@ from typing import Any
 from aiogram import BaseMiddleware
 from aiogram.dispatcher.event.bases import CancelHandler, SkipHandler
 from aiogram.types import Update
-
 from djgram.system_configs import DEFAULT_ERROR_TEXT_FOR_USER
 
 

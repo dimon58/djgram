@@ -17,14 +17,13 @@ from aiogram.exceptions import TelegramRetryAfter
 from aiogram.methods import SendMessage, TelegramMethod
 from aiogram.methods.base import TelegramType
 from cachetools import TTLCache
-from limiter import Limiter
-
 from djgram.system_configs import (
     LIMIT_CALLER_CHAT_LIMITER_CACHE_MAX_SIZE,
     LIMIT_CALLER_CHAT_LIMITER_CACHE_TTL_SECONDS,
     LIMIT_CALLER_GROUP_LIMITER_CACHE_MAX_SIZE,
     LIMIT_CALLER_GROUP_LIMITER_CACHE_TTL_SECONDS,
 )
+from limiter import Limiter
 
 from .constants import MAX_MESSAGES_PER_GROUP_PER_SECOND, MAX_MESSAGES_PER_SECOND, MAX_MESSAGES_PER_USER_PER_SECOND
 

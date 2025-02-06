@@ -12,11 +12,11 @@ from aiogram.types import ErrorEvent, Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
 
-from configs import LOGGING_CONFIG, TELEGRAM_BOT_TOKEN
-
 # noinspection PyUnresolvedReferences
 from djgram.db.models import BaseModel  # noqa: F401 нужно для корректной работы alembic
 from djgram.setup_djgram import setup_djgram
+
+from configs import LOGGING_CONFIG, TELEGRAM_BOT_TOKEN
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)

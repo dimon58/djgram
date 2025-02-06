@@ -9,9 +9,6 @@ from typing import Any, cast
 from aiogram import Bot
 from aiogram.exceptions import TelegramAPIError, TelegramForbiddenError, TelegramRetryAfter
 from aiogram.types import Message
-from sqlalchemy import Select, func, select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from djgram.configs import (
     ACTIVE_USER_TIMEOUT,
     TELEGRAM_BROADCAST_LOGGING_PERIOD,
@@ -20,6 +17,8 @@ from djgram.configs import (
 from djgram.contrib.auth.models import User
 from djgram.contrib.telegram.models import TelegramChat
 from djgram.utils.formating import get_default_word_builder, seconds_to_human_readable
+from sqlalchemy import Select, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 

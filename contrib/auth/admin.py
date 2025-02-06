@@ -6,7 +6,6 @@ import logging
 from typing import Any
 
 from aiogram.types import CallbackQuery
-
 from djgram.contrib.admin import AppAdmin, ModelAdmin
 from djgram.contrib.admin.action_buttons import AbstractObjectActionButton
 from djgram.contrib.admin.misc import get_admin_representation_for_logging_from_middleware_data

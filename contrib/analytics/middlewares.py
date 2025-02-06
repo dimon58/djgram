@@ -18,7 +18,6 @@ from aiogram.types import CallbackQuery, Message, Update
 from aiogram_dialog import DialogProtocol
 from aiogram_dialog.api.entities import Context, Stack
 from aiogram_dialog.api.internal import CONTEXT_KEY, STACK_KEY
-
 from djgram.configs import ANALYTICS_UPDATES_TABLE
 from djgram.db import clickhouse
 

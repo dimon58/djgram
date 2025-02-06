@@ -15,6 +15,10 @@ from aiogram.fsm.storage.redis import (
 from aiogram.types import ErrorEvent, Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.api.exceptions import UnknownIntent, UnknownState
+
+# noinspection PyUnresolvedReferences
+from djgram.db.models import BaseModel  # noqa: F401 нужно для корректной работы alembic
+from djgram.setup_djgram import setup_djgram
 from redis.asyncio.client import Redis
 
 from configs import (
@@ -26,10 +30,6 @@ from configs import (
     REDIS_USER,
     TELEGRAM_BOT_TOKEN,
 )
-
-# noinspection PyUnresolvedReferences
-from djgram.db.models import BaseModel  # noqa: F401 нужно для корректной работы alembic
-from djgram.setup_djgram import setup_djgram
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)

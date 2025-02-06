@@ -10,9 +10,6 @@ from typing import Any, TypeVar
 from aiogram import BaseMiddleware, Bot
 from aiogram.dispatcher.middlewares.user_context import EVENT_CONTEXT_KEY, EventContext, UserContextMiddleware
 from aiogram.types import Chat, ChatFullInfo, Update, User
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from djgram.configs import TELEGRAM_CHAT_FULL_INFO_UPDATE_ON_EACH_EVENT, TELEGRAM_CHAT_FULL_INFO_UPDATE_PERIOD
 from djgram.contrib.telegram.models import TelegramChat, TelegramChatFullInfo, TelegramUser
 from djgram.db.models import BaseModel, CreatedAtMixin, UpdatedAtMixin
@@ -23,6 +20,8 @@ from djgram.system_configs import (
     MIDDLEWARE_TELEGRAM_CHAT_KEY,
     MIDDLEWARE_TELEGRAM_USER_KEY,
 )
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 T = TypeVar("T", bound=BaseModel)
 
