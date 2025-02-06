@@ -4,7 +4,7 @@ SQLAlchemy-Nested-Mutable - FORK
 [![Build & Release Package](https://github.com/sstorey-bma/SQLAlchemy-Nested-Mutable/actions/workflows/release.yml/badge.svg)](https://github.com/sstorey-bma/SQLAlchemy-Nested-Mutable/actions/workflows/release.yml)
 [![CI](https://github.com/sstorey-bma/SQLAlchemy-Nested-Mutable/actions/workflows/ci.yml/badge.svg)](https://github.com/sstorey-bma/SQLAlchemy-Nested-Mutable/actions/workflows/ci.yml)
 
-Based on 
+Based on
 - https://github.com/wonderbeyond/SQLAlchemy-Nested-Mutable
 - https://github.com/sstorey-bma/SQLAlchemy-Nested-Mutable
 - https://github.com/dimon58/SQLAlchemy-Nested-Mutable

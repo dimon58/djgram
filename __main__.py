@@ -118,10 +118,10 @@ def init(type: str) -> None:  # noqa: A002
 
 
 def compare_models(
-        db_model: type,
-        aiogram_model: type,
-        db_unnecessary_skip: set[str] | None = None,
-        db_missing_skip: set[str] | None = None,
+    db_model: type,
+    aiogram_model: type,
+    db_unnecessary_skip: set[str] | None = None,
+    db_missing_skip: set[str] | None = None,
 ) -> bool:
     """
     Сравнивает схему данных и схему в aiogram
@@ -228,8 +228,11 @@ def sync_tg_models() -> None:
             "unrestrict_boost_count",
         },
     )
-    telegram_chat_full_info_not_changed = compare_models(models.TelegramChatFullInfo, types.ChatFullInfo,
-                                                         db_unnecessary_skip={"created_at", "updated_at"})
+    telegram_chat_full_info_not_changed = compare_models(
+        models.TelegramChatFullInfo,
+        types.ChatFullInfo,
+        db_unnecessary_skip={"created_at", "updated_at"},
+    )
     if all([telegram_user_not_changed, telegram_chat_not_changed, telegram_chat_full_info_not_changed]):
         click.echo("Db schema synced with bot api")
 

@@ -61,7 +61,7 @@
    `TELEGRAM_LOCAL=0` стоит использовать, чтобы скачивать файлы по сети из локального сервера.
    Иначе нужно будет предоставить доступ к файловой системе сервера.
    Это можно сделать прописав volume в `docker-compose.yml`, но способ с nginx проще.
-   
+
    На Windows не получится прописать volume,
    так как в данных сервера для каждого бота хранится своя папка с названием в виде токена бота.
    Токен бота имеет вид `1234567890:random-string`, а `:` нельзя использовать в пути файлов на Windows.
@@ -74,16 +74,16 @@
    log_format token_filter '$remote_addr - $remote_user [$time_local] '
                            '"$sanitized_request" $status $body_bytes_sent '
                            '"$http_referer" "$http_user_agent"';
-   
+
    upstream telegram-local-server {
        server telegram-bot-api:8081;
    }
-   
+
    server {
        listen 8083;
        listen [::]:8083;
        server_name _;
-   
+
        chunked_transfer_encoding on;
        proxy_connect_timeout 600;
        proxy_send_timeout 600;
@@ -92,22 +92,22 @@
        client_max_body_size 2G;
        client_body_buffer_size 30M;
        keepalive_timeout 0;
-   
+
        set $sanitized_request $request;
        if ( $sanitized_request ~ (\w+)\s(\/bot\d+):[-\w]+\/(\S+)\s(.*) ) {
            set $sanitized_request "$1 $2:<hidden-token>/$3 $4";
        }
        access_log /var/log/nginx/access.log token_filter;
-   
+
        location ~* \/file\/bot\d+:(.*) {
            rewrite ^/file\/bot(.*) /$1 break;
            try_files $uri @files;
        }
-   
+
        location / {
            try_files $uri @api;
        }
-   
+
        location @files {
            root /var/lib/telegram-bot-api;
            gzip on;
@@ -118,7 +118,7 @@
            gzip_http_version 1.1;
            gzip_min_length 1100;
        }
-   
+
        location @api {
            proxy_pass  http://telegram-local-server;
            proxy_redirect off;
@@ -129,13 +129,13 @@
        }
    }
       ```
-   
+
 4. В `configs.py` прописываем
-   
+
    ```python
-   import os 
-      
-      
+   import os
+
+
    TELEGRAM_LOCAL: bool = bool(int(os.environ["TELEGRAM_LOCAL"]))
    TELEGRAM_LOCAL_SERVER_URL: str = os.environ["TELEGRAM_LOCAL_SERVER_URL"]
    TELEGRAM_LOCAL_SERVER_STATS_URL: str = os.environ["TELEGRAM_LOCAL_SERVER_STATS_URL"]
@@ -146,15 +146,15 @@
 
    ```python
    from djgram.contrib.local_server.local_bot import get_local_bot
-   
+
    from configs import (
        TELEGRAM_BOT_TOKEN,
        TELEGRAM_LOCAL,
        TELEGRAM_LOCAL_SERVER_FILES_URL,
        TELEGRAM_LOCAL_SERVER_URL,
    )
-   
-   
+
+
    async def main():
        ...
 
@@ -164,9 +164,9 @@
            telegram_local_server_url=TELEGRAM_LOCAL_SERVER_URL,
            telegram_local_server_files_url=TELEGRAM_LOCAL_SERVER_FILES_URL,
        )
-   
+
        ...
-   
+
        await dp.start_polling(bot, skip_updates=False)
    ```
 
@@ -174,13 +174,13 @@
 
    ```python
    from djgram.contrib.analytics.local_server import run_telegram_local_server_stats_collection_in_background
-   
-   
+
+
    async def main():
 
        # Инициализация бота
        # ...
-   
+
        await run_telegram_local_server_stats_collection_in_background()
        await dp.start_polling(bot, skip_updates=False)
    ```
