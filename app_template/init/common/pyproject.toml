@@ -121,17 +121,6 @@ docstring-code-line-length = "dynamic"
 "migrations/env.py" = ["D103"]
 "migrations/versions/*.py" = ["D103"]
 "tests/**/*.py" = ["ANN201", "D101", "D102"]
-"djgram/*" = [
-    "ANN002", "ANN003", "ANN204", "ANN401", "ARG001", "ARG002", "ARG003",
-    "D100", "D102", "D103", "D104", "D105", "D200", "D202", "D205", "D212", "D415",
-    "EM101", "EM102", "INP001", "RUF001", "RUF002", "RUF003", "TRY003", "FIX", "TD",
-    "UP040", # Не делаем python 3.12 обязательным
-]
-"djgram/contrib/*/admin.py" = ["D101", "RUF012"]
-"djgram/contrib/*/dialogs/callbacks.py" = ["ANN201", "TID252"]
-"djgram/contrib/*/dialogs/dialogs.py" = ["TID252"]
-"djgram/contrib/*/dialogs/getters.py" = ["TID252"]
-"djgram/contrib/*/handlers.py" = ["ANN201"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
