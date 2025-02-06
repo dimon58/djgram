@@ -1,4 +1,4 @@
--r djgram/requirements.txt
+-e ./djgram
 
 # Работа с telegram
 aiogram==3.17.0

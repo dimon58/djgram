@@ -1,0 +1,62 @@
+[project]
+name = "djgram"
+version = "0.1.0"
+description = "Библиотека для быстрого создания функциональных телеграм ботов"
+readme = "readme.md"
+authors = [
+    { name = "Dmitry", email = "dimasharonov95@yandex.ru" }
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Framework :: Aiogram :: 3",
+    "Framework :: AsyncIO",
+    "Framework :: Pydantic :: 2",
+    "Intended Audience :: Developers",
+    "License :: Other/Proprietary License",
+    "Natural Language :: English",
+    "Natural Language :: Russian",
+    "Operating System :: OS Independent",
+    "Private :: Do not Upload",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Communications :: Chat",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+
+]
+requires-python = ">=3.11, <4"
+dependencies = [
+    "Jinja2~=3.1.5",
+    "aiogram-dialog[tools]>=2.0.0,<3.0.0",
+    "aiogram==3.17.0",
+    "aiohttp~=3.11.11",
+    "asynch[compression]~=0.2.5",
+    "cachetools~=5.5.0",
+    "clickhouse-cityhash~=1.0.2.4",
+    "click~=8.1.8",
+    "email-validator~=2.2.0",
+    "graphviz~=0.20.3",
+    "humanfriendly~=10.0",
+    "limiter~=0.5.0",
+    "orjson~=3.10.14",
+    "phonenumbers==8.13.53",
+    "pydantic>=2.0.0,<3.0.0",
+    "sqlalchemy-file~=0.6.0",
+    "sqlalchemy-utils~=0.41.2",
+    "sqlalchemy~=2.0.37",
+    "uuid6~=2024.7.10",
+]
+
+[project.urls]
+GitHub = "https://github.com/dimon58/djgram"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
