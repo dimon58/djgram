@@ -118,10 +118,10 @@ def init(type: str) -> None:  # noqa: A002
 
 
 def compare_models(
-    db_model: type,
-    aiogram_model: type,
-    db_unnecessary_skip: set[str] | None = None,
-    db_missing_skip: set[str] | None = None,
+        db_model: type,
+        aiogram_model: type,
+        db_unnecessary_skip: set[str] | None = None,
+        db_missing_skip: set[str] | None = None,
 ) -> bool:
     """
     Сравнивает схему данных и схему в aiogram
@@ -158,7 +158,7 @@ def compare_models(
     if len(db_missing) > 0:
         click.echo(f"\033[31mDB schema for {db_model} has missing columns: {db_missing}\033[0m", err=True)
 
-    return False
+    return len(db_unnecessary) == 0 and len(db_missing) == 0
 
 
 @cli.command()
@@ -166,17 +166,16 @@ def sync_tg_models() -> None:
     """
     Сравнивает схему базы данных с моделями в aiogram
     """
-
     from aiogram import types
 
     from djgram.contrib.telegram import models
 
-    compare_models(
+    telegram_user_not_changed = compare_models(
         models.TelegramUser,
         types.User,
         db_unnecessary_skip={"created_at", "updated_at"},
-        # Fields returned only in getrMe https://core.telegram.org/bots/api#getme
-        # Described in djgram.db.models.user_additional_info.TelegramUserAdditionalInfo
+        # Fields returned only in getMe https://core.telegram.org/bots/api#getme
+        # Described in djgram.contrib.telegram.models.user_additional_info.TelegramUserAdditionalInfo
         db_missing_skip={
             "can_join_groups",
             "can_read_all_group_messages",
@@ -185,7 +184,7 @@ def sync_tg_models() -> None:
             "has_main_web_app",
         },
     )
-    compare_models(
+    telegram_chat_not_changed = compare_models(
         models.TelegramChat,
         types.Chat,
         db_unnecessary_skip={"created_at", "updated_at"},
@@ -229,7 +228,10 @@ def sync_tg_models() -> None:
             "unrestrict_boost_count",
         },
     )
-    compare_models(models.TelegramChatFullInfo, types.ChatFullInfo, db_unnecessary_skip={"created_at", "updated_at"})
+    telegram_chat_full_info_not_changed = compare_models(models.TelegramChatFullInfo, types.ChatFullInfo,
+                                                         db_unnecessary_skip={"created_at", "updated_at"})
+    if all([telegram_user_not_changed, telegram_chat_not_changed, telegram_chat_full_info_not_changed]):
+        click.echo("Db schema synced with bot api")
 
 
 if __name__ == "__main__":
