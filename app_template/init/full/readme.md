@@ -19,7 +19,7 @@
    ```shell
    pip install uv
    ```
-    
+
    или https://docs.astral.sh/uv/getting-started/installation/
 
 4. Устанавливаем зависимости для python
