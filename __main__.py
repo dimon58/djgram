@@ -1,5 +1,6 @@
 import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -101,6 +102,9 @@ def init(type: str) -> None:  # noqa: A002
         render_folder(INIT_BASE_TEMPLATE_DIR, app_dir)
     elif type == "full":
         render_folder(INIT_FULL_TEMPLATE_DIR, app_dir)
+        proc = subprocess.run("git init")
+        if proc.returncode:
+            click.echo("Failed to initialize git repository", err=True)
     else:
         click.echo("Not supported initialization type", err=True)
 
