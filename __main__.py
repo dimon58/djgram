@@ -102,7 +102,7 @@ def init(type: str) -> None:  # noqa: A002
         render_folder(INIT_BASE_TEMPLATE_DIR, app_dir)
     elif type == "full":
         render_folder(INIT_FULL_TEMPLATE_DIR, app_dir)
-        proc = subprocess.run("git init")
+        proc = subprocess.run("git init", check=False)  # noqa: S603, S607
         if proc.returncode:
             click.echo("Failed to initialize git repository", err=True)
     else:

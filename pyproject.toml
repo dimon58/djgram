@@ -143,6 +143,9 @@ docstring-code-line-length = "dynamic"
 "contrib/*/dialogs/dialogs.py" = ["TID252"]
 "contrib/*/dialogs/getters.py" = ["TID252"]
 "contrib/*/handlers.py" = ["ANN201"]
+# Настройки игнорирования в шаблонах и в djgram оличаются,
+# поэтому не удаляем как-бы не нужные noqa
+"app_template/**/*.py" = ["RUF100"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
