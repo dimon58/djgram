@@ -3,7 +3,7 @@ import logging
 from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.state import State
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Select
 
@@ -35,19 +35,18 @@ def get_chat_id_and_last_message_id_from_dialog_manager(dialog_manager: DialogMa
     return chat_id, stack.last_message_id
 
 
-async def remove_kbd(bot: Bot, chat_id: int | None, message_id: int | None) -> Message | None:
+async def remove_kbd(bot: Bot, chat_id: int | None, message_id: int | None) -> bool:
     """
     Удаляет inline клавиатуру у сообщения
     """
     if not message_id:
         logger.debug("remove kbd in chat %s fail: message id is None", chat_id)
-        return
+        return False
     try:
         await bot.edit_message_reply_markup(
             message_id=message_id,
             chat_id=chat_id,
         )
-        logger.debug("removed kbd in chat %s", chat_id)
     except TelegramBadRequest as exc:
         logger.debug("remove kbd in chat %s fail: %s", chat_id, exc.message)
         if (
@@ -58,6 +57,10 @@ async def remove_kbd(bot: Bot, chat_id: int | None, message_id: int | None) -> M
             pass
         else:
             raise
+    else:
+        logger.debug("removed kbd in chat %s", chat_id)
+
+    return True
 
 
 async def delete_message_safe(bot: Bot, chat_id: int, message_id: int) -> None:

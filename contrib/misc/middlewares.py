@@ -1,5 +1,5 @@
 from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import Any, cast
 
 from aiogram import BaseMiddleware
 from aiogram.dispatcher.event.bases import CancelHandler, SkipHandler
@@ -18,11 +18,18 @@ class ErrorHandlingMiddleware(BaseMiddleware):
     def __init__(
         self,
         error_text: str = DEFAULT_ERROR_TEXT_FOR_USER,
-        skip_exceptions: type(Exception) | tuple[type(Exception), ...] = (),
+        skip_exceptions: type[Exception] | tuple[type[Exception], ...] = (),
     ):
         """
         :param error_text: текст сообщения, отправляемого пользователям при ошибках
         """
+
+        # Fix pyright error
+        if isinstance(skip_exceptions, Exception):
+            skip_exceptions = (skip_exceptions,)  # pyright: ignore [reportAssignmentType]
+
+        skip_exceptions = cast(tuple[type[Exception], ...], skip_exceptions)
+
         super().__init__()
         self.error_text = error_text
         self.skip_exceptions = (SkipHandler, CancelHandler, *skip_exceptions)

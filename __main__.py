@@ -6,6 +6,9 @@ from pathlib import Path
 
 import click
 import jinja2
+import pydantic
+
+from djgram import db
 
 BASE_DIR = Path(__file__).resolve().parent
 APP_TEMPLATE_DIR = BASE_DIR / "app_template" / "app"
@@ -122,8 +125,8 @@ def init(type: str) -> None:  # noqa: A002
 
 
 def compare_models(
-    db_model: type,
-    aiogram_model: type,
+    db_model: type[db.models.BaseModel],
+    aiogram_model: type[pydantic.BaseModel],
     db_unnecessary_skip: set[str] | None = None,
     db_missing_skip: set[str] | None = None,
 ) -> bool:

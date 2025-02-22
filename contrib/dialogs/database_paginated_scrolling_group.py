@@ -78,7 +78,7 @@ class DatabasePaginatedScrollingGroup(Group):
         current_page = min(last_page, self.get_page_number(manager))
         next_page = min(last_page, current_page + 1)
         prev_page = max(0, current_page - 1)
-        pager = [
+        pager: RawKeyboard = [
             [
                 InlineKeyboardButton(
                     text="1",

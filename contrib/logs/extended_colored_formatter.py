@@ -58,7 +58,7 @@ class ExtendedColoredFormatter(ColoredFormatter):
             # For more details refer to issue 29 on GitHub:
             # https://github.com/xolox/python-coloredlogs/issues/29
             copy = Empty()
-            copy.__class__ = record.__class__
+            copy.__class__ = record.__class__  # pyright: ignore [reportAttributeAccessIssue]
             copy.__dict__.update(record.__dict__)
             copy.msg = ansi_wrap(coerce_string(record.msg), **style)  # pyright: ignore [reportAttributeAccessIssue]
             # Отличие

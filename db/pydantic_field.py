@@ -81,7 +81,7 @@ class ImmutablePydanticField(ExtendedPydanticType[_P]):
         return cls.__name__
 
     def get_base_type_for_alembic(self) -> type[_P]:
-        return self.pydantic_type
+        return self.pydantic_type  # pyright: ignore [reportReturnType]
 
 
 class ExtendedMutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):  # noqa: D101
@@ -101,7 +101,7 @@ class ExtendedMutablePydanticBaseModel(TrackedPydanticBaseModel, Mutable):  # no
         return res
 
     @classmethod
-    def as_mutable(cls, sqltype: TypeEngine[DB_JSON] = default_json) -> TypeEngine[Self]:
+    def as_mutable(cls, sqltype: TypeEngine[DB_JSON] = default_json) -> TypeEngine[Self]:  # pyright: ignore [reportIncompatibleMethodOverride]
         return super().as_mutable(ExtendedPydanticType(cls, sqltype))
 
 

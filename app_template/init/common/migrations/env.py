@@ -1,19 +1,17 @@
-# ruff: noqa: I001
 import asyncio
 from contextlib import suppress
 from logging.config import fileConfig
-from typing import Any
+from typing import Any, Literal
 
 from alembic import context
 from alembic.autogenerate.api import AutogenContext
+from djgram.db import db_engine
+from djgram.db.pydantic_field import ExtendedPydanticType
+from main import BaseModel
 from sqlalchemy import pool, text
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy_file import FileField
-
-from djgram.db import db_engine
-from djgram.db.pydantic_field import ExtendedPydanticType
-from main import BaseModel  # pyright: ignore [reportMissingImports]
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -24,6 +22,10 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+# add your model's MetaData object here
+# for 'autogenerate' support
+# from myapp import mymodel  # noqa: ERA001
+# target_metadata = mymodel.Base.metadata  # noqa: ERA001
 target_metadata = BaseModel.metadata
 
 config.set_main_option(
@@ -38,7 +40,7 @@ config.set_main_option(
 # ... etc.
 
 
-def render_item(type_: str, obj: Any, autogen_context: AutogenContext) -> str | bool:  # noqa: ANN401
+def render_item(type_: str, obj: Any, autogen_context: AutogenContext) -> str | Literal[False]:  # noqa: ANN401
     """Apply custom rendering for selected items."""
 
     if type_ == "type" and isinstance(obj, FileField):

@@ -40,7 +40,7 @@ def setup_middlewares(
     *,
     analytics: bool,
     error_text: str,
-    skip_exceptions: type(Exception) | tuple[type(Exception), ...],
+    skip_exceptions: type[Exception] | tuple[type[Exception], ...],
 ) -> None:
     dp.update.outer_middleware(TraceMiddleware())
     dp.update.outer_middleware(ErrorHandlingMiddleware(error_text, skip_exceptions))
@@ -60,7 +60,7 @@ def setup_djgram(  # noqa: PLR0913
     add_limiter: bool = True,
     analytics: bool = False,
     error_text: str = DEFAULT_ERROR_TEXT_FOR_USER,
-    skip_exceptions: type(Exception) | tuple[type(Exception), ...] = (),
+    skip_exceptions: type[Exception] | tuple[type[Exception], ...] = (),
     dialog_manager_factory: DialogManagerFactory | None = None,
 ) -> None:
     """
