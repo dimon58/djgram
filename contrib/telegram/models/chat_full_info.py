@@ -175,6 +175,12 @@ class TelegramChatFullInfo(AbstractTelegramChat):
         doc="Optional. Default chat member permissions, for groups and supergroups",
     )
 
+    can_send_gift: Mapped[bool | None] = mapped_column(
+        sqltypes.Boolean,
+        nullable=True,
+        doc="Optional. True, if gifts can be sent to the chat.",
+    )
+
     can_send_paid_media: Mapped[bool | None] = mapped_column(
         sqltypes.Boolean,
         nullable=True,
