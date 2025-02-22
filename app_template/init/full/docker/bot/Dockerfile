@@ -31,7 +31,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
   # tini:
   TINI_VERSION=v0.19.0 \
   # uv:
-  UV_VERSION=0.5.29 \
+  UV_VERSION=0.6.2 \
   UV_CACHE_DIR='/root/.cache/uv' \
   UV_PROJECT_ENVIRONMENT='/venv' \
   UV_COMPILE_BYTECODE=1 \

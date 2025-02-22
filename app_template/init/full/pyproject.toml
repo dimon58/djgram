@@ -14,7 +14,7 @@ requires-python = "~=3.12"
 dependencies = [
   "djgram",
   # Работа с telegram
-  "aiogram>=3.17.0",
+  "aiogram>=3.18.0",
   # Работа с базой данных
   "alembic>=1.14.1",
   "asyncpg>=0.30.0",

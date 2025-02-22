@@ -31,7 +31,7 @@ requires-python = ">=3.11, <4"
 dependencies = [
     "Jinja2~=3.1.5",
     "aiogram-dialog[tools]>=2.0.0,<3.0.0",
-    "aiogram==3.17.0",
+    "aiogram~=3.18.0",
     "aiohttp~=3.11.11",
     "asynch[compression]~=0.2.5",
     "cachetools~=5.5.0",
