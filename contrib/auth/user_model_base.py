@@ -11,7 +11,6 @@ from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 from sqlalchemy.sql import sqltypes
 
 
-# pylint: disable=too-few-public-methods
 class AbstractUser(UpdatedAtMixin, BaseModel):
     """
     Модель пользователя
@@ -48,10 +47,10 @@ class AbstractUser(UpdatedAtMixin, BaseModel):
     first_seen: Mapped[datetime] = mapped_column(
         sqltypes.DateTime(timezone=True),
         nullable=False,
-        server_default=func.now(),  # pylint: disable=not-callable
+        server_default=func.now(),
     )
     last_interaction: Mapped[datetime] = mapped_column(
         sqltypes.DateTime(timezone=True),
         nullable=False,
-        server_default=func.now(),  # pylint: disable=not-callable
+        server_default=func.now(),
     )

@@ -60,7 +60,6 @@ class AbstractTelegramChat(HasFullNameComponents, TimeTrackableBaseModel):
     )
 
 
-# pylint: disable=too-few-public-methods
 class TelegramChat(AbstractTelegramChat):
     """
     This object represents a chat

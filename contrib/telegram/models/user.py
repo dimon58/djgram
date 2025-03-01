@@ -5,7 +5,6 @@ from sqlalchemy.sql import expression, sqltypes
 from .misc import HasFullNameComponents
 
 
-# pylint: disable=too-few-public-methods
 class TelegramUser(HasFullNameComponents, TimeTrackableBaseModel):
     """
     This object represents a Telegram user or bot

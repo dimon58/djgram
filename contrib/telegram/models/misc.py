@@ -26,7 +26,6 @@ class HasFullNameComponents:
         return self.get_full_name()
 
 
-# pylint: disable=too-few-public-methods
 # class TelegramLocation(TimeTrackableBaseModel):
 #     """
 #     This object represents a point on the map
@@ -64,7 +63,6 @@ class HasFullNameComponents:
 #     )
 
 
-# pylint: disable=too-few-public-methods
 # class TelegramChatPhoto(TimeTrackableBaseModel):
 #     """
 #     This object represents a chat photo
@@ -102,7 +100,6 @@ class HasFullNameComponents:
 #     )
 
 
-# pylint: disable=too-few-public-methods
 # class TelegramChatPermissions(TimeTrackableBaseModel):
 #     """
 #     Describes actions that a non-administrator user is allowed to take in a chat
@@ -188,7 +185,6 @@ class HasFullNameComponents:
 #     )
 
 
-# pylint: disable=too-few-public-methods
 # class TelegramChatLocation(TimeTrackableBaseModel):
 #     """
 #     Represents a location to which a chat is connected

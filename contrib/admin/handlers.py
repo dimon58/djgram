@@ -17,7 +17,6 @@ router = make_admin_router()
 router.include_router(admin_dialog)
 
 
-# pylint: disable=unused-argument
 @router.message(Command(commands=["admin"]))
 async def admin(message: Message, dialog_manager: DialogManager):
     """

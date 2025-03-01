@@ -7,7 +7,6 @@ from aiogram.types import Update
 from djgram.system_configs import DEFAULT_ERROR_TEXT_FOR_USER
 
 
-# pylint: disable=too-few-public-methods
 class ErrorHandlingMiddleware(BaseMiddleware):
     """
     Ловит возникающие исключения и сообщает пользователю, что что-то пошло не так

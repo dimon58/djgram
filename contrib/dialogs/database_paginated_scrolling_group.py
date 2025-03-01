@@ -25,7 +25,6 @@ OnStateChanged = Callable[
 DEFAULT_TOTAL_KEY = "total"
 
 
-# pylint: disable=too-many-ancestors
 class DatabasePaginatedScrollingGroup(Group):
     """
     Аналог ScrollingGroup из aiogram_dialogs, но пагинация происходит на стороне базы данных
@@ -36,7 +35,7 @@ class DatabasePaginatedScrollingGroup(Group):
     def __init__(  # noqa: PLR0913
         self,
         *buttons: Keyboard,
-        id: str,  # pylint: disable=redefined-builtin  # noqa: A002
+        id: str,  # noqa: A002
         width: int | None = None,
         height: int = 0,
         when: WhenCondition = None,
@@ -63,7 +62,6 @@ class DatabasePaginatedScrollingGroup(Group):
 
         self.widget_id = cast(str, self.widget_id)
 
-    # pylint: disable=missing-function-docstring
     async def _render_keyboard(
         self,
         data: dict,
@@ -107,7 +105,6 @@ class DatabasePaginatedScrollingGroup(Group):
 
         return kbd + pager
 
-    # pylint: disable=missing-function-docstring
     async def _process_item_callback(
         self,
         callback: CallbackQuery,
@@ -118,7 +115,6 @@ class DatabasePaginatedScrollingGroup(Group):
         await self.set_page_number(callback, int(data), manager)
         return True
 
-    # pylint: disable=missing-function-docstring
     def get_page_number(self, manager: DialogManager) -> int:
         return cast(int, manager.current_context().widget_data.get(self.widget_id, 0))
 
@@ -126,7 +122,6 @@ class DatabasePaginatedScrollingGroup(Group):
     def get_page_number_from_manager(manager: DialogManager, key: str) -> int:
         return cast(int, manager.current_context().widget_data.get(key, 0))
 
-    # pylint: disable=missing-function-docstring
     async def set_page_number(
         self,
         event: ChatEvent,
@@ -140,18 +135,14 @@ class DatabasePaginatedScrollingGroup(Group):
             manager,
         )
 
-    # pylint: disable=missing-function-docstring
     def managed(self, manager: DialogManager):  # noqa: ANN201
         return ManagedDatabasePaginatedScrollingGroupAdapter(self, manager)
 
 
-# pylint: disable=missing-class-docstring
 class ManagedDatabasePaginatedScrollingGroupAdapter(ManagedWidget[DatabasePaginatedScrollingGroup]):  # noqa: D101
-    # pylint: disable=missing-function-docstring
     def get_page(self) -> int:
         return self.widget.get_page_number(self.manager)
 
-    # pylint: disable=missing-function-docstring
     async def set_page(self, page: int) -> None:
         return await self.widget.set_page_number(
             self.manager.event,

@@ -17,7 +17,6 @@ class BroadcastStatesGroup(StatesGroup):  # noqa: D101
     wait_message = State()
 
 
-# pylint: disable=unused-argument
 @router.message(Command("broadcast", "bc"))
 async def broadcast_start(message: Message, db_session: AsyncSession, command: CommandObject, state: FSMContext):
     """

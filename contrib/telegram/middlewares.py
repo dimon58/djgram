@@ -28,7 +28,6 @@ T = TypeVar("T", bound=BaseModel)
 logger = logging.getLogger(__name__)
 
 
-# pylint: disable=too-few-public-methods
 class TelegramMiddleware(BaseMiddleware):
     """
     Посредник для сохранения пользователя и чата telegram в базу данных

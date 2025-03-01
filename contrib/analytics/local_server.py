@@ -197,7 +197,6 @@ async def collect_and_save() -> None:
 
         logger.debug("Local server statistics saved to clickhouse")
 
-    # pylint: disable=broad-exception-caught
     except Exception as exc:
         logger.exception(
             "Local server statistics saving to clickhouse error: %s: %s",

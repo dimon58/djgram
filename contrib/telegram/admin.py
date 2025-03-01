@@ -16,7 +16,6 @@ from .models import TelegramChat, TelegramChatFullInfo, TelegramUser
 app = AppAdmin(verbose_name="Telegram")
 
 
-# pylint: disable=too-few-public-methods
 @app.register
 class TelegramUserAdmin(ModelAdmin):
     """
@@ -36,7 +35,6 @@ class TelegramUserAdmin(ModelAdmin):
     }
 
 
-# pylint: disable=too-few-public-methods
 @app.register
 class TelegramChatAdmin(ModelAdmin):
     """
@@ -83,7 +81,6 @@ class TelegramChatFullInfoUpdateObjectActionButton(AbstractObjectActionButton):
         await callback_query.answer(f"Полная информация о чате {obj.id} {msg_text}")
 
 
-# pylint: disable=too-few-public-methods
 @app.register
 class TelegramChatFullInfoAdmin(TelegramChatAdmin):
     """
@@ -112,7 +109,6 @@ class TelegramChatFullInfoAdmin(TelegramChatAdmin):
     )
 
 
-# # pylint: disable=too-few-public-methods
 # @app.register
 # class TelegramLocationAdmin(ModelAdmin):
 #     """
@@ -125,7 +121,6 @@ class TelegramChatFullInfoAdmin(TelegramChatAdmin):
 #     show_docs = False
 #
 #
-# # pylint: disable=too-few-public-methods
 # @app.register
 # class TelegramChatPhotoAdmin(ModelAdmin):
 #     """
@@ -138,7 +133,6 @@ class TelegramChatFullInfoAdmin(TelegramChatAdmin):
 #     show_docs = False
 #
 #
-# # pylint: disable=too-few-public-methods
 # @app.register
 # class TelegramChatPermissionsAdmin(ModelAdmin):
 #     """
@@ -151,7 +145,6 @@ class TelegramChatFullInfoAdmin(TelegramChatAdmin):
 #     show_docs = False
 #
 #
-# # pylint: disable=too-few-public-methods
 # @app.register
 # class TelegramChatLocationAdmin(ModelAdmin):
 #     """

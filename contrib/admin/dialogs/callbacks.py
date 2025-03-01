@@ -39,7 +39,6 @@ def __log_admin_dialog_interaction(middleware_data: dict, action: str) -> None:
     )
 
 
-# pylint: disable=unused-argument
 async def on_admin_dialog_start(result: Any, dialog_manager: DialogManager):
     """
     Обработчик начала диалога администрирования
@@ -49,7 +48,6 @@ async def on_admin_dialog_start(result: Any, dialog_manager: DialogManager):
     __log_admin_dialog_interaction(dialog_manager.middleware_data, "Started")
 
 
-# pylint: disable=unused-argument
 async def on_admin_dialog_close(result: Any, dialog_manager: DialogManager):
     """
     Обработчик закрытия диалога администрирования
@@ -61,7 +59,6 @@ async def on_admin_dialog_close(result: Any, dialog_manager: DialogManager):
     await delete_last_message_from_dialog_manager(dialog_manager)
 
 
-# pylint: disable=unused-argument
 async def on_app_selected(callback: CallbackQuery, widget: Any, manager: DialogManager, app_id: str):
     """
     Обработчик выбора диалога
@@ -70,7 +67,6 @@ async def on_app_selected(callback: CallbackQuery, widget: Any, manager: DialogM
     await manager.switch_to(AdminStates.model_list)
 
 
-# pylint: disable=unused-argument
 async def on_model_selected(callback: CallbackQuery, widget: Any, manager: DialogManager, model_id: str):
     """
     Обработчик выбора модели
@@ -80,7 +76,6 @@ async def on_model_selected(callback: CallbackQuery, widget: Any, manager: Dialo
     await manager.switch_to(AdminStates.row_list)
 
 
-# pylint: disable=unused-argument
 async def on_search_row_input(message: Message, message_input: MessageInput, manager: DialogManager):
     if message.content_type != ContentType.TEXT:
         await message.answer("Поддерживается только поиск по тексту")
@@ -91,13 +86,11 @@ async def on_search_row_input(message: Message, message_input: MessageInput, man
     await manager.switch_to(AdminStates.row_list)
 
 
-# pylint: disable=unused-argument
 async def reset_search_query(callback_query: CallbackQuery, button: Button, manager: DialogManager):
     manager.current_context().widget_data[PAGE_KEY] = 0
     manager.dialog_data.pop(QUERY_KEY, None)
 
 
-# pylint: disable=unused-argument
 async def on_row_selected(callback: CallbackQuery, widget: Any, manager: DialogManager, row_id: str):
     """
     Обработчик выбора строки
@@ -106,7 +99,6 @@ async def on_row_selected(callback: CallbackQuery, widget: Any, manager: DialogM
     await manager.switch_to(AdminStates.row_detail)
 
 
-# pylint: disable=unused-argument
 async def reset_page(callback: CallbackQuery, widget: Any, manager: DialogManager):
     """
     Сбрасывает текущую страницу

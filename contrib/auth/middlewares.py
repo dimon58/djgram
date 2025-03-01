@@ -31,7 +31,6 @@ from .user_model_base import AbstractUser
 logger = logging.getLogger(__name__)
 
 
-# pylint: disable=too-few-public-methods
 class AuthMiddleware(BaseMiddleware):
     """
     Базовый функционал посредника для авторизации

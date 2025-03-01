@@ -55,7 +55,6 @@ def get_update_dict_for_clickhouse(
     }
 
 
-# pylint: disable=too-few-public-methods
 async def save_event_to_clickhouse(
     update: Update,
     execution_time: float,

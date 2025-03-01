@@ -27,7 +27,6 @@ V = TypeVar("V", bound=BaseModel)
 logger = logging.getLogger(__name__)
 
 
-# pylint: disable=too-few-public-methods
 class ModelAdmin:
     """
     Модель админки, как в django (не относится к базе данных на прямую)

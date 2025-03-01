@@ -5,7 +5,6 @@
 from aiogram.fsm.state import State, StatesGroup
 
 
-# pylint: disable=too-few-public-methods
 class AdminStates(StatesGroup):
     """
     Состояния диалога администрирования

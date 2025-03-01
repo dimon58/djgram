@@ -7,7 +7,6 @@ from aiogram.types import Update
 from .context import UPDATE_ID
 
 
-# pylint: disable=too-few-public-methods
 class TraceMiddleware(BaseMiddleware):
     """
     Записывает в контекст логгера update_id

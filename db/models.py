@@ -35,7 +35,6 @@ class BaseModel(Base):
         """
         return f"{self.__class__.__name__}<{self.id!r}>"
 
-    # pylint: disable=no-self-argument
     # noinspection PyMethodParameters,SpellCheckingInspection
     @declared_attr.directive
     def __tablename__(cls) -> str:  # noqa: N805
@@ -66,7 +65,7 @@ class CreatedAtMixin:
     created_at: Mapped[datetime.datetime] = mapped_column(
         sqltypes.DateTime(timezone=True),
         nullable=False,
-        server_default=func.now(),  # pylint: disable=not-callable
+        server_default=func.now(),
         doc="Date of creation of the object",
     )
 

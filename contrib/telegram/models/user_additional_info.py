@@ -2,7 +2,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import sqltypes
 
 
-# pylint: disable=too-few-public-methods
 class TelegramUserAdditionalInfo:
     """
     This object represents a additional info for Telegram user or bot

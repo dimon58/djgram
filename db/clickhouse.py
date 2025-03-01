@@ -86,7 +86,6 @@ async def insert_dict(client: Connection, table_name: str, data: dict[str, Any])
         return await cursor.execute(sql, values)
 
 
-# pylint: disable=too-few-public-methods
 async def safe_insert_dict(table_name: str, data: dict[str, Any]) -> int | None:
     """
     Вставляет словарь в clickhouse без вызова исключения
@@ -96,7 +95,6 @@ async def safe_insert_dict(table_name: str, data: dict[str, Any]) -> int | None:
         async with connection() as clickhouse_connection:
             return await insert_dict(clickhouse_connection, table_name, data)
 
-    # pylint: disable=broad-exception-caught
     except Exception as exc:
         logger.exception(
             "Inserting in clickhouse error: %s: %s",
